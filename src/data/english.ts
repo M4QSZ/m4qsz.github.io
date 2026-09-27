@@ -7,6 +7,8 @@ export const englishProjects = [
       ['Product scope', 'The repository contains a business app, a customer app with social community features, a delivery app, a website, shared models and native modules. The workflows cover orders, tables, kitchen, inventory, payments, logistics and administration.'],
       ['Architecture', 'Flutter and Dart power the apps. Rust implements native and network logic through Flutter Rust Bridge. Local persistence supports work during Internet outages, with a remote synchronization path when connectivity returns.'],
       ['What this case proves', 'It shows how product flows, native integrations and local data fit into one multiplatform system. The implementation remains private; the linked technical cases explain selected subsystems.'],
+      ['Measured repository scope', 'A local snapshot on September 27, 2026 counted 4,181 files with code extensions and 1,264,247 physical lines before filtering. This includes generated files. A heuristic filter for generated files and selected Meson app/package paths left 741,417 lines. These are repository metrics, not individual authorship or a measure of code quality.'],
+      ['Operational boundaries', 'Offline work needs devices and a functioning local network. Power outages require batteries or backup power. Recovery and synchronization need multi-device tests before making measured reliability claims.'],
       ['Ownership and limits', 'Miguel has led most of Meson’s design and implementation. He supervised a Flutter collaborator’s work and assigned the next tasks. This case does not claim unverified production scale, availability or business outcomes.'],
     ],
   },
