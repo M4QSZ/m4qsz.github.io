@@ -20,6 +20,7 @@ export const englishProjects = [
       ['Problem', 'Restaurant devices need to keep exchanging changes when their Internet connection fails.'],
       ['Implementation', 'The Rust layer includes local discovery, UDP and TCP transport, encrypted message envelopes and replay controls. Dart integrates the native engine with app state; Isar stores data and pending actions.'],
       ['Recovery', 'A local queue retains work to send through the remote path after connectivity returns. The code also includes retry and concurrent change handling.'],
+      ['Test evidence', 'Six focused Flutter tests passed locally, covering tenant isolation, node priority, Lamport ordering and inventory-change compaction. These are component tests; a reproducible two-device demonstration without Internet access is still needed.'],
       ['Physical dependency', 'Continuity during a power outage requires battery powered devices and a backed up local network. Software alone cannot keep hardware powered.'],
     ],
   },
