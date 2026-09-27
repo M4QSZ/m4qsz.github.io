@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { labSamples } from '../../data/labSamples';
+
+export function getStaticPaths() {
+  return labSamples.map((sample) => ({ params: { slug: sample.slug }, props: { sample } }));
+}
+
+const { sample } = Astro.props;
+const details = sample.es;
+---
+<Base title={`${details.title} | Laboratorio de Miguel Quevedo`} description={details.lead}>
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio</a>
+    <div class="detail-hero"><div><p class="section-kicker">LABORATORIO / {details.eyebrow}</p><h1 class="long-title">{details.title}<span>.</span></h1><p class="detail-lede">{details.lead}</p></div><div class="detail-badge">MUESTRA<br /><strong>{sample.verified ? 'VERIFICADA LOCALMENTE' : 'PRUEBAS PENDIENTES'}</strong></div></div>
+    <div class="tags">{sample.stack.map((skill) => <span>{skill}</span>)}</div>
+    <div class="case-layout"><aside><span>01 / PROBLEMA</span><span>02 / DECISIÓN</span><span>03 / VERIFICACIÓN</span><span>04 / LÍMITES</span></aside><div class="case-content">
+      <section><p class="section-kicker">01 / PROBLEMA</p><h2>Qué resuelve</h2><p>{details.problem}</p></section>
+      <section><p class="section-kicker">02 / DECISIÓN</p><h2>Cómo está planteado</h2><p>{details.decision}</p></section>
+      <section><p class="section-kicker">03 / VERIFICACIÓN</p><h2>Cómo comprobarlo</h2><p>{details.verification}</p><pre class="sample-code"><code>{details.command}</code></pre><p>El código está en <code>samples/{sample.folder}</code> dentro de este repositorio independiente.</p></section>
+      <section><p class="section-kicker">04 / LÍMITES</p><h2>Alcance de la muestra</h2><p>{details.limits}</p><p>Miguel debe revisar y poder explicar personalmente este código antes de usarlo como evidencia profesional.</p></section>
+    </div></div>
+  </main>
+</Base>

@@ -5,6 +5,10 @@ dist/
 .env*
 !.env.example
 *.log
+*.exe
+*.obj
+.build/
+.swiftpm/
 EVALUACION_PRIVADA.md
 CV_BORRADOR.md
 LINKEDIN_BORRADOR.md

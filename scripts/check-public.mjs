@@ -27,7 +27,7 @@ const sensitive = [
 ];
 
 for (const file of [...files, ...sourceFiles]) {
-  if (!/\.(?:html|js|mjs|ts|astro|rs|toml|md|css|json|svg|txt)$/.test(file)) continue;
+  if (!/\.(?:html|js|mjs|ts|astro|rs|toml|md|css|json|svg|txt|c|h|cpp|hpp|asm|swift|php)$/.test(file)) continue;
   const content = readFileSync(file, 'utf8');
   for (const [pattern, label] of sensitive) {
     if (pattern.test(content)) errors.push(`${file}: ${label}`);

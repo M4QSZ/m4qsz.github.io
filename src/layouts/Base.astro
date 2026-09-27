@@ -14,8 +14,8 @@ const home = isEnglish ? '/en/' : '/';
 const lab = isEnglish ? '/en/lab/' : '/laboratorio/';
 const pathname = Astro.url.pathname;
 const counterpart = isEnglish
-  ? pathname === '/en/' ? '/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.replace('/en/projects/', '/proyectos/')
-  : pathname === '/' ? '/en/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.replace('/proyectos/', '/en/projects/');
+  ? pathname === '/en/' ? '/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.startsWith('/en/samples/') ? pathname.replace('/en/samples/', '/muestras/') : pathname.replace('/en/projects/', '/proyectos/')
+  : pathname === '/' ? '/en/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.startsWith('/muestras/') ? pathname.replace('/muestras/', '/en/samples/') : pathname.replace('/proyectos/', '/en/projects/');
 ---
 <!doctype html>
 <html lang={lang}>
