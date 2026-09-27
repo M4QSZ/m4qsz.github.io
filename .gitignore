@@ -1,0 +1,16 @@
+node_modules/
+node_modules.partial/
+dist/
+.astro/
+.env*
+!.env.example
+*.log
+EVALUACION_PRIVADA.md
+CV_BORRADOR.md
+LINKEDIN_BORRADOR.md
+PERFIL_GITHUB_BORRADOR.md
+ENTREVISTAS.md
+PUBLICACION.md
+CV_EN_BORRADOR.md
+DEMO_GUIONES.md
+POSTULACIONES.md

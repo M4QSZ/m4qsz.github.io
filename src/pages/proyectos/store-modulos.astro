@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const catalog = [
+  { title: 'Operación gastronómica', items: ['Cocina / KDS', 'Bar / KDS', 'Mesas', 'Caja', 'Comandera', 'Delivery', 'Menú', 'Recetario', 'Producción', 'Fórmulas', 'Inventario', 'Todos los pedidos', 'Reservas', 'Tickets abiertos', 'Auto pago mesa', 'Auto pago supermercado', 'Smart POS'] },
+  { title: 'Gestión y administración', items: ['Personal', 'Estadísticas', 'Dispositivos locales', 'Clientes', 'Guía', 'Asistente', 'Publicidad', 'Marketplace', 'Asistencia kiosk'] },
+  { title: 'Productividad y sistema', items: ['Explorador de archivos', 'Navegador', 'Calculadora', 'Notas', 'Writer', 'Sheets', 'Asistente IA', 'Slides', 'Música', 'Video', 'Notificaciones', 'Terminal', 'Recortes', 'Chat'] },
+  { title: 'Juegos', items: ['Pac', 'Snake', '2048', 'Minas'] },
+];
+---
+<Base title="Store de módulos de Meson | Miguel" description="Catálogo interno de aplicaciones y suites dentro del shell de Meson.">
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/">← Volver al portafolio</a>
+    <div class="detail-hero"><div><p class="section-kicker">MESON / PLATAFORMA / 05</p><h1 class="long-title">Store modular<span>.</span></h1><p class="detail-lede">Un catálogo interno que permite organizar las funciones de Meson según el tipo de operación y el acceso de cada usuario.</p></div><div class="detail-badge">SHELL + MÓDULOS<br /><strong>CATÁLOGO INTERNO</strong></div></div>
+    <div class="detail-meta"><div><span>CATÁLOGO</span><strong>Más de 40 entradas registradas</strong></div><div><span>ORGANIZACIÓN</span><strong>Categorías y suites</strong></div><div><span>CONTROL</span><strong>Licencias y permisos</strong></div></div>
+    <div class="store-board" aria-label="Ilustración conceptual de la Store interna"><div class="store-board-head"><span>MESON STORE</span><span>BUSCAR · CATEGORÍAS · SUITES</span></div><div class="store-tile-row"><div><b>▣</b><span>MESAS</span></div><div><b>◫</b><span>COCINA</span></div><div><b>↗</b><span>DELIVERY</span></div><div><b>◇</b><span>INVENTARIO</span></div><div><b>◎</b><span>CAJA</span></div></div><small>Ilustración conceptual, sin copiar pantallas ni recursos de la aplicación.</small></div>
+    <div class="case-layout"><aside><span>01 / IDEA</span><span>02 / MECANISMO</span><span>03 / CATÁLOGO</span><span>04 / ALCANCE</span></aside><div class="case-content">
+      <section><p class="section-kicker">01 / IDEA</p><h2>Un producto adaptable a distintas operaciones.</h2><p>La Store agrupa funciones de restaurante, gestión, productividad y sistema. El catálogo también define suites preconfiguradas por tipo de negocio para seleccionar conjuntos de módulos.</p></section>
+      <section><p class="section-kicker">02 / MECANISMO</p><h2>El catálogo se integra con el shell.</h2><p>El estado de instalación se conserva por perfil y controla qué módulos aparecen en el entorno. La selección pasa por permisos y licencia; el usuario puede instalar, desinstalar, agrupar y anclar módulos en su escritorio. El shell mantiene el orden y la posición elegidos.</p><p>Esta Store es un catálogo interno de módulos de la aplicación. No se presenta como una plataforma abierta de distribución ni se afirma que cada entrada descargue código independiente desde Internet.</p></section>
+      <section><p class="section-kicker">03 / ENTRADAS DEL CATÁLOGO</p><h2>Un conjunto amplio de funciones.</h2><p>El repositorio registra estas entradas. Su presencia en el catálogo no equivale a afirmar que todas tengan el mismo grado de desarrollo o despliegue.</p><div class="catalog-groups">{catalog.map((group) => <div><h3>{group.title}</h3><div class="tags">{group.items.map((item) => <span>{item}</span>)}</div></div>)}</div></section>
+      <section><p class="section-kicker">04 / DISEÑO DE PRODUCTO</p><h2>La amplitud exige consistencia.</h2><p>El valor técnico está en unir catálogo, permisos, estado persistente, suites y navegación del shell bajo una experiencia coherente. Para evaluar su madurez en producción todavía harían falta datos de uso, flujos verificados y pruebas de extremo a extremo.</p></section>
+    </div></div>
+    <div class="detail-actions"><a class="button button-outline" href="/proyectos/shell-personalizable/">Ver el shell ↗</a><a class="button button-outline" href="/proyectos/meson/">Ver Meson completo ↗</a></div>
+  </main>
+</Base>

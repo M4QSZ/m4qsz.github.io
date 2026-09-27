@@ -1,0 +1,61 @@
+---
+import '../styles/global.css';
+import { profile } from '../data/profile';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'es' | 'en';
+}
+
+const { title, description, lang = 'es' } = Astro.props;
+const isEnglish = lang === 'en';
+const home = isEnglish ? '/en/' : '/';
+const lab = isEnglish ? '/en/lab/' : '/laboratorio/';
+const pathname = Astro.url.pathname;
+const counterpart = isEnglish
+  ? pathname === '/en/' ? '/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.replace('/en/projects/', '/proyectos/')
+  : pathname === '/' ? '/en/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.replace('/proyectos/', '/en/projects/');
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#101314" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={isEnglish ? 'en_US' : 'es_ES'} />
+    <meta name="twitter:card" content="summary" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">{isEnglish ? 'Skip to content' : 'Ir al contenido'}</a>
+    <div class="site-shell">
+      <header class="site-header wrap">
+        <a class="brand" href={home} aria-label={isEnglish ? 'Go to home' : 'Ir al inicio'}>
+          <span class="brand-mark" aria-hidden="true">M<span>.</span></span>
+          <span>{profile.name}<small> / {isEnglish ? 'PORTFOLIO' : 'PORTAFOLIO'}</small></span>
+        </a>
+        <nav aria-label={isEnglish ? 'Main navigation' : 'Navegación principal'}>
+          <a href={`${home}#proyectos`}>{isEnglish ? 'Projects' : 'Proyectos'}</a>
+          <a href={`${home}#tecnologias`}>{isEnglish ? 'Skills' : 'Tecnologías'}</a>
+          <a href={lab}>{isEnglish ? 'Lab' : 'Laboratorio'}</a>
+        </nav>
+        <div class="header-actions"><a class="language-link" href={counterpart} lang={isEnglish ? 'es' : 'en'} aria-label={isEnglish ? 'Cambiar a español' : 'Switch to English'}>{isEnglish ? 'ES' : 'EN'}</a><a class="header-link" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
+      </header>
+      <slot />
+      <footer class="site-footer wrap">
+        <div><strong>{profile.name}</strong><p>{isEnglish ? 'Software built with care for the product and its technical details.' : 'Software con atención al producto y a los detalles técnicos.'}</p></div>
+        <div class="footer-links">
+          <a href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>}
+          {profile.email && <a href={`mailto:${profile.email}`}>{isEnglish ? 'Email' : 'Correo'} ↗</a>}
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

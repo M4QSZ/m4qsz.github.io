@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base lang="en" title="Technical lab | Miguel" description="Planned independent code samples across systems, mobile and web development.">
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/en/">← Back to portfolio</a>
+    <div class="detail-hero lab-hero"><div><p class="section-kicker">CODE SAMPLES</p><h1>Technical lab<span>.</span></h1><p class="detail-lede">A place for small, runnable examples that explain engineering decisions.</p></div><div class="detail-badge">SAMPLES<br /><strong>IN PREPARATION</strong></div></div>
+    <p class="lab-intro">The samples are independent of Meson. Each includes or will include instructions and tests before being used as evidence of a skill.</p>
+    <div class="lab-note"><strong>First sample ready for review</strong><p>An independent Rust example uses vector clocks to detect concurrent changes and an outbox to retain operations until acknowledgement. Its five tests pass locally. It has no production persistence or transport.</p><a class="text-link" href="/en/samples/local-sync/">Explore the local sync sample ↗</a></div>
+    <div class="lab-grid">
+      <article><span>01 / LOW LEVEL</span><h2>C and Assembly</h2><p>A focused routine with a C interface and an assembly implementation, tested on a defined target architecture.</p><div class="tags"><span>C</span><span>Assembly</span></div></article>
+      <article><span>02 / SYSTEMS</span><h2>C++ and Rust</h2><p>A measured comparison in both languages is still planned. The independent Rust sync sample is linked above.</p><div class="tags"><span>C++</span><span>Rust</span></div></article>
+      <article><span>03 / PLATFORMS</span><h2>Kotlin, Swift and Dart</h2><p>A small native Android and iOS integration connected to a Flutter interface.</p><div class="tags"><span>Kotlin</span><span>Swift</span><span>Dart</span></div></article>
+      <article><span>04 / BACKEND</span><h2>PHP and Laravel</h2><p>A small API with validation, persistence and tests. The previous practice project is no longer available for review.</p><div class="tags"><span>PHP</span><span>Laravel</span></div></article>
+    </div>
+    <div class="lab-note"><strong>Current status</strong><p>The Rust sample was prepared for this portfolio and needs personal review before it is used as professional evidence. The other samples are still planned.</p></div>
+  </main>
+</Base>
