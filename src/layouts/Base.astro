@@ -38,7 +38,7 @@ const counterpart = isEnglish
       <header class="site-header wrap">
         <a class="brand" href={home} aria-label={isEnglish ? 'Go to home' : 'Ir al inicio'}>
           <span class="brand-mark" aria-hidden="true">M<span>.</span></span>
-          <span>{profile.name}<small> / {isEnglish ? 'PORTFOLIO' : 'PORTAFOLIO'}</small></span>
+          <span>{profile.shortName}<small> / {isEnglish ? 'PORTFOLIO' : 'PORTAFOLIO'}</small></span>
         </a>
         <nav aria-label={isEnglish ? 'Main navigation' : 'Navegación principal'}>
           <a href={`${home}#proyectos`}>{isEnglish ? 'Projects' : 'Proyectos'}</a>

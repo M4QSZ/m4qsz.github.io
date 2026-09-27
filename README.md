@@ -1,4 +1,4 @@
-# Miguel — portfolio de ingeniería de software
+# Miguel Antonio Quevedo Simoza — portfolio de ingeniería de software
 
 Portafolio estático en **Astro**, disponible en español e inglés. Presenta productos y decisiones técnicas en Flutter, Dart, Rust, Next.js y Astro mediante casos de estudio. Meson, el proyecto principal, conserva su código fuente y sus datos en un repositorio privado.
 

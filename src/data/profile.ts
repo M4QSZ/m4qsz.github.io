@@ -1,6 +1,7 @@
-// Edita este archivo cuando tengas tus datos públicos definitivos.
+// Completa aquí los datos de contacto públicos cuando decidas publicar.
 export const profile = {
-  name: 'Miguel',
+  name: 'Miguel Antonio Quevedo Simoza',
+  shortName: 'Miguel Quevedo',
   role: 'Ingeniero de software multiplataforma · Flutter, Rust y sistemas locales',
   headline: 'Diseño productos multiplataforma con Flutter y Rust, desde la interfaz hasta la sincronización entre dispositivos.',
   github: 'https://github.com/M4QSZ',

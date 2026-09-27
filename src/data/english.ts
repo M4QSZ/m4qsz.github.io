@@ -7,7 +7,7 @@ export const englishProjects = [
       ['Product scope', 'The repository contains a business app, a customer app with social community features, a delivery app, a website, shared models and native modules. The workflows cover orders, tables, kitchen, inventory, payments, logistics and administration.'],
       ['Architecture', 'Flutter and Dart power the apps. Rust implements native and network logic through Flutter Rust Bridge. Local persistence supports work during Internet outages, with a remote synchronization path when connectivity returns.'],
       ['What this case proves', 'It shows how product flows, native integrations and local data fit into one multiplatform system. The implementation remains private; the linked technical cases explain selected subsystems.'],
-      ['Limits', 'This case does not claim production scale, measured availability or business outcomes that have not been independently verified.'],
+      ['Ownership and limits', 'Miguel has led most of Meson’s design and implementation, with selected Flutter contributions from another developer. This case does not claim unverified production scale, availability or business outcomes.'],
     ],
   },
   {
