@@ -22,10 +22,10 @@ export const englishProjects: EnglishProject[] = [
     accent: 'orange',
     variant: 'screenshot',
     images: [
-      { src: '/images/meson-shell.png', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell — module launcher, Phone Link and live taskbar.' },
-      { src: '/images/meson-floor-editor.png', alt: 'Current isometric floor editor window in Meson', caption: 'Interactive isometric floor editor with multi-floor selector.' },
-      { src: '/images/meson-widgets.png', alt: 'Meson live widgets board and internal digest El Diario', caption: 'Widgets & News drawer with real-time operational counters.' },
-      { src: '/images/meson-web-devices.png', alt: 'Meson Web showcase across desktop, tablet and smartphone screens', caption: 'Official Meson web showcase across desktop, tablet and phone viewports.' },
+      { src: '/images/meson-shell.webp', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell — module launcher, Phone Link and live taskbar.' },
+      { src: '/images/meson-floor-editor.webp', alt: 'Current isometric floor editor window in Meson', caption: 'Interactive isometric floor editor with multi-floor selector.' },
+      { src: '/images/meson-widgets.webp', alt: 'Meson live widgets board and internal digest El Diario', caption: 'Widgets & News drawer with real-time operational counters.' },
+      { src: '/images/meson-web-devices.webp', alt: 'Meson Web showcase across desktop, tablet and smartphone screens', caption: 'Official Meson web showcase across desktop, tablet and phone viewports.' },
     ],
     sections: [
       ['Product scope', 'The repository contains a business app (desktop/PC and mobile), a customer app with social community features, a delivery app, a website, shared models and native modules covering orders, tables, kitchen, inventory, payments, logistics and administration.'],
@@ -57,8 +57,8 @@ export const englishProjects: EnglishProject[] = [
     accent: 'teal',
     variant: 'screenshot',
     images: [
-      { src: '/images/meson-floor-editor.png', alt: 'Interactive isometric floor editor in Meson with Floor 1 and Floor 2 toggle', caption: 'Isometric room view with customizable furniture and multi-floor switching.' },
-      { src: '/images/meson-shell.png', alt: 'Meson launcher opening the Tables module inside desktop shell', caption: 'Shell launcher integration alongside companion POS modules.' },
+      { src: '/images/meson-floor-editor.webp', alt: 'Interactive isometric floor editor in Meson with Floor 1 and Floor 2 toggle', caption: 'Isometric room view with customizable furniture and multi-floor switching.' },
+      { src: '/images/meson-shell.webp', alt: 'Meson launcher opening the Tables module inside desktop shell', caption: 'Shell launcher integration alongside companion POS modules.' },
     ],
     sections: [
       ['Goal', 'Give staff a visual representation of tables, zones, seats and floors that can also be edited.'],
@@ -74,8 +74,8 @@ export const englishProjects: EnglishProject[] = [
     accent: 'purple',
     variant: 'screenshot',
     images: [
-      { src: '/images/meson-widgets.png', alt: 'Widgets and El Diario digest drawer inside Meson customizable shell', caption: 'Live Widgets & News drawer anchored inside the desktop shell.' },
-      { src: '/images/meson-shell.png', alt: 'Meson shell with app launcher, Phone Link panel and docked taskbar', caption: 'Modular app drawer, quick search bar and multi-window taskbar.' },
+      { src: '/images/meson-widgets.webp', alt: 'Widgets and El Diario digest drawer inside Meson customizable shell', caption: 'Live Widgets & News drawer anchored inside the desktop shell.' },
+      { src: '/images/meson-shell.webp', alt: 'Meson shell with app launcher, Phone Link panel and docked taskbar', caption: 'Modular app drawer, quick search bar and multi-window taskbar.' },
     ],
     sections: [
       ['Purpose', 'The shell brings Meson modules together in a shared workspace instead of treating each module as an isolated screen.'],
@@ -104,8 +104,8 @@ export const englishProjects: EnglishProject[] = [
     accent: 'gold',
     variant: 'screenshot',
     images: [
-      { src: '/images/alma-storefront.png', alt: 'Alma luxury jewelry storefront hero built in Next.js', caption: 'Editorial storefront hero and live header search built with Next.js & Tailwind CSS.' },
-      { src: '/images/alma-catalog.png', alt: 'Curated collections section on Alma e-commerce storefront', caption: 'Responsive category showcase cards connected to dynamic storefront routes.' },
+      { src: '/images/alma-storefront.webp', alt: 'Alma luxury jewelry storefront hero built in Next.js', caption: 'Editorial storefront hero and live header search built with Next.js & Tailwind CSS.' },
+      { src: '/images/alma-catalog.webp', alt: 'Curated collections section on Alma e-commerce storefront', caption: 'Responsive category showcase cards connected to dynamic storefront routes.' },
     ],
     sections: [
       ['Customer experience', 'Built for Alma, the storefront covers home discovery, collections, categories, product pages, cart, customer accounts and order tracking.'],
@@ -121,7 +121,7 @@ export const englishProjects: EnglishProject[] = [
     accent: 'teal',
     variant: 'screenshot',
     images: [
-      { src: '/images/web-servicios.png', alt: 'Astro technical services website hero with service overview and contact links', caption: 'Responsive Astro + Tailwind layout driven by a single central configuration file.' },
+      { src: '/images/web-servicios.webp', alt: 'Astro technical services website hero with service overview and contact links', caption: 'Responsive Astro + Tailwind layout driven by a single central configuration file.' },
     ],
     sections: [
       ['Goal', 'Present electrical and climate control services, experience, process, testimonials, projects and contact routes clearly.'],
@@ -138,8 +138,8 @@ export const englishProjects: EnglishProject[] = [
     accent: 'orange',
     variant: 'screenshot',
     images: [
-      { src: '/images/pulseras-qr.png', alt: 'MedPulse SOS hero explaining instant QR/NFC medical card access', caption: 'Landing flow presenting QR/NFC emergency scan response and demo card.' },
-      { src: '/images/pulseras-catalog.png', alt: 'Wristband product catalog tiers in MedPulse SOS prototype', caption: 'Configurable wristband tiers connected to order tracking and admin tooling.' },
+      { src: '/images/pulseras-qr.webp', alt: 'MedPulse SOS hero explaining instant QR/NFC medical card access', caption: 'Landing flow presenting QR/NFC emergency scan response and demo card.' },
+      { src: '/images/pulseras-catalog.webp', alt: 'Wristband product catalog tiers in MedPulse SOS prototype', caption: 'Configurable wristband tiers connected to order tracking and admin tooling.' },
     ],
     sections: [
       ['Concept', 'The code includes pages for an emergency card reached through a QR or NFC linked address, as well as activation and user access flows.'],
@@ -182,12 +182,12 @@ export const englishProjects: EnglishProject[] = [
     variant: 'screenshot',
     images: [
       {
-        src: '/images/brasas-play.png',
+        src: '/images/brasas-play.webp',
         alt: 'Unity editor runtime capture of Brasas showing character Lía, lantern companion Tilo, and HUD',
         caption: 'Unity 6.3 LTS capture — Refugio de las promesas scene and custom HUD.',
       },
       {
-        src: '/images/brasas-map.png',
+        src: '/images/brasas-map.webp',
         alt: 'Unity route map overlay for Brasas showing connected chapter locations',
         caption: 'Unity 6.3 LTS capture — interactive route map and checkpoint progression.',
       },

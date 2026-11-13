@@ -1,0 +1,82 @@
+---
+interface Props {
+  isEnglish: boolean;
+}
+
+const { isEnglish } = Astro.props;
+
+const filters = isEnglish
+  ? [
+      { id: 'all', label: 'All (13)' },
+      { id: 'systems', label: 'Meson & Systems (7)' },
+      { id: 'web', label: 'Web & E-commerce (3)' },
+      { id: 'games', label: 'Games & AI (3)' },
+    ]
+  : [
+      { id: 'all', label: 'Todos (13)' },
+      { id: 'systems', label: 'Meson y Sistemas (7)' },
+      { id: 'web', label: 'Web y Comercio (3)' },
+      { id: 'games', label: 'Juegos e IA (3)' },
+    ];
+---
+
+<div class="project-filter-bar" role="group" aria-label={isEnglish ? 'Filter projects by area' : 'Filtrar proyectos por área'}>
+  {filters.map((item, idx) => (
+    <button
+      type="button"
+      class:list={['filter-chip', idx === 0 && 'is-active']}
+      data-filter-group={item.id}
+      aria-pressed={idx === 0 ? 'true' : 'false'}
+    >
+      {item.label}
+    </button>
+  ))}
+</div>
+
+<script is:inline>
+  (() => {
+    const init = () => {
+      const bar = document.querySelector('.project-filter-bar');
+      const root = document.getElementById('proyectos');
+      if (!bar || !root) return;
+
+      const buttons = Array.from(bar.querySelectorAll('[data-filter-group]'));
+      const cards = Array.from(root.querySelectorAll('.project-card[data-group]'));
+      const sections = Array.from(root.querySelectorAll('.project-section-block'));
+
+      const applyFilter = (group) => {
+        buttons.forEach((btn) => {
+          const active = btn.getAttribute('data-filter-group') === group;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        cards.forEach((card) => {
+          const match = group === 'all' || card.getAttribute('data-group') === group;
+          card.hidden = !match;
+          if (match) card.classList.add('is-visible');
+        });
+
+        sections.forEach((block) => {
+          const visibleCount = block.querySelectorAll('.project-card:not([hidden])').length;
+          block.hidden = visibleCount === 0;
+        });
+
+        window.dispatchEvent(new Event('scroll'));
+      };
+
+      bar.addEventListener('click', (event) => {
+        const btn = event.target instanceof Element ? event.target.closest('[data-filter-group]') : null;
+        if (!btn) return;
+        const group = btn.getAttribute('data-filter-group') || 'all';
+        applyFilter(group);
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

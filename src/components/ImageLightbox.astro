@@ -24,13 +24,18 @@ const { isEnglish } = Astro.props;
       </button>
     </div>
     <div class="lightbox-stage">
-      <img id="lightbox-image" src="" alt="" />
+      <img
+        id="lightbox-image"
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        alt=""
+      />
     </div>
   </div>
 </dialog>
 
 <script is:inline>
   (() => {
+    const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     const dialog = document.getElementById('portfolio-lightbox');
     const img = document.getElementById('lightbox-image');
     const caption = document.getElementById('lightbox-caption');
@@ -39,7 +44,7 @@ const { isEnglish } = Astro.props;
 
     const closeModal = () => {
       if (dialog.open) dialog.close();
-      img.removeAttribute('src');
+      img.src = BLANK;
     };
 
     document.addEventListener('click', (event) => {

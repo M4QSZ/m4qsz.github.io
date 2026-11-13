@@ -1,11 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
 ---
-<Base title="El Pueblo del Faro (Roblox) | Miguel" description="Proyecto independiente en desarrollo para Roblox Studio usando Luau, arquitectura cliente/servidor, Rojo y herramientas Python.">
+<Base title="El Pueblo del Faro (Roblox) | Miguel" description="Proyecto independiente en desarrollo para Roblox Studio usando Luau, arquitectura cliente/servidor, Rojo y herramientas Python." pageLabel="12 · Roblox Luau">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">ROBLOX / 12</p><h1 class="long-title">El Pueblo del Faro<span>.</span></h1><p class="detail-lede">Experiencia independiente en Roblox Studio con Luau, separada de Brasas, organizada con Rojo y herramientas de empaquetado en Python.</p></div><div class="detail-badge">ROBLOX STUDIO<br /><strong>EN DESARROLLO</strong></div></div>
     <div class="detail-meta"><div><span>LENGUAJE</span><strong>Luau · Python</strong></div><div><span>ARQUITECTURA</span><strong>Cliente / Servidor · Rojo</strong></div><div><span>ESTADO</span><strong>Base local sin publicar</strong></div></div>
+    <div class="detail-schematic-stage" aria-label="Esquema conceptual del proyecto Roblox Studio El Pueblo del Faro">
+      <ProjectPreview number="12" title="El Pueblo del Faro" accent="gold" variant="roblox" isEnglish={false} />
+    </div>
     <div class="case-layout"><aside><span>01 / SEPARACIÓN</span><span>02 / FLUJO TÉCNICO</span><span>03 / ESTADO REAL</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / SEPARACIÓN</p><h2>Proyecto propio en Roblox Studio.</h2><p><strong>El Pueblo del Faro</strong> es una experiencia independiente pensada para Roblox, distinta de las versiones de Brasas en Flutter y Unity. Separa configuración y simulación compartida en <code>ReplicatedStorage</code> de la validación autoritativa en <code>ServerScriptService</code> y la entrada/cámara en <code>StarterPlayerScripts</code>.</p></section>
       <section><p class="section-kicker">02 / FLUJO TÉCNICO</p><h2>Rojo y automatización Python.</h2><p>Incluye configuración de proyecto para Rojo junto a scripts en Python que verifican referencias entre fuentes y empaquetan el lugar como archivo XML (<code>.rbxlx</code>) reproducible fuera de Studio.</p></section>

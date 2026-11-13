@@ -50,7 +50,7 @@
   .tech-matrix > div { grid-template-columns: 1fr; gap: 6px; }
   .site-footer { flex-direction: column; gap: 16px; }
   .cv-sheet { padding: 24px 20px; }
-  .bottom-progress-pill { margin: 0 auto 8px 14px; max-width: calc(100vw - 28px); }
+  .bottom-progress-dock { left: 14px; bottom: 12px; max-width: calc(100vw - 28px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

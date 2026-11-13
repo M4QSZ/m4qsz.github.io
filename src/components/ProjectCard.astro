@@ -15,6 +15,7 @@ interface Props {
   secondaryImage?: string;
   imageAlt?: string;
   categoryLabel: string;
+  group?: string;
   isEnglish?: boolean;
 }
 
@@ -31,13 +32,14 @@ const {
   secondaryImage,
   imageAlt,
   categoryLabel,
+  group = 'systems',
   isEnglish = false,
 } = Astro.props;
 
 const ctaLabel = isEnglish ? 'Open technical case →' : 'Abrir caso técnico →';
 ---
 
-<article class={`project-card accent-${accent} reveal-on-scroll`}>
+<article class={`project-card accent-${accent} reveal-on-scroll`} data-group={group}>
   <div class="project-top">
     <span>{number} / {categoryLabel}</span>
     <a class="card-arrow" href={href} aria-label={`${title} — ${ctaLabel}`}>↗</a>

@@ -39,12 +39,12 @@ const liveBadge = isEnglish ? 'Real build' : 'Captura real';
           data-lightbox-caption={caption || `${number} · ${title}`}
           aria-label={`${zoomLabel}: ${title}`}
         >
-          <img src={image} alt={imageAlt || title} loading="lazy" class="shot-main" />
+          <img src={image} alt={imageAlt || title} loading="lazy" decoding="async" class="shot-main" />
           <span class="shot-badge">{liveBadge}</span>
           <span class="shot-zoom-pill" aria-hidden="true">↗</span>
         </button>
         {secondaryImage && (
-          <img src={secondaryImage} alt="" aria-hidden="true" loading="lazy" class="shot-pip" />
+          <img src={secondaryImage} alt="" aria-hidden="true" loading="lazy" decoding="async" class="shot-pip" />
         )}
       </div>
     ) : variant === 'p2p' ? (

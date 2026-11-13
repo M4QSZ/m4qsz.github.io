@@ -1,0 +1,52 @@
+---
+interface Props {
+  email: string;
+  isEnglish?: boolean;
+}
+
+const { email, isEnglish = false } = Astro.props;
+const defaultLabel = isEnglish ? 'Copy email' : 'Copiar correo';
+const copiedLabel = isEnglish ? 'Copied ✓' : 'Copiado ✓';
+---
+
+<button
+  type="button"
+  class="button button-outline copy-email-btn"
+  data-copy-email={email}
+  data-default-label={defaultLabel}
+  data-copied-label={copiedLabel}
+>
+  <span class="copy-email-text">{defaultLabel}</span>
+  <span aria-hidden="true">⎘</span>
+</button>
+
+<script is:inline>
+  (() => {
+    document.addEventListener('click', async (event) => {
+      const btn = event.target instanceof Element ? event.target.closest('[data-copy-email]') : null;
+      if (!(btn instanceof HTMLButtonElement)) return;
+      const email = btn.getAttribute('data-copy-email');
+      const textEl = btn.querySelector('.copy-email-text');
+      const def = btn.getAttribute('data-default-label') || 'Copy';
+      const done = btn.getAttribute('data-copied-label') || 'Copied';
+      if (!email || !textEl) return;
+
+      try {
+        await navigator.clipboard.writeText(email);
+      } catch {
+        const tmp = document.createElement('input');
+        tmp.value = email;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        tmp.remove();
+      }
+      textEl.textContent = done;
+      btn.classList.add('is-copied');
+      window.setTimeout(() => {
+        textEl.textContent = def;
+        btn.classList.remove('is-copied');
+      }, 2200);
+    });
+  })();
+</script>

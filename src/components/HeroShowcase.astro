@@ -8,34 +8,34 @@ const { isEnglish = false } = Astro.props;
 const thumbs = isEnglish
   ? [
       {
-        src: '/images/meson-floor-editor.png',
+        src: '/images/meson-floor-editor.webp',
         alt: 'Meson isometric floor editor in Flutter + Flame',
         label: 'Isometric tables',
       },
       {
-        src: '/images/meson-widgets.png',
+        src: '/images/meson-widgets.webp',
         alt: 'Meson live widgets board and news drawer',
         label: 'Live widgets',
       },
       {
-        src: '/images/meson-web-devices.png',
+        src: '/images/meson-web-devices.webp',
         alt: 'Meson multi-device responsive showcase',
         label: 'Multi-device web',
       },
     ]
   : [
       {
-        src: '/images/meson-floor-editor.png',
+        src: '/images/meson-floor-editor.webp',
         alt: 'Editor isométrico de mesas en Meson Desktop',
         label: 'Editor isométrico',
       },
       {
-        src: '/images/meson-widgets.png',
+        src: '/images/meson-widgets.webp',
         alt: 'Tablero de widgets en vivo y El Diario en Meson',
         label: 'Widgets en vivo',
       },
       {
-        src: '/images/meson-web-devices.png',
+        src: '/images/meson-web-devices.webp',
         alt: 'Meson web adaptado a escritorio, tablet y móvil',
         label: 'Web multi-dispositivo',
       },
@@ -51,14 +51,15 @@ const thumbs = isEnglish
     <button
       type="button"
       class="showcase-trigger"
-      data-lightbox-src="/images/meson-shell.png"
+      data-lightbox-src="/images/meson-shell.webp"
       data-lightbox-alt={isEnglish ? 'Meson Desktop current workspace and launcher' : 'Escritorio actual de Meson con lanzador de aplicaciones y Phone Link'}
       data-lightbox-caption={isEnglish ? 'Meson Desktop — customizable shell, launcher and Phone Link.' : 'Meson Desktop — shell personalizable, lanzador modular y Phone Link.'}
       aria-label={isEnglish ? 'Expand Meson Desktop screenshot' : 'Ampliar captura de Meson Desktop'}
     >
       <img
-        src="/images/meson-shell.png"
+        src="/images/meson-shell.webp"
         alt={isEnglish ? 'Meson Desktop current launcher and Phone Link panel' : 'Escritorio actual de Meson con lanzador de aplicaciones y panel Phone Link'}
+        decoding="async"
       />
       <span class="shot-badge">{isEnglish ? 'Live workspace' : 'Sistema en vivo'}</span>
       <span class="shot-zoom-pill" aria-hidden="true">↗</span>

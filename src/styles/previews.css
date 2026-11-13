@@ -26,6 +26,10 @@
 }
 
 .schem-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  justify-self: start;
   padding: 3px 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);

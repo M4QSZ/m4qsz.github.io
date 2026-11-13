@@ -2,12 +2,15 @@
 import Base from '../../layouts/Base.astro';
 import HeroShowcase from '../../components/HeroShowcase.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import ProjectFilter from '../../components/ProjectFilter.astro';
+import CopyEmailButton from '../../components/CopyEmailButton.astro';
 import { profile } from '../../data/profile';
 import { englishProjects } from '../../data/english';
 
 const featured = englishProjects.filter((project) => ['01', '06', '07', '08'].includes(project.number));
 const gamesAndAi = englishProjects.filter((project) => ['11', '12', '13'].includes(project.number));
 const systems = englishProjects.filter((project) => ['02', '03', '04', '05', '09', '10'].includes(project.number));
+const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
 
 const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string) => ({
   number: p.number,
@@ -22,6 +25,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
   secondaryImage: p.images?.[1]?.src,
   imageAlt: p.images?.[0]?.alt,
   categoryLabel,
+  group: getGroup(p.number),
   isEnglish: true,
 });
 ---
@@ -36,9 +40,10 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
       <div class="hero-copy">
         <div class="hero-identity">
           <img
-            src="/images/miguel-avatar.jpg"
+            src="/images/miguel-avatar.webp"
             alt="Portrait of Miguel Antonio Quevedo Simoza"
             class="hero-avatar"
+            decoding="async"
           />
           <div class="hero-identity-meta">
             <strong>{profile.shortName}</strong>
@@ -96,26 +101,34 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
         <p>Real captures from Meson, e-commerce, technical services, web prototypes, and games.</p>
       </div>
 
-      <div class="project-grid">
-        {featured.map((project) => <ProjectCard {...toCardProps(project, 'PROJECT')} />)}
+      <ProjectFilter isEnglish={true} />
+
+      <div class="project-section-block">
+        <div class="project-grid">
+          {featured.map((project) => <ProjectCard {...toCardProps(project, 'PROJECT')} />)}
+        </div>
       </div>
 
-      <div class="subsection-heading" data-scroll-label="Games & AI">
-        <p class="section-kicker">GAMES & APPLIED AI</p>
-        <h3>Interactive engines and prototypes.</h3>
-        <p>Brasas in both Flutter and Unity, El Pueblo del Faro in Roblox Studio, plus LLM tooling and Rust Bevy.</p>
-      </div>
-      <div class="project-grid">
-        {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project, 'INTERACTIVE')} />)}
+      <div class="project-section-block">
+        <div class="subsection-heading" data-scroll-label="Games & AI">
+          <p class="section-kicker">GAMES & APPLIED AI</p>
+          <h3>Interactive engines and prototypes.</h3>
+          <p>Brasas in both Flutter and Unity, El Pueblo del Faro in Roblox Studio, plus LLM tooling and Rust Bevy.</p>
+        </div>
+        <div class="project-grid">
+          {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project, 'INTERACTIVE')} />)}
+        </div>
       </div>
 
-      <div class="subsection-heading" data-scroll-label="Inside Meson">
-        <p class="section-kicker">INSIDE MESON</p>
-        <h3>Architecture and interfaces.</h3>
-        <p>Current Meson desktop screenshots and architectural previews without exposing private code or data.</p>
-      </div>
-      <div class="project-grid">
-        {systems.map((project) => <ProjectCard {...toCardProps(project, 'SYSTEM')} />)}
+      <div class="project-section-block">
+        <div class="subsection-heading" data-scroll-label="Inside Meson">
+          <p class="section-kicker">INSIDE MESON</p>
+          <h3>Architecture and interfaces.</h3>
+          <p>Current Meson desktop screenshots and architectural previews without exposing private code or data.</p>
+        </div>
+        <div class="project-grid">
+          {systems.map((project) => <ProjectCard {...toCardProps(project, 'SYSTEM')} />)}
+        </div>
       </div>
     </section>
 
@@ -191,10 +204,11 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
     <section class="section wrap about-section" id="sobre-mi" data-scroll-label="04 · About">
       <div class="about-portrait-card reveal-on-scroll">
         <img
-          src="/images/miguel-avatar.jpg"
+          src="/images/miguel-avatar.webp"
           alt="Miguel Antonio Quevedo Simoza"
           class="about-portrait-img"
           loading="lazy"
+          decoding="async"
         />
         <div class="about-portrait-caption">
           <div>
@@ -229,6 +243,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
         <p>{profile.locationEn} · Full-time or part-time · Open to international relocation.</p>
         <div class="contact-actions">
           <a class="button button-primary" href={`mailto:${profile.email}`}>Email ({profile.email}) ↗</a>
+          <CopyEmailButton email={profile.email} isEnglish={true} />
           <a class="button button-outline" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
           <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
           <a class="button button-outline" href="/en/cv/">CV / PDF ↗</a>

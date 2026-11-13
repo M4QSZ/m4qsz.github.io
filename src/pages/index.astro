@@ -2,11 +2,14 @@
 import Base from '../layouts/Base.astro';
 import HeroShowcase from '../components/HeroShowcase.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import ProjectFilter from '../components/ProjectFilter.astro';
+import CopyEmailButton from '../components/CopyEmailButton.astro';
 import { capabilities, profile, projects } from '../data/profile';
 
 const featuredProjects = projects.filter((project) => ['01', '06', '07', '08'].includes(project.number));
 const mesonSystems = projects.filter((project) => ['02', '03', '04', '05', '09', '10'].includes(project.number));
 const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(project.number));
+const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
 ---
 <Base
   title={`${profile.name} — Ingeniería de software y videojuegos`}
@@ -18,9 +21,10 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
       <div class="hero-copy">
         <div class="hero-identity">
           <img
-            src="/images/miguel-avatar.jpg"
+            src="/images/miguel-avatar.webp"
             alt="Retrato de Miguel Antonio Quevedo Simoza"
             class="hero-avatar"
+            decoding="async"
           />
           <div class="hero-identity-meta">
             <strong>{profile.shortName}</strong>
@@ -75,32 +79,40 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
         <p>Capturas reales de Meson, web comercial, servicios técnicos, prototipos y videojuegos.</p>
       </div>
 
-      <div class="project-grid">
-        {featuredProjects.map((project) => (
-          <ProjectCard {...project} categoryLabel="PROYECTO" isEnglish={false} />
-        ))}
+      <ProjectFilter isEnglish={false} />
+
+      <div class="project-section-block">
+        <div class="project-grid">
+          {featuredProjects.map((project) => (
+            <ProjectCard {...project} categoryLabel="PROYECTO" group={getGroup(project.number)} isEnglish={false} />
+          ))}
+        </div>
       </div>
 
-      <div class="subsection-heading" data-scroll-label="Videojuegos e IA">
-        <p class="section-kicker">VIDEOJUEGOS E IA</p>
-        <h3>Motores interactivos y prototipos.</h3>
-        <p>Versiones de Brasas en Flutter y Unity, Roblox Studio y experimentación con LLMs y Rust Bevy.</p>
-      </div>
-      <div class="project-grid">
-        {gamesAndAi.map((project) => (
-          <ProjectCard {...project} categoryLabel="INTERACTIVO" isEnglish={false} />
-        ))}
+      <div class="project-section-block">
+        <div class="subsection-heading" data-scroll-label="Videojuegos e IA">
+          <p class="section-kicker">VIDEOJUEGOS E IA</p>
+          <h3>Motores interactivos y prototipos.</h3>
+          <p>Versiones de Brasas en Flutter y Unity, Roblox Studio y experimentación con LLMs y Rust Bevy.</p>
+        </div>
+        <div class="project-grid">
+          {gamesAndAi.map((project) => (
+            <ProjectCard {...project} categoryLabel="INTERACTIVO" group="games" isEnglish={false} />
+          ))}
+        </div>
       </div>
 
-      <div class="subsection-heading" data-scroll-label="Meson por dentro">
-        <p class="section-kicker">DENTRO DE MESON</p>
-        <h3>Arquitectura e interfaces destacadas.</h3>
-        <p>Capturas actuales de Meson y diagramas técnicos de sus subsistemas sin publicar código privado.</p>
-      </div>
-      <div class="project-grid">
-        {mesonSystems.map((project) => (
-          <ProjectCard {...project} categoryLabel="SISTEMA" isEnglish={false} />
-        ))}
+      <div class="project-section-block">
+        <div class="subsection-heading" data-scroll-label="Meson por dentro">
+          <p class="section-kicker">DENTRO DE MESON</p>
+          <h3>Arquitectura e interfaces destacadas.</h3>
+          <p>Capturas actuales de Meson y diagramas técnicos de sus subsistemas sin publicar código privado.</p>
+        </div>
+        <div class="project-grid">
+          {mesonSystems.map((project) => (
+            <ProjectCard {...project} categoryLabel="SISTEMA" group="systems" isEnglish={false} />
+          ))}
+        </div>
       </div>
     </section>
 
@@ -176,10 +188,11 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
     <section class="section wrap about-section" id="sobre-mi" data-scroll-label="04 · Sobre mí">
       <div class="about-portrait-card reveal-on-scroll">
         <img
-          src="/images/miguel-avatar.jpg"
+          src="/images/miguel-avatar.webp"
           alt="Miguel Antonio Quevedo Simoza"
           class="about-portrait-img"
           loading="lazy"
+          decoding="async"
         />
         <div class="about-portrait-caption">
           <div>
@@ -214,6 +227,7 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
         <p>{profile.location} · Jornada completa o media jornada · Reubicación internacional.</p>
         <div class="contact-actions">
           <a class="button button-primary" href={`mailto:${profile.email}`}>Escribirme ({profile.email}) ↗</a>
+          <CopyEmailButton email={profile.email} isEnglish={false} />
           <a class="button button-outline" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
           <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
           <a class="button button-outline" href="/cv/">CV / PDF ↗</a>

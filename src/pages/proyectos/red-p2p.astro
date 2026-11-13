@@ -1,12 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
 ---
-<Base title="Red P2P y trabajo sin Internet | Miguel" description="Arquitectura local de Meson: comunicación P2P, persistencia y sincronización posterior.">
+<Base title="Red P2P y trabajo sin Internet | Miguel" description="Arquitectura local de Meson: comunicación P2P, persistencia y sincronización posterior." pageLabel="02 · Red P2P">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">MESON / SISTEMAS / 02</p><h1 class="long-title">Red local<span>.</span></h1><p class="detail-lede">Diseñada para que caja, sala y cocina puedan intercambiar cambios aunque Internet falle.</p></div><div class="detail-badge">RUST + DART<br /><strong>ARQUITECTURA P2P</strong></div></div>
     <div class="detail-meta"><div><span>PROBLEMA</span><strong>Dependencia de conectividad</strong></div><div><span>ENFOQUE</span><strong>Local primero</strong></div><div><span>CAPAS</span><strong>Dispositivos · base local · nube</strong></div></div>
-    <div class="network-board" aria-label="Diagrama de sincronización entre dispositivos locales y nube"><div class="network-board-title">FLUJO DE UNA ACCIÓN</div><div class="network-steps"><div><span>01</span><strong>CAMBIO LOCAL</strong><small>Se guarda en el dispositivo</small></div><b>→</b><div><span>02</span><strong>RED DEL LOCAL</strong><small>Se comparte con otros equipos</small></div><b>→</b><div><span>03</span><strong>SINCRONIZACIÓN</strong><small>Se envía cuando hay conexión</small></div></div></div>
+    <div class="detail-schematic-stage" aria-label="Esquema de sincronización local P2P entre caja POS, cocina KDS y dispositivos">
+      <ProjectPreview number="02" title="Red local P2P" accent="blue" variant="p2p" isEnglish={false} />
+    </div>
     <div class="case-layout"><aside><span>01 / CONTEXTO</span><span>02 / IMPLEMENTACIÓN</span><span>03 / FALLOS</span><span>04 / PRUEBAS</span><span>05 / LÍMITES</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / CONTEXTO</p><h2>Una operación no puede esperar siempre a la nube.</h2><p>Cuando un restaurante pierde Internet, sigue necesitando registrar acciones y coordinar dispositivos. El diseño de Meson combina almacenamiento local con rutas de comunicación dentro del establecimiento y una cola para sincronizar cambios posteriores.</p></section>
       <section><p class="section-kicker">02 / IMPLEMENTACIÓN</p><h2>Varios mecanismos, una misma intención.</h2><ul><li><strong>Rust:</strong> motor P2P con descubrimiento y transporte local basado en UDP y TCP.</li><li><strong>Dart y Flutter Rust Bridge:</strong> integración del motor nativo con el estado de las aplicaciones.</li><li><strong>Isar:</strong> entidades y acciones pendientes persistidas localmente.</li><li><strong>Supabase/Postgres:</strong> ruta remota cuando vuelve la conectividad.</li><li><strong>Kotlin:</strong> servicio Android en primer plano y control de recursos de Wi-Fi para la sincronización.</li></ul></section>

@@ -1,9 +1,8 @@
-/* Bottom Scroll Progress Bar (inspired by Meson Web), Lightbox, Detail Cases, CV & Lab */
+/* Bottom-left section indicator pill (progress bar moved to bottom of sticky navbar) */
 .bottom-progress-dock {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 20px;
+  bottom: 16px;
   z-index: 80;
   pointer-events: none;
 }
@@ -12,14 +11,13 @@
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 auto 10px 24px;
-  padding: 7px 13px;
+  gap: 7px;
+  padding: 6px 12px;
   border: 1px solid #47524b;
   border-radius: 999px;
   background: rgba(16, 19, 20, 0.92);
   color: #f3f0e7;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
@@ -58,15 +56,6 @@
   cursor: pointer;
 }
 .bottom-progress-top[data-visible='true'] { display: grid; }
-
-.bottom-progress-track { width: 100%; height: 5px; background: rgba(255, 255, 255, 0.08); }
-.bottom-progress-fill {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #c87b4b 0%, #e4a56c 55%, #f2bb88 100%);
-  box-shadow: 0 0 12px rgba(228, 165, 108, 0.55);
-  transition: width 90ms linear;
-}
 
 /* Lightbox Modal */
 .lightbox-dialog {
@@ -137,6 +126,16 @@
 .gallery-figure img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top center; transition: transform 0.25s ease; }
 .gallery-zoom-btn:hover img { transform: scale(1.02); }
 .gallery-figure figcaption { padding: 12px 16px; font-size: 12.5px; color: #aeb8ad; border-top: 1px solid #2f3a32; }
+
+.detail-schematic-stage {
+  margin-top: 28px;
+  border: 1px solid #3f4a40;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #171d1a;
+}
+.detail-schematic-stage .project-visual { height: 290px; border-bottom: 0; }
+.detail-schematic-stage .schematic { padding: 22px 28px; }
 
 .case-visual {
   height: 410px;

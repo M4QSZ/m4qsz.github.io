@@ -1,11 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
 ---
-<Base title="App de clientes y comunidad | Miguel" description="Aplicación Flutter de clientes de Meson: descubrimiento, reservas, delivery y comunidad social.">
+<Base title="App de clientes y comunidad | Miguel" description="Aplicación Flutter de clientes de Meson: descubrimiento, reservas, delivery y comunidad social." pageLabel="09 · App clientes">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">MESON / CLIENTES / 09</p><h1 class="long-title">Comunidad<span>.</span></h1><p class="detail-lede">Una aplicación para explorar restaurantes y participar en una comunidad alrededor de la experiencia gastronómica.</p></div><div class="detail-badge">FLUTTER + SUPABASE<br /><strong>CLIENTES Y RED SOCIAL</strong></div></div>
     <div class="detail-meta"><div><span>DESCUBRIMIENTO</span><strong>Locales y perfiles</strong></div><div><span>COMUNIDAD</span><strong>Publicaciones y reacciones</strong></div><div><span>OPERACIÓN</span><strong>Reservas y delivery</strong></div></div>
+    <div class="detail-schematic-stage" aria-label="Esquema móvil de Radar Meson y descubrimiento de locales">
+      <ProjectPreview number="09" title="App de clientes y comunidad" accent="teal" variant="mobile-clients" isEnglish={false} />
+    </div>
     <div class="case-layout"><aside><span>01 / EXPERIENCIA</span><span>02 / COMUNIDAD</span><span>03 / SERVICIOS</span><span>04 / ALCANCE</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / EXPERIENCIA</p><h2>Del descubrimiento a la visita.</h2><p>La app contiene navegación por restaurantes, búsqueda, fichas de locales, favoritos, menú y perfiles de clientes. También incorpora selección visual de mesas para reservas.</p></section>
       <section><p class="section-kicker">02 / COMUNIDAD</p><h2>Una capa social propia.</h2><p>El módulo Radar incluye un flujo de publicaciones, carga de imágenes y videos, comentarios y reacciones. El código también contiene historias, exploración, perfiles de comunidad y grupos para organizar encuentros.</p></section>

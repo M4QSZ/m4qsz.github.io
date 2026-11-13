@@ -1,11 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
 ---
-<Base title="App de reparto | Miguel" description="Aplicación Flutter de logística y entregas de Meson, con estados de pedido y cola local para fallos de red.">
+<Base title="App de reparto | Miguel" description="Aplicación Flutter de logística y entregas de Meson, con estados de pedido y cola local para fallos de red." pageLabel="10 · App reparto">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">MESON / LOGÍSTICA / 10</p><h1 class="long-title">Reparto<span>.</span></h1><p class="detail-lede">Una aplicación de trabajo para repartidores, desde la oferta de un pedido hasta su entrega.</p></div><div class="detail-badge">FLUTTER + MAPAS<br /><strong>OPERACIÓN DE ENTREGAS</strong></div></div>
     <div class="detail-meta"><div><span>PEDIDOS</span><strong>Ofertas y aceptación</strong></div><div><span>RUTA</span><strong>Mapa de entregas</strong></div><div><span>RESILIENCIA</span><strong>Cola de cambios local</strong></div></div>
+    <div class="detail-schematic-stage" aria-label="Esquema móvil de despacho y cola offline para repartidores">
+      <ProjectPreview number="10" title="App de reparto" accent="blue" variant="mobile-delivery" isEnglish={false} />
+    </div>
     <div class="case-layout"><aside><span>01 / OPERACIÓN</span><span>02 / ESTADOS</span><span>03 / CONECTIVIDAD</span><span>04 / ALCANCE</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / OPERACIÓN</p><h2>Pedidos disponibles en tiempo real.</h2><p>La app permite activar el turno del repartidor, consultar pedidos disponibles y recibir ofertas nuevas. El código administra los pedidos aceptados y contiene un mapa con marcadores de restaurante y cliente.</p></section>
       <section><p class="section-kicker">02 / SEGUIMIENTO</p><h2>Estados y prueba de entrega.</h2><p>El flujo contempla llegada al restaurante, retiro, trayecto y entrega. La app incluye captura de prueba fotográfica y pantallas de historial e ingresos.</p></section>

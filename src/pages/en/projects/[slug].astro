@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import ProjectDetailGallery from '../../../components/ProjectDetailGallery.astro';
+import ProjectPreview from '../../../components/ProjectPreview.astro';
 import { englishProjects } from '../../../data/english';
 
 export function getStaticPaths() {
@@ -36,8 +37,18 @@ const status = project.status ?? 'Reviewed implementation';
       <div><span>STATUS</span><strong>{status}</strong></div>
     </div>
 
-    {project.images && project.images.length > 0 && (
+    {project.images && project.images.length > 0 ? (
       <ProjectDetailGallery images={project.images} isEnglish={true} />
+    ) : (
+      <div class="detail-schematic-stage">
+        <ProjectPreview
+          number={project.number}
+          title={project.title}
+          accent={project.accent ?? 'orange'}
+          variant={project.variant ?? 'screenshot'}
+          isEnglish={true}
+        />
+      </div>
     )}
 
     <div class="case-layout">
