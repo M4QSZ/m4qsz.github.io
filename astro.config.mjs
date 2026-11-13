@@ -1,3 +1,8 @@
 import { defineConfig } from 'astro/config';
 
-export default defineConfig({ output: 'static' });
+const site = process.env.SITE_URL || 'https://m4qsz.github.io';
+
+export default defineConfig({
+  output: 'static',
+  site,
+});

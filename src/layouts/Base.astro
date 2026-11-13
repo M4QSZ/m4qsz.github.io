@@ -12,10 +12,37 @@ const { title, description, lang = 'es' } = Astro.props;
 const isEnglish = lang === 'en';
 const home = isEnglish ? '/en/' : '/';
 const lab = isEnglish ? '/en/lab/' : '/laboratorio/';
+const cvPath = isEnglish ? '/en/cv/' : '/cv/';
 const pathname = Astro.url.pathname;
 const counterpart = isEnglish
-  ? pathname === '/en/' ? '/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.startsWith('/en/samples/') ? pathname.replace('/en/samples/', '/muestras/') : pathname.replace('/en/projects/', '/proyectos/')
-  : pathname === '/' ? '/en/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.startsWith('/muestras/') ? pathname.replace('/muestras/', '/en/samples/') : pathname.replace('/proyectos/', '/en/projects/');
+  ? pathname === '/en/' ? '/' : pathname === '/en/cv/' ? '/cv/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.startsWith('/en/samples/') ? pathname.replace('/en/samples/', '/muestras/') : pathname.replace('/en/projects/', '/proyectos/')
+  : pathname === '/' ? '/en/' : pathname === '/cv/' ? '/en/cv/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.startsWith('/muestras/') ? pathname.replace('/muestras/', '/en/samples/') : pathname.replace('/proyectos/', '/en/projects/');
+
+const siteOrigin = Astro.site ?? new URL('https://m4qsz.github.io');
+const canonicalUrl = new URL(pathname, siteOrigin).toString();
+const esUrl = new URL(isEnglish ? counterpart : pathname, siteOrigin).toString();
+const enUrl = new URL(isEnglish ? pathname : counterpart, siteOrigin).toString();
+const ogImageUrl = new URL('/og-cover.png', siteOrigin).toString();
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: isEnglish ? 'Multiplatform Software Engineer' : 'Ingeniero de software multiplataforma',
+  url: siteOrigin.toString(),
+  email: profile.email ? `mailto:${profile.email}` : undefined,
+  sameAs: [profile.github, profile.linkedin].filter(Boolean),
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Universidad Bicentenaria de Aragua',
+  },
+  knowsLanguage: ['es', 'en', 'pt', 'it', 'de', 'ja'],
+  knowsAbout: [
+    'Flutter', 'Dart', 'Rust', 'C#', 'Unity', 'TypeScript', 'Next.js',
+    'Astro', 'Python', 'Lua', 'Kotlin', 'Supabase', 'PostgreSQL',
+    'MySQL', 'SQLite', 'Cloud Firestore', 'Git', 'Git LFS', 'AI/LLM Tooling',
+  ],
+};
 ---
 <!doctype html>
 <html lang={lang}>
@@ -24,13 +51,28 @@ const counterpart = isEnglish
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#101314" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="es" href={esUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content={isEnglish ? 'en_US' : 'es_ES'} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
     <title>{title}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
   </head>
   <body>
     <a class="skip-link" href="#contenido">{isEnglish ? 'Skip to content' : 'Ir al contenido'}</a>
@@ -44,13 +86,15 @@ const counterpart = isEnglish
           <a href={`${home}#proyectos`}>{isEnglish ? 'Projects' : 'Proyectos'}</a>
           <a href={`${home}#tecnologias`}>{isEnglish ? 'Skills' : 'Tecnologías'}</a>
           <a href={lab}>{isEnglish ? 'Lab' : 'Laboratorio'}</a>
+          <a href={cvPath}>CV</a>
         </nav>
         <div class="header-actions"><a class="language-link" href={counterpart} lang={isEnglish ? 'es' : 'en'} aria-label={isEnglish ? 'Cambiar a español' : 'Switch to English'}>{isEnglish ? 'ES' : 'EN'}</a><a class="header-link" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
       </header>
       <slot />
       <footer class="site-footer wrap">
-        <div><strong>{profile.name}</strong><p>{isEnglish ? 'Software built with care for the product and its technical details.' : 'Software con atención al producto y a los detalles técnicos.'}</p></div>
+        <div><strong>{profile.name}</strong><p>{isEnglish ? `${profile.locationEn} · Multiplatform software, systems and games.` : `${profile.location} · Software multiplataforma, sistemas y videojuegos.`}</p></div>
         <div class="footer-links">
+          <a href={cvPath}>{isEnglish ? 'Resume / CV' : 'Currículum / CV'} ↗</a>
           <a href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
           {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>}
           {profile.email && <a href={`mailto:${profile.email}`}>{isEnglish ? 'Email' : 'Correo'} ↗</a>}

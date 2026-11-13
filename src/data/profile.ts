@@ -1,23 +1,23 @@
-// Completa aquí los datos de contacto públicos cuando decidas publicar.
 export const profile = {
   name: 'Miguel Antonio Quevedo Simoza',
   shortName: 'Miguel Quevedo',
-  role: 'Ingeniero de software multiplataforma · Flutter, Rust y sistemas locales',
-  headline: 'Diseño productos multiplataforma con Flutter y Rust, desde la interfaz hasta la sincronización entre dispositivos.',
+  role: 'Ingeniero de software multiplataforma · PC, móvil, web, Rust y videojuegos',
+  headline: 'Diseño productos multiplataforma (PC, móvil y web) con Flutter, Dart y Rust, además de videojuegos en Unity (C#) y sistemas web con Next.js y Astro.',
   github: 'https://github.com/M4QSZ',
-  linkedin: '',
-  email: '',
-  location: '',
-  availability: 'Abierto a oportunidades',
+  linkedin: 'https://www.linkedin.com/in/miguel-quevedo-dev/',
+  email: 'miguel.270799@gmail.com',
+  location: 'Estado Aragua, Venezuela · Remoto',
+  locationEn: 'Estado Aragua, Venezuela · Remote',
+  availability: 'Disponible · Remoto',
 };
 
 export const projects = [
   {
     number: '01',
     title: 'Meson',
-    type: 'Producto privado · caso de estudio',
-    description: 'Ecosistema de restaurantes con apps de negocio, clientes y reparto, módulos nativos, datos locales y sincronización.',
-    stack: ['Flutter', 'Dart', 'Rust', 'Astro'],
+    type: 'Producto privado · PC, móvil y web',
+    description: 'Ecosistema de restaurantes para escritorio, móvil y web con módulos nativos Rust, persistencia local, migración Firebase → Supabase y sincronización.',
+    stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     href: '/proyectos/meson/',
     accent: 'orange',
   },
@@ -102,17 +102,51 @@ export const projects = [
     href: '/proyectos/app-reparto/',
     accent: 'blue',
   },
+  {
+    number: '11',
+    title: 'Brasas (Flutter y Unity)',
+    type: 'Videojuego multiplataforma · dos versiones',
+    description: 'Aventura de acción en dos implementaciones: paquete compartido Flutter (Meson Pausa) y proyecto Unity 6.3 LTS en C# con pruebas automatizadas.',
+    stack: ['Unity', 'C#', 'Flutter', 'Python'],
+    href: '/proyectos/brasas/',
+    accent: 'orange',
+    image: '/images/brasas-play.png',
+    imageAlt: 'Captura del motor Unity de Brasas mostrando a Lía y Tilo en el Refugio de las promesas',
+  },
+  {
+    number: '12',
+    title: 'El Pueblo del Faro',
+    type: 'Roblox Studio · experiencia en desarrollo',
+    description: 'Base cliente/servidor en Luau, configuración Rojo y empaquetado automatizado en Python. Pendiente de pruebas en Roblox Studio.',
+    stack: ['Roblox Studio', 'Luau', 'Python', 'Rojo'],
+    href: '/proyectos/el-pueblo-del-faro/',
+    accent: 'gold',
+  },
+  {
+    number: '13',
+    title: 'Meson IA y prototipos',
+    type: 'IA aplicada · Rust Bevy · flujos LLM',
+    description: 'Integración y desarrollo por cuenta propia con LLMs (Meson IA), junto a un prototipo 2D en Rust con Bevy.',
+    stack: ['LLMs / IA', 'Rust', 'Bevy', 'Python'],
+    href: '/proyectos/meson-ia-prototipos/',
+    accent: 'purple',
+  },
 ];
 
 export const capabilities = [
   {
-    label: 'Producto y experiencia',
-    detail: 'Aplicaciones multiplataforma, interfaces interactivas y web estática.',
-    skills: ['Dart', 'Flutter', 'Flame', 'JavaScript', 'TypeScript', 'Astro', 'Next.js', 'React'],
+    label: 'Apps multiplataforma y sistemas',
+    detail: 'PC (Windows), móvil y web con código modular, persistencia local, FFI nativo y control de versiones.',
+    skills: ['Dart', 'Flutter', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'],
   },
   {
-    label: 'Sistemas y rendimiento',
-    detail: 'Lógica nativa, sincronización local, almacenamiento e integración Android.',
-    skills: ['Rust', 'Kotlin', 'Flutter Rust Bridge', 'Isar', 'Supabase/Postgres', 'LAN/P2P'],
+    label: 'Web, bases de datos e IA',
+    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL e integración LLM.',
+    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA'],
+  },
+  {
+    label: 'Videojuegos y base técnica previa',
+    detail: 'Motores de juego activos junto a lenguajes de proyectos anteriores al repositorio actual y conocimientos en Godot.',
+    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
   },
 ];

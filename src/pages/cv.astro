@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+---
+<Base title={`CV — ${profile.name}`} description="Currículum de Miguel Antonio Quevedo Simoza: Ingeniero de software multiplataforma (PC, móvil, web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL e IA.">
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/">← Volver al portafolio</a>
+    <div class="cv-actions">
+      <button class="button button-primary" type="button" onclick="window.print()">Imprimir / Guardar PDF ↗</button>
+      <a class="button button-outline" href="/en/cv/">English version (EN) ↗</a>
+    </div>
+    <article class="cv-sheet">
+      <h1>{profile.name}</h1>
+      <p class="cv-role">Ingeniero de software multiplataforma (PC · Móvil · Web) | Flutter · Dart · Rust · Unity (C#) · Web</p>
+      <p class="cv-meta">
+        Estado Aragua, Venezuela (Remoto) ·
+        <a href={`mailto:${profile.email}`}>{profile.email}</a> ·
+        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">linkedin.com/in/miguel-quevedo-dev</a> ·
+        <a href={profile.github} target="_blank" rel="noopener noreferrer">github.com/M4QSZ</a>
+      </p>
+
+      <section>
+        <h2>Perfil profesional</h2>
+        <p>
+          Construyo software multiplataforma de extremo a extremo (PC/escritorio, móvil y web): arquitectura modular y código limpio,
+          persistencia local, lógica nativa en Rust, aplicaciones Flutter, videojuegos en Unity (C#) y plataformas web. Estudiante de
+          último año de Ingeniería en Sistemas, mención Programación, en la Universidad Bicentenaria de Aragua (egreso estimado: julio 2027).
+        </p>
+      </section>
+
+      <section>
+        <h2>Experiencia y proyecto principal</h2>
+        <h3>Desarrollador principal de producto multiplataforma — Meson (Proyecto independiente)</h3>
+        <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (PC/Windows, móvil y web)</p>
+        <ul>
+          <li>Diseñé e implementé la arquitectura principal de un ecosistema para restaurantes con apps de negocio, clientes/comunidad y reparto en Flutter/Dart y módulos nativos en Rust mediante <code>flutter_rust_bridge</code>.</li>
+          <li>Implementé red local P2P cifrada (UDP/TCP, AES-GCM) y persistencia offline-first (Isar/SQL) con sincronización diferida y migración de datos entre Firebase / Cloud Firestore (NoSQL) y Supabase / PostgreSQL (SQL).</li>
+          <li>Integré servicio Android en primer plano en Kotlin, un editor visual de mesas 2D/isométrico en Flame, shell personalizable de escritorio y una Store interna de módulos bajo arquitectura modular.</li>
+          <li>Supervisé las entregas de un colaborador en Flutter y definí prioridades técnicas del repositorio (Git / Git LFS).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Videojuegos, web e IA</h2>
+        <ul>
+          <li><strong>Brasas (Flutter y Unity C#):</strong> Paquete compartido Flutter (<code>meson_brasas</code> integrado en Meson Pausa) y versión independiente en Unity 6.3 LTS (C# desacoplado, pruebas EditMode/PlayMode y scripts Python).</li>
+          <li><strong>El Pueblo del Faro (Roblox Studio):</strong> Experiencia independiente en desarrollo con Luau cliente/servidor, Rojo y empaquetado Python (pendiente de pruebas en Studio).</li>
+          <li><strong>Comercio web y sitios Astro:</strong> Tienda Next.js, React, TypeScript y Supabase (catálogo, roles, panel admin, checkout demo) y dos proyectos en Astro (servicios técnicos y prototipo QR/NFC).</li>
+          <li><strong>Meson IA y prototipos:</strong> Desarrollo por cuenta propia de flujos/herramientas con LLMs e IA aplicada, más prototipo 2D en Rust con Bevy.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Tecnologías y conocimientos</h2>
+        <p><strong>Principal (activo):</strong> Flutter, Dart, Rust, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, LLMs / IA aplicada.</p>
+        <p><strong>Prácticas y base adicional:</strong> Arquitectura modular, Clean Architecture, diseño offline-first, migración NoSQL ↔ SQL, pruebas unitarias, Godot (base) y experiencia previa en C, C++, Java, PHP, Laravel y Django.</p>
+      </section>
+
+      <section>
+        <h2>Educación e idiomas</h2>
+        <p><strong>Universidad Bicentenaria de Aragua (UBA)</strong> — Ingeniería en Sistemas, mención Programación (2023 – julio 2027, en curso).</p>
+        <p><strong>Idiomas:</strong> Español (nativo / 100%) · Inglés (bilingüe / 100%, avanzado) · Portugués (avanzado) · Italiano (avanzado) · Alemán (básico) · Japonés (básico).</p>
+      </section>
+    </article>
+  </main>
+</Base>

@@ -1,19 +1,31 @@
-export const englishProjects = [
+export interface EnglishProject {
+  slug: string;
+  number: string;
+  title: string;
+  type: string;
+  description: string;
+  stack: string[];
+  status?: string;
+  images?: { src: string; alt: string; caption: string }[];
+  sections: [string, string][];
+}
+
+export const englishProjects: EnglishProject[] = [
   {
-    slug: 'meson', number: '01', title: 'Meson', type: 'Private product · case study', accent: 'orange',
-    description: 'A restaurant ecosystem with business, customer and delivery apps, native modules, local data and synchronization.',
-    stack: ['Flutter', 'Dart', 'Rust', 'Astro'],
+    slug: 'meson', number: '01', title: 'Meson', type: 'Private product · desktop, mobile & web',
+    description: 'A multiplatform restaurant ecosystem (PC/Windows, mobile and web) with Rust native modules, local persistence and Firebase-to-Supabase sync.',
+    stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     sections: [
-      ['Product scope', 'The repository contains a business app, a customer app with social community features, a delivery app, a website, shared models and native modules. The workflows cover orders, tables, kitchen, inventory, payments, logistics and administration.'],
-      ['Architecture', 'Flutter and Dart power the apps. Rust implements native and network logic through Flutter Rust Bridge. Local persistence supports work during Internet outages, with a remote synchronization path when connectivity returns.'],
-      ['What this case proves', 'It shows how product flows, native integrations and local data fit into one multiplatform system. The implementation remains private; the linked technical cases explain selected subsystems.'],
+      ['Product scope', 'The repository contains a business app (desktop/PC and mobile), a customer app with social community features, a delivery app, a website, shared models and native modules covering orders, tables, kitchen, inventory, payments, logistics and administration.'],
+      ['Architecture', 'Flutter and Dart power the apps across desktop, mobile and web. Rust implements native and network logic through Flutter Rust Bridge, alongside Kotlin Android foreground services. Local persistence (Isar) supports work during Internet outages with deferred sync to Supabase/PostgreSQL after migration from Firebase/Firestore.'],
+      ['What this case proves', 'It shows how product flows, native integrations and relational/NoSQL data fit into one modular multiplatform system. The implementation remains private; the linked technical cases explain selected subsystems.'],
       ['Measured repository scope', 'A local snapshot on September 27, 2026 counted 4,181 files with code extensions and 1,264,247 physical lines before filtering. This includes generated files. A heuristic filter for generated files and selected Meson app/package paths left 741,417 lines. These are repository metrics, not individual authorship or a measure of code quality.'],
       ['Operational boundaries', 'Offline work needs devices and a functioning local network. Power outages require batteries or backup power. Recovery and synchronization need multi-device tests before making measured reliability claims.'],
       ['Ownership and limits', 'Miguel has led most of Meson’s design and implementation. He supervised a Flutter collaborator’s work and assigned the next tasks. This case does not claim unverified production scale, availability or business outcomes.'],
     ],
   },
   {
-    slug: 'red-p2p', number: '02', title: 'Local P2P network', type: 'Meson subsystem · architecture', accent: 'blue',
+    slug: 'red-p2p', number: '02', title: 'Local P2P network', type: 'Meson subsystem · architecture',
     description: 'Local discovery and encrypted messages between devices, with deferred synchronization when Internet access returns.',
     stack: ['Rust', 'UDP/TCP', 'Dart', 'Isar'],
     sections: [
@@ -25,7 +37,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'editor-mesas', number: '03', title: 'Interactive floor editor', type: 'Meson subsystem · interface', accent: 'green',
+    slug: 'editor-mesas', number: '03', title: 'Interactive floor editor', type: 'Meson subsystem · interface',
     description: 'A table and room editor with direct manipulation, 2D and isometric views, built with Flutter and Flame.',
     stack: ['Flutter', 'Flame', 'Dart'],
     sections: [
@@ -36,7 +48,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'shell-personalizable', number: '04', title: 'Customizable shell', type: 'Meson subsystem · desktop experience', accent: 'purple',
+    slug: 'shell-personalizable', number: '04', title: 'Customizable shell', type: 'Meson subsystem · desktop experience',
     description: 'Internal windows, workspaces, a taskbar and saved visual preferences for an adaptable workstation.',
     stack: ['Flutter', 'Dart', 'Desktop UX'],
     sections: [
@@ -47,7 +59,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'store-modulos', number: '05', title: 'Internal module Store', type: 'Meson subsystem · modular platform', accent: 'gold',
+    slug: 'store-modulos', number: '05', title: 'Internal module Store', type: 'Meson subsystem · modular platform',
     description: 'An internal catalog with 44 registered entries, suites, permissions and module state in the shell.',
     stack: ['Flutter', 'Dart', 'Modules'],
     sections: [
@@ -58,7 +70,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'comercio-nextjs', number: '06', title: 'Next.js commerce site', type: 'Independent project · case study', accent: 'blue',
+    slug: 'comercio-nextjs', number: '06', title: 'Next.js commerce site', type: 'Independent project · case study',
     description: 'A jewelry storefront with catalog, search, accounts, administration and a demonstration checkout.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],
     sections: [
@@ -69,7 +81,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'web-servicios', number: '07', title: 'Technical services website', type: 'Astro project · professional site', accent: 'green',
+    slug: 'web-servicios', number: '07', title: 'Technical services website', type: 'Astro project · professional site',
     description: 'A service website with configurable content, project gallery and direct contact channels.',
     stack: ['Astro', 'Tailwind CSS', 'JavaScript'],
     sections: [
@@ -80,7 +92,8 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'pulseras-emergencia', number: '08', title: 'QR/NFC emergency platform', type: 'Astro prototype · in development', accent: 'purple',
+    slug: 'pulseras-emergencia', number: '08', title: 'QR/NFC emergency platform', type: 'Astro prototype · in development',
+    status: 'Prototype',
     description: 'A wristband linked web prototype with emergency cards, user dashboards, inventory and order flows.',
     stack: ['Astro', 'TypeScript', 'Supabase', 'QR/NFC'],
     sections: [
@@ -91,7 +104,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'app-clientes', number: '09', title: 'Customer and community app', type: 'Meson app · social experience', accent: 'green',
+    slug: 'app-clientes', number: '09', title: 'Customer and community app', type: 'Meson app · social experience',
     description: 'Restaurant discovery, reservations and delivery tracking alongside a social community with posts and reactions.',
     stack: ['Flutter', 'Dart', 'Supabase', 'Flame'],
     sections: [
@@ -102,7 +115,7 @@ export const englishProjects = [
     ],
   },
   {
-    slug: 'app-reparto', number: '10', title: 'Delivery app', type: 'Meson app · logistics', accent: 'blue',
+    slug: 'app-reparto', number: '10', title: 'Delivery app', type: 'Meson app · logistics',
     description: 'Order offers, a delivery map, status updates and a local retry queue for changes made during network outages.',
     stack: ['Flutter', 'Dart', 'Maps', 'Supabase'],
     sections: [
@@ -110,6 +123,51 @@ export const englishProjects = [
       ['Delivery stages', 'The code covers arrival at the restaurant, pickup, transit and delivery, plus photo proof and history and earnings screens.'],
       ['Network recovery', 'A local service persists status and photo tasks and retries them when the remote service is available. Integration testing is needed before claiming delivery guarantees.'],
       ['Evidence', 'This case describes reviewed implementation, without claiming measured delivery times, geographic coverage or production scale.'],
+    ],
+  },
+  {
+    slug: 'brasas', number: '11', title: 'Brasas (Flutter & Unity)', type: 'Multiplatform game · two engines',
+    description: 'Action adventure built across two engines: a shared Flutter package embedded in Meson Pausa and a Unity 6.3 LTS (C#) adaptation with EditMode/PlayMode tests.',
+    stack: ['Unity', 'C#', 'Flutter', 'Python'],
+    images: [
+      {
+        src: '/images/brasas-play.png',
+        alt: 'Unity editor runtime capture of Brasas showing character Lía, lantern companion Tilo, and HUD',
+        caption: 'Unity 6.3 LTS capture — Refugio de las promesas scene and custom HUD.',
+      },
+      {
+        src: '/images/brasas-map.png',
+        alt: 'Unity route map overlay for Brasas showing connected chapter locations',
+        caption: 'Unity 6.3 LTS capture — interactive route map and checkpoint progression.',
+      },
+    ],
+    sections: [
+      ['Two implementations', 'Brasas exists both as a shared Flutter package (meson_brasas, playable standalone and embedded inside the multiplatform Meson Pausa app) and as a dedicated Unity 6.3 LTS project in C#.'],
+      ['Unity architecture & tests', 'Combat simulation lives in a decoupled C# assembly separated from Unity engine presentation/input. Automated checks include EditMode and PlayMode test suites covering shrines, abilities, saves and seeded encounters, supported by Python content and verification scripts.'],
+      ['Flutter integration', 'The Flutter edition shares gameplay and audio assets across desktop, web and mobile targets while keeping local run storage separated per host application.'],
+      ['Current scope', 'PC editor builds, unit/PlayMode checks and GPU art captures were verified locally; full campaign completion, mobile exports and live performance profiling remain pending.'],
+    ],
+  },
+  {
+    slug: 'el-pueblo-del-faro', number: '12', title: 'El Pueblo del Faro', type: 'Roblox Studio · in development',
+    status: 'In development',
+    description: 'Independent Roblox experience built with Luau client/server scripts, Rojo configuration and Python packaging/verification tools.',
+    stack: ['Roblox Studio', 'Luau', 'Python', 'Rojo'],
+    sections: [
+      ['Architecture', 'Separates shared simulation/config in ReplicatedStorage from server-authoritative session and validation scripts in ServerScriptService and client presentation/input scripts in StarterPlayerScripts.'],
+      ['Tooling', 'Includes a Rojo project file and Python CLI scripts to validate script references and package the place into XML (.rbxlx) artifacts outside Studio.'],
+      ['Current limit', 'Scripts and packaging checks were created locally, but the project has not yet been executed inside Roblox Studio or published to players.'],
+    ],
+  },
+  {
+    slug: 'meson-ia-prototipos', number: '13', title: 'Meson IA & prototypes', type: 'Applied AI · Rust Bevy · experimentation',
+    status: 'Independent work',
+    description: 'Self-directed LLM integration and applied AI tooling (Meson IA), alongside a Rust Bevy 2D prototype and Godot familiarity.',
+    stack: ['LLMs / AI', 'Rust', 'Bevy', 'Python'],
+    sections: [
+      ['Meson IA & applied LLMs', 'Independent development and integration of LLM-assisted workflows, prompt pipelines and practical AI tooling built outside public repositories.'],
+      ['Rust Bevy prototype', 'Experimental 2D game prototype using Rust (2024 edition) and Bevy 0.14.0 to explore ECS architecture outside Flutter and Unity.'],
+      ['Breadth & boundaries', 'Combined with Godot familiarity and prior course/pre-Git work in C, C++, Java, PHP/Laravel, Django and relational/NoSQL databases (MySQL, SQLite, Cloud Firestore, PostgreSQL).'],
     ],
   },
 ];

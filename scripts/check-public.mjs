@@ -19,6 +19,7 @@ const sourceFiles = ['src', 'public', 'samples', 'scripts'].flatMap((dir) => fil
 sourceFiles.push(resolve('README.md'), resolve('package.json'), resolve('astro.config.mjs'));
 const htmlFiles = files.filter((file) => file.endsWith('.html'));
 const errors = [];
+if (htmlFiles.length === 0) errors.push('No se encontraron páginas HTML en dist/.');
 const sensitive = [
   [/C:\\Users\\/i, 'ruta privada de Windows'],
   [/(?:sk_live_|sk_test_)[A-Za-z0-9]{8,}/, 'clave de pago'],

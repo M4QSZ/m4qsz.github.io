@@ -7,12 +7,24 @@ export function getStaticPaths() {
 }
 
 const { project } = Astro.props;
+const scope = project.number === '01' || Number(project.number) > 5 ? 'Independent product' : 'Meson subsystem';
+const status = project.status ?? 'Reviewed implementation';
 ---
 <Base lang="en" title={`${project.title} | Miguel`} description={project.description}>
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/">← Back to portfolio</a>
     <div class="detail-hero"><div><p class="section-kicker">CASE STUDY / {project.number}</p><h1 class="long-title">{project.title}<span>.</span></h1><p class="detail-lede">{project.description}</p></div><div class="detail-badge">{project.stack.slice(0, 2).join(' + ')}<br /><strong>{project.type.toUpperCase()}</strong></div></div>
-    <div class="detail-meta"><div><span>PROJECT</span><strong>{project.number === '01' || Number(project.number) > 5 ? 'Independent product' : 'Meson subsystem'}</strong></div><div><span>TECHNOLOGIES</span><strong>{project.stack.join(' · ')}</strong></div><div><span>STATUS</span><strong>{project.number === '08' ? 'Prototype' : 'Reviewed implementation'}</strong></div></div>
+    <div class="detail-meta"><div><span>PROJECT</span><strong>{scope}</strong></div><div><span>TECHNOLOGIES</span><strong>{project.stack.join(' · ')}</strong></div><div><span>STATUS</span><strong>{status}</strong></div></div>
+    {project.images && project.images.length > 0 && (
+      <div class="gallery-grid">
+        {project.images.map((img) => (
+          <figure class="gallery-figure">
+            <img src={img.src} alt={img.alt} loading="lazy" />
+            <figcaption>{img.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    )}
     <div class="case-layout"><aside>{project.sections.map(([heading], index) => <span>0{index + 1} / {heading.toUpperCase()}</span>)}</aside><div class="case-content">{project.sections.map(([heading, body], index) => <section><p class="section-kicker">0{index + 1} / {heading.toUpperCase()}</p><h2>{heading}.</h2><p>{body}</p></section>)}</div></div>
     <div class="detail-actions"><a class="button button-outline" href="/en/">All projects ↗</a></div>
   </main>
