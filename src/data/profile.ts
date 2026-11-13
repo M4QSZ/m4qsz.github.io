@@ -73,6 +73,24 @@ export const publicCrates = [
       status: '3 Rust tests + live C99 cdylib smoke binary green',
     },
   },
+  {
+    slug: 'dart-offline-outbox',
+    repo: 'https://github.com/M4QSZ/dart-offline-outbox',
+    ciUrl: 'https://github.com/M4QSZ/dart-offline-outbox/actions',
+    stack: ['Dart 3', 'Offline-First', 'Outbox Pattern', 'CI Linux + Windows'],
+    es: {
+      eyebrow: '03 / PAQUETE DART · CI VERDE',
+      title: 'dart-offline-outbox',
+      lead: 'Outbox transaccional offline-first en Dart puro con coalescencia de escrituras por entidad, backoff exponencial con jitter, ACK parcial por lote y cuarentena de fallos permanentes.',
+      status: '4 tests unitarios + analyze estrictos en verde (Ubuntu & Windows)',
+    },
+    en: {
+      eyebrow: '03 / DART PACKAGE · GREEN CI',
+      title: 'dart-offline-outbox',
+      lead: 'Pure-Dart transactional offline-first outbox with per-entity write coalescing, jittered exponential backoff, partial batch ACKs and deterministic dead-letter quarantine.',
+      status: '4 unit tests + strict analyzer green (Ubuntu & Windows)',
+    },
+  },
 ];
 
 export const projects: ProjectItem[] = [
