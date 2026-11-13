@@ -1,0 +1,301 @@
+/* Upgraded Full-Width Glass Navbar matching Portfolio & Meson aesthetic */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(16, 19, 20, 0.84);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.header-inner {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+/* Brand mark: single inline flex row fixes vertical "." wrap bug */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid rgba(228, 165, 108, 0.55);
+  background: linear-gradient(145deg, #212624, #141817);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: #f3f0e7;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.brand-mark b {
+  color: #e4a56c;
+  font-weight: 700;
+}
+
+.brand-name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.12;
+}
+
+.brand-name strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f3f0e7;
+  letter-spacing: -0.02em;
+}
+
+.brand-name small {
+  margin: 2px 0 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #8e988f;
+}
+
+/* Center floating pill nav */
+.nav-pill-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid #303934;
+  background: rgba(25, 30, 28, 0.85);
+}
+
+.nav-pill-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #b4bab5;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.nav-pill-link:hover {
+  color: #f3f0e7;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-pill-link.is-active {
+  color: #f3f0e7;
+  background: rgba(228, 165, 108, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(228, 165, 108, 0.28);
+}
+
+.nav-pill-badge {
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(131, 198, 160, 0.14);
+  border: 1px solid rgba(131, 198, 160, 0.35);
+  color: #83c6a0;
+}
+
+/* Right actions: ES|EN toggle, GitHub pill, Contact CTA */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid #37423c;
+  background: #171c1b;
+}
+
+.lang-opt {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font: 700 11px 'Space Grotesk', sans-serif;
+  letter-spacing: 0.06em;
+  color: #9ba59d;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.lang-opt:hover:not(.is-current) {
+  color: #f3f0e7;
+}
+
+.lang-opt.is-current {
+  background: #2b342f;
+  color: #e4a56c;
+}
+
+.header-github-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid #3a453e;
+  background: #181e1c;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #dce2dc;
+  transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.header-github-pill span {
+  color: #e4a56c;
+}
+
+.header-github-pill:hover {
+  border-color: #e4a56c;
+  color: #f3f0e7;
+  transform: translateY(-1px);
+}
+
+.header-contact-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: #e4a56c;
+  color: #141513;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.header-contact-pill:hover {
+  background: #f2bb88;
+  transform: translateY(-1px);
+}
+
+/* Mobile menu button & drawer */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid #3c4640;
+  background: #191f1d;
+  cursor: pointer;
+}
+
+.mobile-menu-btn span {
+  display: block;
+  width: 16px;
+  height: 1.8px;
+  border-radius: 2px;
+  background: #f3f0e7;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mobile-menu-btn.is-open span:nth-child(1) {
+  transform: translateY(5.8px) rotate(45deg);
+}
+.mobile-menu-btn.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.mobile-menu-btn.is-open span:nth-child(3) {
+  transform: translateY(-5.8px) rotate(-45deg);
+}
+
+.mobile-nav-drawer[hidden] {
+  display: none;
+}
+
+.mobile-nav-drawer {
+  padding: 12px 0 18px;
+  border-top: 1px solid #2b332e;
+}
+
+.mobile-nav-links {
+  display: grid;
+  gap: 6px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: #181e1c;
+  border: 1px solid #2e3631;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d6dcd6;
+}
+
+.mobile-nav-item.is-active {
+  border-color: rgba(228, 165, 108, 0.45);
+  color: #e4a56c;
+}
+
+.mobile-nav-footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.mobile-cta {
+  display: grid;
+  place-items: center;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #e4a56c;
+  color: #141513;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mobile-gh {
+  display: grid;
+  place-items: center;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid #3c4640;
+  background: #181e1c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .nav-pill-group { display: none; }
+  .header-contact-pill { display: none; }
+  .mobile-menu-btn { display: inline-flex; }
+}
+
+@media (max-width: 640px) {
+  .header-inner { min-height: 66px; }
+  .brand-name small { display: none; }
+  .header-github-pill { display: none; }
+}

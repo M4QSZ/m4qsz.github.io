@@ -1,10 +1,12 @@
 ---
 import '../styles/global.css';
+import '../styles/navbar.css';
 import '../styles/sections.css';
 import '../styles/previews.css';
 import '../styles/cases.css';
 import '../styles/responsive.css';
 import { profile } from '../data/profile';
+import SiteNavbar from '../components/SiteNavbar.astro';
 import BottomScrollProgress from '../components/BottomScrollProgress.astro';
 import ImageLightbox from '../components/ImageLightbox.astro';
 
@@ -84,19 +86,14 @@ const personSchema = {
   <body>
     <a class="skip-link" href="#contenido">{isEnglish ? 'Skip to content' : 'Ir al contenido'}</a>
     <div class="site-shell">
-      <header class="site-header wrap">
-        <a class="brand" href={home} aria-label={isEnglish ? 'Go to home' : 'Ir al inicio'}>
-          <span class="brand-mark" aria-hidden="true">M<span>.</span></span>
-          <span>{profile.shortName}<small> / {isEnglish ? 'PORTFOLIO' : 'PORTAFOLIO'}</small></span>
-        </a>
-        <nav aria-label={isEnglish ? 'Main navigation' : 'Navegación principal'}>
-          <a href={`${home}#proyectos`}>{isEnglish ? 'Projects' : 'Proyectos'}</a>
-          <a href={`${home}#tecnologias`}>{isEnglish ? 'Skills' : 'Tecnologías'}</a>
-          <a href={lab}>{isEnglish ? 'Lab' : 'Laboratorio'}</a>
-          <a href={cvPath}>CV</a>
-        </nav>
-        <div class="header-actions"><a class="language-link" href={counterpart} lang={isEnglish ? 'es' : 'en'} aria-label={isEnglish ? 'Cambiar a español' : 'Switch to English'}>{isEnglish ? 'ES' : 'EN'}</a><a class="header-link" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
-      </header>
+      <SiteNavbar
+        isEnglish={isEnglish}
+        home={home}
+        lab={lab}
+        cvPath={cvPath}
+        counterpart={counterpart}
+        pathname={pathname}
+      />
       <slot />
       <footer class="site-footer wrap">
         <div><strong>{profile.name}</strong><p>{isEnglish ? `${profile.locationEn} · Multiplatform software, systems and games.` : `${profile.location} · Software multiplataforma, sistemas y videojuegos.`}</p></div>

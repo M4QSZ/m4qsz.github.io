@@ -1,0 +1,126 @@
+---
+import { profile } from '../data/profile';
+
+interface Props {
+  isEnglish: boolean;
+  home: string;
+  lab: string;
+  cvPath: string;
+  counterpart: string;
+  pathname: string;
+}
+
+const { isEnglish, home, lab, cvPath, counterpart, pathname } = Astro.props;
+
+const isLabActive = pathname.startsWith('/laboratorio') || pathname.startsWith('/en/lab') || pathname.startsWith('/muestras') || pathname.startsWith('/en/samples');
+const isCvActive = pathname.startsWith('/cv') || pathname.startsWith('/en/cv');
+const isHomeActive = !isLabActive && !isCvActive;
+
+const navLinks = [
+  { href: `${home}#proyectos`, label: isEnglish ? 'Projects' : 'Proyectos', active: isHomeActive },
+  { href: `${home}#tecnologias`, label: isEnglish ? 'Skills' : 'Tecnologías', active: false },
+  { href: lab, label: isEnglish ? 'Lab' : 'Laboratorio', badge: isEnglish ? '5 demos' : 'Muestras', active: isLabActive },
+  { href: cvPath, label: 'CV', active: isCvActive },
+];
+---
+
+<header class="site-header">
+  <div class="header-inner wrap">
+    <a class="brand" href={home} aria-label={isEnglish ? 'Go to home' : 'Ir al inicio'}>
+      <span class="brand-mark" aria-hidden="true">M<b>.</b></span>
+      <span class="brand-name">
+        <strong>{profile.shortName}</strong>
+        <small>{isEnglish ? 'SOFTWARE & GAMES' : 'PORTAFOLIO · 2026'}</small>
+      </span>
+    </a>
+
+    <nav class="nav-pill-group" aria-label={isEnglish ? 'Main navigation' : 'Navegación principal'}>
+      {navLinks.map((item) => (
+        <a href={item.href} class:list={['nav-pill-link', item.active && 'is-active']}>
+          <span>{item.label}</span>
+          {item.badge && <em class="nav-pill-badge">{item.badge}</em>}
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label={isEnglish ? 'Language switch' : 'Cambio de idioma'}>
+        {isEnglish ? (
+          <>
+            <a href={counterpart} lang="es" class="lang-opt" aria-label="Cambiar a español">ES</a>
+            <span class="lang-opt is-current" aria-current="true">EN</span>
+          </>
+        ) : (
+          <>
+            <span class="lang-opt is-current" aria-current="true">ES</span>
+            <a href={counterpart} lang="en" class="lang-opt" aria-label="Switch to English">EN</a>
+          </>
+        )}
+      </div>
+
+      <a class="header-github-pill" href={profile.github} target="_blank" rel="noopener noreferrer">
+        GitHub <span aria-hidden="true">↗</span>
+      </a>
+
+      <a class="header-contact-pill" href={`${home}#contacto`}>
+        {isEnglish ? 'Contact' : 'Contacto'}
+      </a>
+
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        id="mobile-menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-nav-drawer"
+        aria-label={isEnglish ? 'Toggle navigation menu' : 'Abrir menú de navegación'}
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav
+    id="mobile-nav-drawer"
+    class="mobile-nav-drawer wrap"
+    aria-label={isEnglish ? 'Mobile navigation' : 'Navegación móvil'}
+    hidden
+  >
+    <div class="mobile-nav-links">
+      {navLinks.map((item) => (
+        <a href={item.href} class:list={['mobile-nav-item', item.active && 'is-active']}>
+          <span>{item.label}</span>
+          {item.badge && <em class="nav-pill-badge">{item.badge}</em>}
+        </a>
+      ))}
+    </div>
+    <div class="mobile-nav-footer">
+      <a href={`${home}#contacto`} class="mobile-cta">{isEnglish ? 'Contact Miguel' : 'Contactar'} →</a>
+      <a href={profile.github} target="_blank" rel="noopener noreferrer" class="mobile-gh">GitHub ↗</a>
+    </div>
+  </nav>
+</header>
+
+<script is:inline>
+  (() => {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const drawer = document.getElementById('mobile-nav-drawer');
+    if (!toggle || !drawer) return;
+
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.classList.toggle('is-open', open);
+      drawer.hidden = !open;
+    };
+
+    toggle.addEventListener('click', () => {
+      const next = toggle.getAttribute('aria-expanded') !== 'true';
+      setOpen(next);
+    });
+
+    drawer.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.closest('a')) {
+        setOpen(false);
+      }
+    });
+  })();
+</script>
