@@ -151,12 +151,49 @@
   padding: 5px 8px;
 }
 
-.card-cta {
+.card-cta-row {
   margin-top: auto;
   padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card-cta {
   font-size: 12.5px;
   font-weight: 700;
   color: #e4a56c;
+}
+
+.card-ext-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3f0e7;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.card-ext-link:hover {
+  border-color: #e4a56c;
+  background: rgba(228, 165, 108, 0.12);
+}
+
+.card-ext-live {
+  border-color: rgba(131, 198, 160, 0.45);
+  color: #83c6a0;
+  background: rgba(131, 198, 160, 0.08);
+}
+
+.card-ext-live:hover {
+  border-color: #83c6a0;
+  background: rgba(131, 198, 160, 0.16);
 }
 
 /* Contrasting Light Skills Section */

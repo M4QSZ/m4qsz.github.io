@@ -10,6 +10,8 @@ export interface EnglishProject {
   accent?: string;
   variant?: ProjectVariant;
   status?: string;
+  liveUrl?: string;
+  repoUrl?: string;
   images?: { src: string; alt: string; caption: string }[];
   sections: [string, string][];
 }
@@ -21,6 +23,7 @@ export const englishProjects: EnglishProject[] = [
     stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     accent: 'orange',
     variant: 'screenshot',
+    repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     images: [
       { src: '/images/meson-shell.webp', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell — module launcher, Phone Link and live taskbar.' },
       { src: '/images/meson-floor-editor.webp', alt: 'Current isometric floor editor window in Meson', caption: 'Interactive isometric floor editor with multi-floor selector.' },
@@ -42,6 +45,7 @@ export const englishProjects: EnglishProject[] = [
     stack: ['Rust', 'UDP/TCP', 'Dart', 'Isar'],
     accent: 'blue',
     variant: 'p2p',
+    repoUrl: 'https://github.com/M4QSZ/lan-delta-sync',
     sections: [
       ['Problem', 'Restaurant devices need to keep exchanging changes when their Internet connection fails.'],
       ['Implementation', 'The Rust layer includes local discovery, UDP and TCP transport, encrypted message envelopes and replay controls. Dart integrates the native engine with app state; Isar stores data and pending actions.'],
@@ -120,6 +124,7 @@ export const englishProjects: EnglishProject[] = [
     stack: ['Astro', 'Tailwind CSS', 'JavaScript'],
     accent: 'teal',
     variant: 'screenshot',
+    liveUrl: 'https://set-ingenieria.vercel.app',
     images: [
       { src: '/images/web-servicios.webp', alt: 'Astro technical services website hero with service overview and contact links', caption: 'Responsive Astro + Tailwind layout driven by a single central configuration file.' },
     ],
@@ -137,6 +142,7 @@ export const englishProjects: EnglishProject[] = [
     stack: ['Astro', 'TypeScript', 'Supabase', 'QR/NFC'],
     accent: 'orange',
     variant: 'screenshot',
+    liveUrl: 'https://pulsera-medica.vercel.app',
     images: [
       { src: '/images/pulseras-qr.webp', alt: 'MedPulse SOS hero explaining instant QR/NFC medical card access', caption: 'Landing flow presenting QR/NFC emergency scan response and demo card.' },
       { src: '/images/pulseras-catalog.webp', alt: 'Wristband product catalog tiers in MedPulse SOS prototype', caption: 'Configurable wristband tiers connected to order tracking and admin tooling.' },

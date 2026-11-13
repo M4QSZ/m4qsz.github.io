@@ -63,6 +63,14 @@ const status = project.status ?? 'Reviewed implementation';
         ))}
       </div>
     </div>
-    <div class="detail-actions"><a class="button button-outline" href="/en/">All projects ↗</a></div>
+    <div class="detail-actions">
+      {project.liveUrl && (
+        <a class="button button-primary" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Open live deployment ↗</a>
+      )}
+      {project.repoUrl && (
+        <a class="button button-primary" href={project.repoUrl} target="_blank" rel="noopener noreferrer">Inspect public Rust crate ↗</a>
+      )}
+      <a class="button button-outline" href="/en/">All projects ↗</a>
+    </div>
   </main>
 </Base>

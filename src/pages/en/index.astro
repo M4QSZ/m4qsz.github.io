@@ -27,6 +27,8 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
   categoryLabel,
   group: getGroup(p.number),
   isEnglish: true,
+  liveUrl: p.liveUrl,
+  repoUrl: p.repoUrl,
 });
 ---
 <Base

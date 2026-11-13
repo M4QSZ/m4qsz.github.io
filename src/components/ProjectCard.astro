@@ -17,6 +17,8 @@ interface Props {
   categoryLabel: string;
   group?: string;
   isEnglish?: boolean;
+  liveUrl?: string;
+  repoUrl?: string;
 }
 
 const {
@@ -34,9 +36,13 @@ const {
   categoryLabel,
   group = 'systems',
   isEnglish = false,
+  liveUrl,
+  repoUrl,
 } = Astro.props;
 
 const ctaLabel = isEnglish ? 'Open technical case →' : 'Abrir caso técnico →';
+const liveLabel = isEnglish ? 'Live site ↗' : 'Ver en vivo ↗';
+const repoLabel = isEnglish ? 'Rust crate ↗' : 'Crate Rust ↗';
 ---
 
 <article class={`project-card accent-${accent} reveal-on-scroll`} data-group={group}>
@@ -62,6 +68,14 @@ const ctaLabel = isEnglish ? 'Open technical case →' : 'Abrir caso técnico �
     <div class="tags">
       {stack.map((skill) => <span>{skill}</span>)}
     </div>
-    <a class="card-cta" href={href}>{ctaLabel}</a>
+    <div class="card-cta-row">
+      <a class="card-cta" href={href}>{ctaLabel}</a>
+      {liveUrl && (
+        <a class="card-ext-link card-ext-live" href={liveUrl} target="_blank" rel="noopener noreferrer">{liveLabel}</a>
+      )}
+      {repoUrl && (
+        <a class="card-ext-link" href={repoUrl} target="_blank" rel="noopener noreferrer">{repoLabel}</a>
+      )}
+    </div>
   </div>
 </article>

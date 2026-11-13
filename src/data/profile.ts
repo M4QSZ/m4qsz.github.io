@@ -32,7 +32,48 @@ export interface ProjectItem {
   image?: string;
   secondaryImage?: string;
   imageAlt?: string;
+  liveUrl?: string;
+  repoUrl?: string;
 }
+
+export const publicCrates = [
+  {
+    slug: 'lan-delta-sync',
+    repo: 'https://github.com/M4QSZ/lan-delta-sync',
+    ciUrl: 'https://github.com/M4QSZ/lan-delta-sync/actions',
+    stack: ['Rust', 'ChaCha20-Poly1305', 'HLC / CRDT', 'CI Linux + Windows'],
+    es: {
+      eyebrow: '01 / CRATE RUST · CI VERDE',
+      title: 'lan-delta-sync',
+      lead: 'Implementación limpia en Rust de reloj lógico híbrido (HLC), mapa CRDT LWW con tombstones, framing cifrado AEAD anti-replay y outbox con backoff exponencial.',
+      status: '7 tests de integración + ejemplo CLI en verde (Ubuntu & Windows)',
+    },
+    en: {
+      eyebrow: '01 / RUST CRATE · GREEN CI',
+      title: 'lan-delta-sync',
+      lead: 'Clean-room Rust implementation of a Hybrid Logical Clock (HLC), LWW map CRDT with tombstones, anti-replay ChaCha20-Poly1305 framing and bounded retry outbox.',
+      status: '7 integration tests + CLI simulation green (Ubuntu & Windows)',
+    },
+  },
+  {
+    slug: 'ffi-arena-bridge',
+    repo: 'https://github.com/M4QSZ/ffi-arena-bridge',
+    ciUrl: 'https://github.com/M4QSZ/ffi-arena-bridge/actions',
+    stack: ['Rust', 'C99 ABI', 'dart:ffi', 'CI + cdylib Smoke'],
+    es: {
+      eyebrow: '02 / CRATE RUST + FFI · CI VERDE',
+      title: 'ffi-arena-bridge',
+      lead: 'Puente C-ABI y dart:ffi sin dependencias externas con handles generacionales u64, protección anti-pánico (catch_unwind), liberación segura contra double-free e índice de trigramas.',
+      status: '3 tests Rust + prueba C99 enlazada contra cdylib en verde',
+    },
+    en: {
+      eyebrow: '02 / RUST + FFI CRATE · GREEN CI',
+      title: 'ffi-arena-bridge',
+      lead: 'Zero-dependency C-ABI and dart:ffi bridge with u64 generational handles, panic-shield boundary (catch_unwind), double-free-safe buffers and deterministic trigram indexing.',
+      status: '3 Rust tests + live C99 cdylib smoke binary green',
+    },
+  },
+];
 
 export const projects: ProjectItem[] = [
   {
@@ -47,6 +88,7 @@ export const projects: ProjectItem[] = [
     image: '/images/meson-shell.webp',
     secondaryImage: '/images/meson-web-devices.webp',
     imageAlt: 'Captura actual del escritorio de Meson con lanzador de módulos y panel Phone Link',
+    repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
   },
   {
     number: '02',
@@ -57,6 +99,7 @@ export const projects: ProjectItem[] = [
     href: '/proyectos/red-p2p/',
     accent: 'blue',
     variant: 'p2p',
+    repoUrl: 'https://github.com/M4QSZ/lan-delta-sync',
   },
   {
     number: '03',
@@ -118,6 +161,7 @@ export const projects: ProjectItem[] = [
     variant: 'screenshot',
     image: '/images/web-servicios.webp',
     imageAlt: 'Captura del sitio web profesional en Astro y Tailwind CSS para servicios técnicos',
+    liveUrl: 'https://set-ingenieria.vercel.app',
   },
   {
     number: '08',
@@ -131,6 +175,7 @@ export const projects: ProjectItem[] = [
     image: '/images/pulseras-qr.webp',
     secondaryImage: '/images/pulseras-catalog.webp',
     imageAlt: 'Captura de la plataforma MedPulse SOS con ficha médica QR/NFC y catálogo de pulseras',
+    liveUrl: 'https://pulsera-medica.vercel.app',
   },
   {
     number: '09',
