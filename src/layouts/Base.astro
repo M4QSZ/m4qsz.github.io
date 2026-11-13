@@ -37,19 +37,28 @@ const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: profile.name,
-  jobTitle: isEnglish ? 'Multiplatform Software Engineer' : 'Ingeniero de software multiplataforma',
+  alternateName: ['M4QSZ', 'Miguel Quevedo'],
+  jobTitle: isEnglish ? 'Multiplatform Software & Systems Engineer (Flutter · Rust · Web)' : 'Ingeniero de software multiplataforma y sistemas (Flutter · Rust · Web)',
+  description,
   url: siteOrigin.toString(),
+  image: new URL('/images/miguel-avatar.webp', siteOrigin).toString(),
   email: profile.email ? `mailto:${profile.email}` : undefined,
-  sameAs: [profile.github, profile.linkedin].filter(Boolean),
+  address: {
+    '@type': 'PostalAddress',
+    addressRegion: 'Aragua',
+    addressCountry: 'VE',
+  },
+  sameAs: [profile.github, profile.linkedin, 'https://set-ingenieria.vercel.app', 'https://pulsera-medica.vercel.app'].filter(Boolean),
   alumniOf: {
     '@type': 'CollegeOrUniversity',
     name: 'Universidad Bicentenaria de Aragua',
   },
   knowsLanguage: ['es', 'en', 'pt', 'it', 'de', 'ja'],
   knowsAbout: [
-    'Flutter', 'Dart', 'Rust', 'C#', 'Unity', 'TypeScript', 'Next.js',
-    'Astro', 'Python', 'Lua', 'Kotlin', 'Supabase', 'PostgreSQL',
-    'MySQL', 'SQLite', 'Cloud Firestore', 'Git', 'Git LFS', 'AI/LLM Tooling',
+    'Flutter', 'Dart', 'Rust', 'C-ABI', 'dart:ffi', 'Offline-First Architecture',
+    'CRDT', 'P2P Sync', 'C#', 'Unity', 'TypeScript', 'Next.js',
+    'Astro', 'Python', 'Lua', 'Luau', 'Kotlin', 'Supabase', 'PostgreSQL',
+    'MySQL', 'SQLite', 'Isar', 'Cloud Firestore', 'Git', 'Git LFS', 'AI/LLM Tooling',
   ],
 };
 ---
@@ -58,6 +67,8 @@ const personSchema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content={profile.name} />
+    <meta name="robots" content="index, follow" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#101314" />
     <link rel="canonical" href={canonicalUrl} />
