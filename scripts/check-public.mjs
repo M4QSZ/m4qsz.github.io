@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve, extname } from 'node:path';
+import { join, resolve, extname, sep } from 'node:path';
 
 const dist = resolve('dist');
 if (!existsSync(dist)) {
@@ -40,7 +40,7 @@ for (const file of [...files, ...sourceFiles]) {
     const pathname = decodeURIComponent(match[1]);
     if (pathname.startsWith('//')) continue;
     const destination = resolve(dist, `.${pathname}`);
-    if (!destination.startsWith(`${dist}\\`) && destination !== dist) {
+    if (!destination.startsWith(`${dist}${sep}`) && destination !== dist) {
       errors.push(`${file}: enlace fuera de dist: ${pathname}`);
       continue;
     }
