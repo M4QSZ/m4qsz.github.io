@@ -28,9 +28,29 @@ const navLinks = [
   <div class="header-inner wrap">
     <a class="brand" href={home} aria-label={isEnglish ? 'Go to home' : 'Ir al inicio'}>
       <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 36 36" width="24" height="24" fill="none">
-          <path d="M4.5 27.5V8.5h4.6L15.5 18l6.4-9.5h4.6v19h-4.4V15.7L15.5 24.5 8.9 15.7v11.8z" fill="currentColor" />
-          <circle cx="31" cy="25" r="3" fill="#e4a56c" />
+        <svg viewBox="0 0 40 40" width="38" height="38" fill="none">
+          <defs>
+            <linearGradient id="mq-copper" x1="18" y1="12" x2="34" y2="30" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#f2bb88" />
+              <stop offset="100%" stop-color="#c87b4b" />
+            </linearGradient>
+            <linearGradient id="mq-ivory" x1="6" y1="12" x2="22" y2="30" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#f7f5ef" />
+              <stop offset="100%" stop-color="#c8cfc7" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M8.5 29.5L13 13.5L20 22.8L17.2 26.8L13.6 21.8L11.8 29.5H8.5Z"
+            fill="url(#mq-ivory)"
+          />
+          <path
+            d="M20 22.8L27 13.5L31.5 29.5H28.2L26.4 21.8L20 30.2L17.2 26.8L20 22.8Z"
+            fill="url(#mq-copper)"
+          />
+          <path
+            d="M20 8.5L22.2 12L20 15.5L17.8 12L20 8.5Z"
+            fill="#83c6a0"
+          />
         </svg>
       </span>
       <span class="brand-name">
@@ -119,9 +139,11 @@ const navLinks = [
     const drawer = document.getElementById('mobile-nav-drawer');
     if (!toggle || !drawer) return;
 
+    const header = toggle.closest('.site-header');
     const setOpen = (open) => {
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       toggle.classList.toggle('is-open', open);
+      if (header) header.classList.toggle('is-menu-open', open);
       drawer.hidden = !open;
     };
 

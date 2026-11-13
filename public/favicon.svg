@@ -1,5 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#101314"/>
-  <path d="M14 46V18h7l11 15 11-15h7v28h-8V30L32 43 22 30v16z" fill="#f5f2e9"/>
-  <circle cx="53" cy="48" r="5" fill="#e4a56c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#222926" />
+      <stop offset="100%" stop-color="#101314" />
+    </linearGradient>
+    <linearGradient id="copper" x1="28" y1="20" x2="52" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f2bb88" />
+      <stop offset="100%" stop-color="#c87b4b" />
+    </linearGradient>
+    <linearGradient id="ivory" x1="12" y1="20" x2="34" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f7f5ef" />
+      <stop offset="100%" stop-color="#c8cfc7" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg)" stroke="#e4a56c" stroke-opacity="0.45" stroke-width="2" />
+  <path d="M13 48L20.5 21.5L32 37L27.4 43.2L21.5 35.2L18.6 48H13Z" fill="url(#ivory)" />
+  <path d="M32 37L43.5 21.5L51 48H45.4L42.5 35.2L32 49L27.4 43.2L32 37Z" fill="url(#copper)" />
+  <path d="M32 13L35.8 19L32 25L28.2 19L32 13Z" fill="#83c6a0" />
 </svg>

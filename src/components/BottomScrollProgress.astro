@@ -31,6 +31,7 @@ const defaultLabel = pageLabel ?? (isEnglish ? 'Overview' : 'Inicio');
 
 <script is:inline define:vars={{ defaultLabel }}>
   (() => {
+    const header = document.querySelector('.site-header');
     const fill = document.getElementById('nav-scroll-progress');
     const pctEl = document.getElementById('scroll-progress-pct');
     const labelEl = document.getElementById('scroll-section-label');
@@ -49,6 +50,9 @@ const defaultLabel = pageLabel ?? (isEnglish ? 'Overview' : 'Inicio');
       const ratio = scrollHeight > 0 ? Math.min(1, Math.max(0, scrollTop / scrollHeight)) : 1;
       const pct = Math.round(ratio * 100);
 
+      if (header) {
+        header.classList.toggle('is-scrolled', scrollTop > 12);
+      }
       if (fill) {
         fill.style.width = `${(ratio * 100).toFixed(2)}%`;
       }
