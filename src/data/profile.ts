@@ -146,7 +146,7 @@ export const capabilities = [
   },
   {
     label: 'Videojuegos, motores y equipo',
-    detail: 'Motores activos, coordinación de proyectos y delegación en equipo, conocimientos en Godot y base previa.',
-    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'Coordinación de proyectos', 'Trabajo en equipo', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
+    detail: 'Motores activos, coordinación de proyectos, depuración y seguridad de aplicaciones, Godot (base) y stack previo.',
+    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'Coordinación de proyectos', 'Trabajo en equipo', 'Depuración / AppSec', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
   },
 ];
