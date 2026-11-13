@@ -136,8 +136,8 @@ export const projects = [
 export const capabilities = [
   {
     label: 'Apps multiplataforma y sistemas',
-    detail: 'PC (Windows), móvil y web con código modular, persistencia local, FFI nativo y control de versiones.',
-    skills: ['Dart', 'Flutter', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'],
+    detail: 'PC (Windows), móvil y web con código modular, motores Skia/Impeller, FFI nativo y control de versiones.',
+    skills: ['Dart', 'Flutter', 'Skia / Impeller', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'],
   },
   {
     label: 'Web, bases de datos e IA',
@@ -145,8 +145,8 @@ export const capabilities = [
     skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA'],
   },
   {
-    label: 'Videojuegos y base técnica previa',
-    detail: 'Motores de juego activos junto a lenguajes de proyectos anteriores al repositorio actual y conocimientos en Godot.',
-    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
+    label: 'Videojuegos, motores y equipo',
+    detail: 'Motores activos, coordinación de proyectos y delegación en equipo, conocimientos en Godot y base previa.',
+    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'Coordinación de proyectos', 'Trabajo en equipo', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
   },
 ];
