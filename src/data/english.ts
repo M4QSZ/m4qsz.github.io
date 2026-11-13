@@ -70,14 +70,14 @@ export const englishProjects: EnglishProject[] = [
     ],
   },
   {
-    slug: 'comercio-nextjs', number: '06', title: 'Next.js commerce site', type: 'Independent project · case study',
-    description: 'A jewelry storefront with catalog, search, accounts, administration and a demonstration checkout.',
+    slug: 'comercio-nextjs', number: '06', title: 'Alma — Next.js e-commerce platform', type: 'Independent project · case study',
+    description: 'Marketplace-style storefront with catalog, fuzzy search (Fuse.js), accounts, Recharts analytics, Resend emails, admin panel and demo checkout.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],
     sections: [
-      ['Customer experience', 'The project includes collections, categories, product pages, search, cart, accounts and an order history.'],
-      ['Architecture', 'Next.js and React power the interface. Supabase supplies authentication and data. The code includes server actions, fuzzy search, page metadata, a sitemap and structured search data.'],
-      ['Administration', 'The admin area includes inventory, categories, collections, orders, promotions, banners, metrics and SEO settings, with defined roles and permissions.'],
-      ['Current limit', 'The checkout currently simulates payment processing. It must not be presented as a live payment gateway or a production ready commerce flow.'],
+      ['Customer experience', 'Built for Alma, the storefront covers home discovery, collections, categories, product pages, cart, customer accounts and order tracking.'],
+      ['Architecture', 'Next.js, React, TypeScript and Tailwind CSS power the UI. Supabase handles authentication and database state alongside server actions, Fuse.js fuzzy search, Recharts metrics, Resend emails, metadata and sitemap routes.'],
+      ['Administration', 'The admin dashboard manages inventory, categories, collections, orders, promotions, banners, metrics and SEO configuration with defined roles and permissions.'],
+      ['Current limit', 'The checkout simulates payment processing for demonstration purposes. It must not be presented as a live payment gateway or production store traffic.'],
     ],
   },
   {

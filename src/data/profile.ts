@@ -6,9 +6,9 @@ export const profile = {
   github: 'https://github.com/M4QSZ',
   linkedin: 'https://www.linkedin.com/in/miguel-quevedo-dev/',
   email: 'miguel.270799@gmail.com',
-  location: 'Estado Aragua, Venezuela · Remoto',
-  locationEn: 'Estado Aragua, Venezuela · Remote',
-  availability: 'Disponible · Remoto',
+  location: 'Estado Aragua, Venezuela · Remoto · Híbrido · Presencial',
+  locationEn: 'Estado Aragua, Venezuela · Remote · Hybrid · On-site',
+  availability: 'Remoto · Híbrido · Presencial · Reubicación',
 };
 
 export const projects = [
@@ -59,9 +59,9 @@ export const projects = [
   },
   {
     number: '06',
-    title: 'Comercio web en Next.js',
-    type: 'Proyecto independiente · caso de estudio',
-    description: 'Tienda de joyería con catálogo, búsqueda, cuentas, panel administrativo y un checkout de demostración.',
+    title: 'Alma — Comercio web en Next.js',
+    type: 'Proyecto independiente · e-commerce',
+    description: 'Tienda estilo marketplace en Next.js con catálogo, búsqueda difusa (Fuse.js), cuentas, Recharts, Resend, panel admin y checkout demo.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],
     href: '/proyectos/comercio-nextjs/',
     accent: 'blue',
@@ -141,12 +141,12 @@ export const capabilities = [
   },
   {
     label: 'Web, bases de datos e IA',
-    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL e integración LLM.',
-    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA'],
+    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, LLMs y Prompt Engineering.',
+    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA', 'Prompt Engineering'],
   },
   {
-    label: 'Videojuegos, motores y equipo',
-    detail: 'Motores activos, coordinación de proyectos, depuración y seguridad de aplicaciones, Godot (base) y stack previo.',
-    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'Coordinación de proyectos', 'Trabajo en equipo', 'Depuración / AppSec', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
+    label: 'Videojuegos, producto y equipo',
+    detail: 'Motores activos, producto 0 a 1 (MVP con retroalimentación), fidelidad 1:1 a diseño (on-model), coordinación multidisciplinaria y AppSec.',
+    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'MVP (0 a 1)', 'Diseño 1:1 (on-model)', 'Coordinación de proyectos', 'Trabajo en equipo', 'Depuración / AppSec', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
   },
 ];
