@@ -1,12 +1,18 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectDetailGallery from '../../components/ProjectDetailGallery.astro';
+
+const gallery = [
+  { src: '/images/meson-floor-editor.png', alt: 'Captura real del editor isométrico de mesas con selector Piso 1 y Piso 2', caption: 'Vista isométrica actual del editor de salones y mobiliario en Meson.' },
+  { src: '/images/meson-shell.png', alt: 'Lanzador de módulos de Meson integrando la app Tables', caption: 'Acceso al módulo de mesas dentro del shell de escritorio.' },
+];
 ---
-<Base title="Editor visual de mesas | Miguel" description="Diseño de un editor interactivo de espacios y mesas con Flutter, Flame y Dart.">
+<Base title="Editor visual de mesas | Miguel" description="Diseño de un editor interactivo de espacios y mesas con Flutter, Flame y Dart." pageLabel="03 · Editor de mesas">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">MESON / INTERFAZ / 03</p><h1 class="long-title">Plano vivo<span>.</span></h1><p class="detail-lede">Un editor de espacios para organizar mesas, zonas y asientos con interacción directa.</p></div><div class="detail-badge">FLUTTER + FLAME<br /><strong>INTERACCIÓN 2D / ISOMÉTRICA</strong></div></div>
     <div class="detail-meta"><div><span>PROBLEMA</span><strong>Representar un espacio real</strong></div><div><span>INTERACCIÓN</span><strong>Posición · escala · rotación</strong></div><div><span>MODELO</span><strong>Configuración visual versionada</strong></div></div>
-    <div class="floor-board" aria-label="Representación conceptual de un plano de mesas"><div class="floor-grid"><div class="floor-table round"><i></i><i></i><i></i><i></i></div><div class="floor-table rect"><i></i><i></i><i></i><i></i></div><div class="floor-table round small"><i></i><i></i><i></i><i></i></div><div class="floor-zone">ZONA PRINCIPAL</div></div><span>Ilustración conceptual, sin pantallas ni datos del producto.</span></div>
+    <ProjectDetailGallery images={gallery} />
     <div class="case-layout"><aside><span>01 / OBJETIVO</span><span>02 / INTERACCIÓN</span><span>03 / RENDIMIENTO</span><span>04 / MODELO</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / OBJETIVO</p><h2>Un plano que también es herramienta de trabajo.</h2><p>El personal necesita reconocer las mesas y editar la distribución del local sin perder el contexto de la operación. La interfaz combina elementos visuales con un modelo persistente de mesas, zonas y pisos.</p></section>
       <section><p class="section-kicker">02 / INTERACCIÓN</p><h2>Manipulación directa, con vistas distintas.</h2><p>El motor de escena está construido en Flame sobre Flutter. Admite arrastrar, seleccionar, rotar y escalar elementos, además de una vista cenital 2D y una representación isométrica. El editor permite configurar forma, materiales, colores, texturas y distribución de asientos.</p></section>

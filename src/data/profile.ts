@@ -11,7 +11,30 @@ export const profile = {
   availability: 'Remoto · Híbrido · Presencial · Reubicación',
 };
 
-export const projects = [
+export type ProjectVariant =
+  | 'screenshot'
+  | 'p2p'
+  | 'modules'
+  | 'mobile-clients'
+  | 'mobile-delivery'
+  | 'roblox'
+  | 'ai-bevy';
+
+export interface ProjectItem {
+  number: string;
+  title: string;
+  type: string;
+  description: string;
+  stack: string[];
+  href: string;
+  accent: string;
+  variant: ProjectVariant;
+  image?: string;
+  secondaryImage?: string;
+  imageAlt?: string;
+}
+
+export const projects: ProjectItem[] = [
   {
     number: '01',
     title: 'Meson',
@@ -20,6 +43,10 @@ export const projects = [
     stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     href: '/proyectos/meson/',
     accent: 'orange',
+    variant: 'screenshot',
+    image: '/images/meson-shell.png',
+    secondaryImage: '/images/meson-web-devices.png',
+    imageAlt: 'Captura actual del escritorio de Meson con lanzador de módulos y panel Phone Link',
   },
   {
     number: '02',
@@ -29,6 +56,7 @@ export const projects = [
     stack: ['Rust', 'LAN', 'UDP/TCP', 'AES-GCM'],
     href: '/proyectos/red-p2p/',
     accent: 'blue',
+    variant: 'p2p',
   },
   {
     number: '03',
@@ -37,7 +65,11 @@ export const projects = [
     description: 'Plano interactivo con mesas, zonas, asientos y vistas 2D e isométricas, construido con Flutter y Flame.',
     stack: ['Flutter', 'Flame', 'Dart', 'UI'],
     href: '/proyectos/editor-mesas/',
-    accent: 'green',
+    accent: 'teal',
+    variant: 'screenshot',
+    image: '/images/meson-floor-editor.png',
+    secondaryImage: '/images/meson-shell.png',
+    imageAlt: 'Captura actual del editor isométrico de mesas de Meson mostrando Pisos 1 y 2',
   },
   {
     number: '04',
@@ -47,6 +79,10 @@ export const projects = [
     stack: ['Flutter', 'Dart', 'Desktop', 'UX'],
     href: '/proyectos/shell-personalizable/',
     accent: 'purple',
+    variant: 'screenshot',
+    image: '/images/meson-widgets.png',
+    secondaryImage: '/images/meson-shell.png',
+    imageAlt: 'Captura del shell de Meson mostrando el tablero de widgets en vivo y El Diario',
   },
   {
     number: '05',
@@ -56,6 +92,7 @@ export const projects = [
     stack: ['Flutter', 'Dart', 'Catálogo', 'Permisos'],
     href: '/proyectos/store-modulos/',
     accent: 'gold',
+    variant: 'modules',
   },
   {
     number: '06',
@@ -64,7 +101,11 @@ export const projects = [
     description: 'Tienda estilo marketplace en Next.js con catálogo, búsqueda difusa (Fuse.js), cuentas, Recharts, Resend, panel admin y checkout demo.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],
     href: '/proyectos/comercio-nextjs/',
-    accent: 'blue',
+    accent: 'gold',
+    variant: 'screenshot',
+    image: '/images/alma-storefront.png',
+    secondaryImage: '/images/alma-catalog.png',
+    imageAlt: 'Captura de la tienda web Alma construida en Next.js mostrando el hero editorial de colección',
   },
   {
     number: '07',
@@ -73,7 +114,10 @@ export const projects = [
     description: 'Sitio de servicios eléctricos y climatización con contenido configurable, galerías y contacto directo.',
     stack: ['Astro', 'Tailwind CSS', 'JavaScript'],
     href: '/proyectos/web-servicios/',
-    accent: 'green',
+    accent: 'teal',
+    variant: 'screenshot',
+    image: '/images/web-servicios.png',
+    imageAlt: 'Captura del sitio web profesional en Astro y Tailwind CSS para servicios técnicos',
   },
   {
     number: '08',
@@ -82,7 +126,11 @@ export const projects = [
     description: 'Web de pulseras con fichas de emergencia, panel de usuario, inventario y flujos de pedidos todavía en desarrollo.',
     stack: ['Astro', 'TypeScript', 'Supabase', 'QR/NFC'],
     href: '/proyectos/pulseras-emergencia/',
-    accent: 'purple',
+    accent: 'orange',
+    variant: 'screenshot',
+    image: '/images/pulseras-qr.png',
+    secondaryImage: '/images/pulseras-catalog.png',
+    imageAlt: 'Captura de la plataforma MedPulse SOS con ficha médica QR/NFC y catálogo de pulseras',
   },
   {
     number: '09',
@@ -91,7 +139,8 @@ export const projects = [
     description: 'Descubrimiento, reservas y seguimiento, junto a una comunidad con publicaciones, medios, comentarios y reacciones.',
     stack: ['Flutter', 'Dart', 'Supabase', 'Flame'],
     href: '/proyectos/app-clientes/',
-    accent: 'green',
+    accent: 'teal',
+    variant: 'mobile-clients',
   },
   {
     number: '10',
@@ -101,6 +150,7 @@ export const projects = [
     stack: ['Flutter', 'Dart', 'Mapas', 'Supabase'],
     href: '/proyectos/app-reparto/',
     accent: 'blue',
+    variant: 'mobile-delivery',
   },
   {
     number: '11',
@@ -110,7 +160,9 @@ export const projects = [
     stack: ['Unity', 'C#', 'Flutter', 'Python'],
     href: '/proyectos/brasas/',
     accent: 'orange',
+    variant: 'screenshot',
     image: '/images/brasas-play.png',
+    secondaryImage: '/images/brasas-map.png',
     imageAlt: 'Captura del motor Unity de Brasas mostrando a Lía y Tilo en el Refugio de las promesas',
   },
   {
@@ -121,6 +173,7 @@ export const projects = [
     stack: ['Roblox Studio', 'Luau', 'Python', 'Rojo'],
     href: '/proyectos/el-pueblo-del-faro/',
     accent: 'gold',
+    variant: 'roblox',
   },
   {
     number: '13',
@@ -130,6 +183,7 @@ export const projects = [
     stack: ['LLMs / IA', 'Rust', 'Bevy', 'Python'],
     href: '/proyectos/meson-ia-prototipos/',
     accent: 'purple',
+    variant: 'ai-bevy',
   },
 ];
 

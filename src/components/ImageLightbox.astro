@@ -1,0 +1,67 @@
+---
+interface Props {
+  isEnglish: boolean;
+}
+
+const { isEnglish } = Astro.props;
+---
+
+<dialog
+  id="portfolio-lightbox"
+  class="lightbox-dialog"
+  aria-label={isEnglish ? 'Screenshot preview' : 'Vista ampliada de captura'}
+>
+  <div class="lightbox-frame">
+    <div class="lightbox-bar">
+      <p class="lightbox-caption" id="lightbox-caption"></p>
+      <button
+        type="button"
+        class="lightbox-close"
+        id="lightbox-close-btn"
+        aria-label={isEnglish ? 'Close preview' : 'Cerrar vista previa'}
+      >
+        ✕
+      </button>
+    </div>
+    <div class="lightbox-stage">
+      <img id="lightbox-image" src="" alt="" />
+    </div>
+  </div>
+</dialog>
+
+<script is:inline>
+  (() => {
+    const dialog = document.getElementById('portfolio-lightbox');
+    const img = document.getElementById('lightbox-image');
+    const caption = document.getElementById('lightbox-caption');
+    const closeBtn = document.getElementById('lightbox-close-btn');
+    if (!(dialog instanceof HTMLDialogElement) || !(img instanceof HTMLImageElement) || !caption) return;
+
+    const closeModal = () => {
+      if (dialog.open) dialog.close();
+      img.removeAttribute('src');
+    };
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target.closest('[data-lightbox-src]') : null;
+      if (!target) return;
+
+      const src = target.getAttribute('data-lightbox-src');
+      if (!src) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      const alt = target.getAttribute('data-lightbox-alt') || '';
+      const title = target.getAttribute('data-lightbox-caption') || alt;
+      img.src = src;
+      img.alt = alt;
+      caption.textContent = title;
+      if (!dialog.open) dialog.showModal();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) closeModal();
+    });
+  })();
+</script>

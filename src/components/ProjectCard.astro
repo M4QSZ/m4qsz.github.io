@@ -1,0 +1,65 @@
+---
+import ProjectPreview from './ProjectPreview.astro';
+import type { ProjectVariant } from '../data/profile';
+
+interface Props {
+  number: string;
+  title: string;
+  type: string;
+  description: string;
+  stack: string[];
+  href: string;
+  accent?: string;
+  variant?: ProjectVariant;
+  image?: string;
+  secondaryImage?: string;
+  imageAlt?: string;
+  categoryLabel: string;
+  isEnglish?: boolean;
+}
+
+const {
+  number,
+  title,
+  type,
+  description,
+  stack,
+  href,
+  accent = 'orange',
+  variant = 'screenshot',
+  image,
+  secondaryImage,
+  imageAlt,
+  categoryLabel,
+  isEnglish = false,
+} = Astro.props;
+
+const ctaLabel = isEnglish ? 'Open technical case →' : 'Abrir caso técnico →';
+---
+
+<article class={`project-card accent-${accent} reveal-on-scroll`}>
+  <div class="project-top">
+    <span>{number} / {categoryLabel}</span>
+    <a class="card-arrow" href={href} aria-label={`${title} — ${ctaLabel}`}>↗</a>
+  </div>
+  <ProjectPreview
+    number={number}
+    title={title}
+    accent={accent}
+    image={image}
+    secondaryImage={secondaryImage}
+    imageAlt={imageAlt}
+    variant={variant}
+    isEnglish={isEnglish}
+    caption={`${number} · ${title}`}
+  />
+  <div class="project-copy">
+    <p class="project-type">{type}</p>
+    <h3><a href={href}>{title}</a></h3>
+    <p>{description}</p>
+    <div class="tags">
+      {stack.map((skill) => <span>{skill}</span>)}
+    </div>
+    <a class="card-cta" href={href}>{ctaLabel}</a>
+  </div>
+</article>

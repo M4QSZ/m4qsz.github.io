@@ -1,11 +1,18 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectDetailGallery from '../../components/ProjectDetailGallery.astro';
+
+const gallery = [
+  { src: '/images/pulseras-qr.png', alt: 'Pantalla principal de MedPulse SOS para acceso de emergencia por QR y NFC', caption: 'Landing principal presentando escaneo instantáneo y ficha médica demo.' },
+  { src: '/images/pulseras-catalog.png', alt: 'Niveles y catálogo de pulseras de emergencia QR/NFC en Astro', caption: 'Catálogo de pulseras e integración con flujos de pedidos y seguimiento.' },
+];
 ---
-<Base title="Plataforma QR/NFC de emergencia | Miguel" description="Prototipo web en Astro para pulseras con fichas de emergencia y panel de administración.">
+<Base title="Plataforma QR/NFC de emergencia | Miguel" description="Prototipo web en Astro para pulseras con fichas de emergencia y panel de administración." pageLabel="08 · Pulseras QR/NFC">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">WEB / ASTRO / 08</p><h1 class="long-title">QR y NFC<span>.</span></h1><p class="detail-lede">Un prototipo de plataforma web vinculado a pulseras de identificación de emergencia.</p></div><div class="detail-badge">ASTRO + SUPABASE<br /><strong>PRODUCTO EN DESARROLLO</strong></div></div>
     <div class="detail-meta"><div><span>IDENTIFICACIÓN</span><strong>QR y NFC</strong></div><div><span>INTERFAZ</span><strong>Ficha y panel</strong></div><div><span>ETAPA</span><strong>Prototipo</strong></div></div>
+    <ProjectDetailGallery images={gallery} />
     <div class="case-layout"><aside><span>01 / PRODUCTO</span><span>02 / SISTEMA</span><span>03 / OPERACIÓN</span><span>04 / ESTADO</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / PRODUCTO</p><h2>Información accesible desde una pulsera.</h2><p>El código incluye páginas para consultar una ficha de emergencia mediante una dirección asociada al QR o NFC, además de páginas de activación y acceso del usuario.</p></section>
       <section><p class="section-kicker">02 / SISTEMA</p><h2>Interfaz y servicios conectados.</h2><p>Astro y TypeScript organizan páginas y rutas de servidor. Supabase se usa para datos y autenticación. El proyecto también contiene un diccionario de traducciones para la ficha.</p></section>

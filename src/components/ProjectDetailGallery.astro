@@ -1,0 +1,36 @@
+---
+interface GalleryImage {
+  src: string;
+  alt: string;
+  caption: string;
+}
+
+interface Props {
+  images: GalleryImage[];
+  isEnglish?: boolean;
+}
+
+const { images, isEnglish = false } = Astro.props;
+const hint = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
+---
+
+<section class="gallery-grid" aria-label={isEnglish ? 'Project screenshots' : 'Capturas del proyecto'}>
+  {
+    images.map((img) => (
+      <figure class="gallery-figure reveal-on-scroll">
+        <button
+          type="button"
+          class="gallery-zoom-btn"
+          data-lightbox-src={img.src}
+          data-lightbox-alt={img.alt}
+          data-lightbox-caption={img.caption}
+          aria-label={`${hint}: ${img.caption}`}
+        >
+          <img src={img.src} alt={img.alt} loading="lazy" />
+          <span class="shot-zoom-pill" aria-hidden="true">↗</span>
+        </button>
+        <figcaption>{img.caption}</figcaption>
+      </figure>
+    ))
+  }
+</section>

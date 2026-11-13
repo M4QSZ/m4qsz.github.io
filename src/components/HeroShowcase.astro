@@ -1,0 +1,83 @@
+---
+interface Props {
+  isEnglish?: boolean;
+}
+
+const { isEnglish = false } = Astro.props;
+
+const thumbs = isEnglish
+  ? [
+      {
+        src: '/images/meson-floor-editor.png',
+        alt: 'Meson isometric floor editor in Flutter + Flame',
+        label: 'Isometric tables',
+      },
+      {
+        src: '/images/meson-widgets.png',
+        alt: 'Meson live widgets board and news drawer',
+        label: 'Live widgets',
+      },
+      {
+        src: '/images/meson-web-devices.png',
+        alt: 'Meson multi-device responsive showcase',
+        label: 'Multi-device web',
+      },
+    ]
+  : [
+      {
+        src: '/images/meson-floor-editor.png',
+        alt: 'Editor isométrico de mesas en Meson Desktop',
+        label: 'Editor isométrico',
+      },
+      {
+        src: '/images/meson-widgets.png',
+        alt: 'Tablero de widgets en vivo y El Diario en Meson',
+        label: 'Widgets en vivo',
+      },
+      {
+        src: '/images/meson-web-devices.png',
+        alt: 'Meson web adaptado a escritorio, tablet y móvil',
+        label: 'Web multi-dispositivo',
+      },
+    ];
+---
+
+<div class="hero-showcase" aria-label={isEnglish ? 'Interactive software gallery' : 'Galería de interfaces reales'}>
+  <div class="showcase-frame">
+    <div class="showcase-bar">
+      <span class="showcase-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>{isEnglish ? 'MESON DESKTOP · REAL CAPTURE (NOV 2026)' : 'MESON DESKTOP · CAPTURA REAL (NOV 2026)'}</span>
+    </div>
+    <button
+      type="button"
+      class="showcase-trigger"
+      data-lightbox-src="/images/meson-shell.png"
+      data-lightbox-alt={isEnglish ? 'Meson Desktop current workspace and launcher' : 'Escritorio actual de Meson con lanzador de aplicaciones y Phone Link'}
+      data-lightbox-caption={isEnglish ? 'Meson Desktop — customizable shell, launcher and Phone Link.' : 'Meson Desktop — shell personalizable, lanzador modular y Phone Link.'}
+      aria-label={isEnglish ? 'Expand Meson Desktop screenshot' : 'Ampliar captura de Meson Desktop'}
+    >
+      <img
+        src="/images/meson-shell.png"
+        alt={isEnglish ? 'Meson Desktop current launcher and Phone Link panel' : 'Escritorio actual de Meson con lanzador de aplicaciones y panel Phone Link'}
+      />
+      <span class="shot-badge">{isEnglish ? 'Live workspace' : 'Sistema en vivo'}</span>
+      <span class="shot-zoom-pill" aria-hidden="true">↗</span>
+    </button>
+  </div>
+
+  <div class="showcase-thumbs">
+    {thumbs.map((thumb) => (
+      <button
+        type="button"
+        class="showcase-thumb"
+        data-lightbox-src={thumb.src}
+        data-lightbox-alt={thumb.alt}
+        data-lightbox-caption={thumb.alt}
+        aria-label={`${isEnglish ? 'Expand' : 'Ampliar'}: ${thumb.label}`}
+      >
+        <img src={thumb.src} alt={thumb.alt} loading="lazy" />
+        <span>{thumb.label} ↗</span>
+      </button>
+    ))}
+  </div>
+</div>

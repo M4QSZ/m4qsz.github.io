@@ -1,12 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectDetailGallery from '../../components/ProjectDetailGallery.astro';
+
+const gallery = [
+  { src: '/images/meson-shell.png', alt: 'Escritorio actual de Meson con lanzador de módulos y panel Phone Link', caption: 'Shell actual en Flutter — lanzador modular, Phone Link y barra de tareas.' },
+  { src: '/images/meson-floor-editor.png', alt: 'Editor isométrico de mesas de Meson con selector de pisos', caption: 'Editor visual isométrico con selector Piso 1 / Piso 2.' },
+  { src: '/images/meson-widgets.png', alt: 'Tablero de Widgets en vivo y noticias internas El Diario en Meson', caption: 'Tablero de Widgets & Noticias con métricas en vivo.' },
+  { src: '/images/meson-web-devices.png', alt: 'Vista multidispositivo de Meson Web en escritorio, tablet y teléfono', caption: 'Sitio web comercial de Meson adaptado a escritorio, tablet y móvil.' },
+];
 ---
-<Base title="Meson — Arquitectura y producto | Miguel" description="Caso de estudio de Meson: aplicaciones Flutter, lógica Rust, sincronización local y plataforma web.">
+<Base title="Meson — Arquitectura y producto | Miguel" description="Caso de estudio de Meson: aplicaciones Flutter, lógica Rust, sincronización local y plataforma web." pageLabel="01 · Meson">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">CASO DE ESTUDIO / 01</p><h1>Meson<span>.</span></h1><p class="detail-lede">Un ecosistema de software para coordinar las operaciones de restaurantes, desde la sala y la cocina hasta los datos y los dispositivos.</p></div><div class="detail-badge">PRODUCTO PRIVADO<br /><strong>TRABAJO EXPLICADO EN PÚBLICO</strong></div></div>
     <div class="detail-meta"><div><span>ALCANCE</span><strong>Aplicaciones y módulos compartidos</strong></div><div><span>ARQUITECTURA</span><strong>Local primero + sincronización</strong></div><div><span>PLATAFORMAS</span><strong>Escritorio · móvil · web</strong></div></div>
-    <div class="case-visual" aria-hidden="true"><div class="case-window"><div class="window-bar"><i></i><i></i><i></i><span>MESON / SISTEMA</span></div><div class="window-content"><div class="window-sidebar"><b></b><b></b><b></b><b></b></div><div class="window-panels"><div class="window-title"></div><div class="window-row"><div></div><div></div><div></div></div><div class="window-long"></div><div class="window-long short"></div></div></div></div><span class="case-caption">Representación conceptual. No muestra datos ni pantallas reales.</span></div>
+    <ProjectDetailGallery images={gallery} />
     <div class="case-layout"><aside><span>01 / RETO</span><span>02 / SISTEMA</span><span>03 / DECISIONES</span><span>04 / ESCALA</span><span>05 / LÍMITES</span><span>06 / ALCANCE</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / RETO</p><h2>Una operación física necesita software coordinado.</h2><p>Pedidos, cocina, mesas, inventario, cobros y dispositivos generan cambios a la vez. Meson aborda ese contexto mediante varias aplicaciones y paquetes compartidos, con énfasis en la respuesta local cuando Internet es inestable.</p></section>
       <section><p class="section-kicker">02 / SISTEMA</p><h2>Varias superficies, un dominio común.</h2><p>El repositorio incluye la app de negocio, una app de clientes con comunidad social, una app de reparto, un sitio web, modelos compartidos y módulos nativos. En el producto aparecen flujos de caja, cocina, inventario, mesas, pedidos, comunicación y administración. La web comercial usa Astro; las interfaces de aplicación usan Flutter.</p><div class="case-links"><a href="/proyectos/red-p2p/">Red P2P y operación local ↗</a><a href="/proyectos/editor-mesas/">Editor visual de mesas ↗</a><a href="/proyectos/shell-personalizable/">Shell personalizable ↗</a><a href="/proyectos/store-modulos/">Store de módulos ↗</a><a href="/proyectos/app-clientes/">App de clientes y comunidad ↗</a><a href="/proyectos/app-reparto/">App de reparto ↗</a></div></section>

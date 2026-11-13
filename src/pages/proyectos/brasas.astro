@@ -1,21 +1,18 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ProjectDetailGallery from '../../components/ProjectDetailGallery.astro';
+
+const gallery = [
+  { src: '/images/brasas-play.png', alt: 'Captura del motor Unity de Brasas mostrando a Lía, Tilo y el HUD en Refugio de las promesas', caption: 'Captura real en Unity 6.3 LTS — Refugio de las promesas, Lía, Tilo y HUD.' },
+  { src: '/images/brasas-map.png', alt: 'Mapa de rutas interactivo de Brasas en Unity mostrando lugares conectados', caption: 'Captura real en Unity 6.3 LTS — mapa de rutas y progresión por sellos.' },
+];
 ---
-<Base title="Brasas (Flutter y Unity) | Miguel" description="Videojuego multiplataforma Brasas: paquete compartido en Flutter (Meson Pausa) y versión en Unity 6.3 LTS con C# y pruebas automatizadas.">
+<Base title="Brasas (Flutter y Unity) | Miguel" description="Videojuego multiplataforma Brasas: paquete compartido en Flutter (Meson Pausa) y versión en Unity 6.3 LTS con C# y pruebas automatizadas." pageLabel="11 · Brasas">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="detail-hero"><div><p class="section-kicker">VIDEOJUEGO / 11</p><h1>Brasas<span>.</span></h1><p class="detail-lede">Aventura de acción desarrollada en dos implementaciones separadas: una en Flutter (compartida con Meson Pausa) y otra en Unity 6.3 LTS con C#.</p></div><div class="detail-badge">UNITY C# + FLUTTER<br /><strong>DOS VERSIONES</strong></div></div>
     <div class="detail-meta"><div><span>MOTORES</span><strong>Unity 6.3 LTS (C#) · Flutter</strong></div><div><span>SOPORTE</span><strong>EditMode / PlayMode · Python</strong></div><div><span>ESTADO</span><strong>Capturas y pruebas locales</strong></div></div>
-    <div class="gallery-grid">
-      <figure class="gallery-figure">
-        <img src="/images/brasas-play.png" alt="Captura del motor Unity de Brasas mostrando a Lía, Tilo y el HUD en Refugio de las promesas" loading="lazy" />
-        <figcaption>Captura real en Unity 6.3 LTS — Refugio de las promesas, Lía, Tilo y HUD.</figcaption>
-      </figure>
-      <figure class="gallery-figure">
-        <img src="/images/brasas-map.png" alt="Mapa de rutas interactivo de Brasas en Unity mostrando lugares conectados" loading="lazy" />
-        <figcaption>Captura real en Unity 6.3 LTS — mapa de rutas y progresión por sellos.</figcaption>
-      </figure>
-    </div>
+    <ProjectDetailGallery images={gallery} />
     <div class="case-layout"><aside><span>01 / DOS VERSIONES</span><span>02 / ARQUITECTURA UNITY</span><span>03 / PAQUETE FLUTTER</span><span>04 / LÍMITES ACTUALES</span></aside><div class="case-content">
       <section><p class="section-kicker">01 / DOS VERSIONES</p><h2>Flutter multiplataforma y Unity dedicado.</h2><p><strong>Brasas</strong> cuenta con una edición en Flutter (paquete compartido <code>meson_brasas</code>, jugable como app propia y dentro de <strong>Meson Pausa</strong> para PC, web y móvil) y una edición separada en <strong>Unity 6.3 LTS</strong> orientada a controles, combate y renderizado en motor.</p></section>
       <section><p class="section-kicker">02 / ARQUITECTURA UNITY</p><h2>Simulación C# desacoplada y pruebas.</h2><p>La lógica de combate y progresión vive en un ensamblado C# independiente de la capa visual de Unity. Incluye suites de pruebas EditMode y PlayMode sobre santuarios, pactos, habilidades, guardados y oleadas por semilla, además de scripts en Python para validar manifiestos y metadatos.</p></section>

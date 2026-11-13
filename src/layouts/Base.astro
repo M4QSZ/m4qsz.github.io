@@ -1,14 +1,21 @@
 ---
 import '../styles/global.css';
+import '../styles/sections.css';
+import '../styles/previews.css';
+import '../styles/cases.css';
+import '../styles/responsive.css';
 import { profile } from '../data/profile';
+import BottomScrollProgress from '../components/BottomScrollProgress.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
 
 interface Props {
   title: string;
   description: string;
   lang?: 'es' | 'en';
+  pageLabel?: string;
 }
 
-const { title, description, lang = 'es' } = Astro.props;
+const { title, description, lang = 'es', pageLabel } = Astro.props;
 const isEnglish = lang === 'en';
 const home = isEnglish ? '/en/' : '/';
 const lab = isEnglish ? '/en/lab/' : '/laboratorio/';
@@ -100,6 +107,8 @@ const personSchema = {
           {profile.email && <a href={`mailto:${profile.email}`}>{isEnglish ? 'Email' : 'Correo'} ↗</a>}
         </div>
       </footer>
+      <BottomScrollProgress isEnglish={isEnglish} pageLabel={pageLabel} />
+      <ImageLightbox isEnglish={isEnglish} />
     </div>
   </body>
 </html>
