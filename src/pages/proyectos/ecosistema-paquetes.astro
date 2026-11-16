@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectDetailGallery from '../../components/ProjectDetailGallery.astro';
+
+const gallery = [
+  { src: '/images/meson-web-devices.webp', alt: 'Plataforma web comercial Meson en Astro para escritorio, tablet y móvil', caption: 'Web comercial Astro (300+ páginas) con simuladores interactivos y contenido SEO.' },
+  { src: '/images/meson-widgets.webp', alt: 'Widgets en vivo y comunicación compartida respaldada por paquetes desacoplados', caption: 'Servicios compartidos desde meson_models, meson_db y meson_chat E2E.' },
+];
+---
+<Base title="Web Astro, Meson Pausa y Paquetes | Miguel" description="Web comercial Astro (+300 páginas), apps Meson Pausa, Currency y BUCO (pública), junto a 10 paquetes internos desacoplados (meson_db, meson_chat E2E, meson_models)." pageLabel="17 · Ecosistema">
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/">← Volver al portafolio</a>
+    <div class="detail-hero"><div><p class="section-kicker">MESON / WEB Y PAQUETES / 17</p><h1 class="long-title">Web y Paquetes<span>.</span></h1><p class="detail-lede">Ecosistema ampliado del monorepo: web comercial Astro (+300 páginas), aplicaciones complementarias de bienestar y divisas, y 10 paquetes compartidos desacoplados.</p></div><div class="detail-badge">ASTRO + 10 PAQUETES DART<br /><strong>ARQUITECTURA MODULAR</strong></div></div>
+    <div class="detail-meta"><div><span>WEB COMERCIAL</span><strong>300+ páginas en Astro</strong></div><div><span>APPS EXTRAS</span><strong>Pausa · Currency · BUCO</strong></div><div><span>PAQUETES</span><strong>meson_db · chat E2E · models</strong></div></div>
+    <ProjectDetailGallery images={gallery} />
+    <div class="case-layout"><aside><span>01 / WEB ASTRO</span><span>02 / PAUSA Y APPS</span><span>03 / PAQUETES DART</span><span>04 / ATRIBUCIÓN</span></aside><div class="case-content">
+      <section><p class="section-kicker">01 / PLATAFORMA WEB ASTRO (+300 PÁGINAS)</p><h2>Simuladores Canvas, calculadora ROI y SEO regional.</h2><p><code>apps/website</code> construye la web oficial de Meson en Astro, Tailwind CSS y TypeScript con demos interactivas en Canvas (ventanas de escritorio y vista móvil), explicador de arquitectura offline, demo de voz IA, calculadora ROI y clúster editorial SEO.</p></section>
+      <section><p class="section-kicker">02 / APPS COMPLEMENTARIAS</p><h2>Meson Pausa, Currency y BUCO.</h2><p><strong>Meson Pausa</strong> (15 archivos de prueba) integra guía circadiana, ayuno intermitente con avisos de seguridad, síntesis sonora calma en Web Audio/nativo y <code>meson_brasas</code> embebido. <strong>meson_currency</strong> ofrece calculadora multidivisa y <strong>BUCO</strong> (22 tests, repositorio público en GitHub) explora promociones de restaurantes en Panamá.</p></section>
+      <section><p class="section-kicker">03 / 10 PAQUETES INTERNOS DESACOPLADOS</p><h2>Contratos compartidos y pruebas unitarias.</h2><p>Reúne <code>meson_models</code> (33 modelos y 24 tests), <code>meson_db</code> (esquemas Isar e idempotencia, 7 tests), <code>meson_chat</code> (cifrado E2E y presencia escritorio/móvil), <code>meson_core</code> (resolución multi-tenant), <code>meson_maps</code>, <code>meson_ui</code>, <code>meson_brasas</code> y <code>shared_models</code>.</p></section>
+      <section><p class="section-kicker">04 / ATRIBUCIÓN EN REPOSITORIO</p><h2>Liderazgo técnico transparente.</h2><p>En la rama actual, 769 de 860 commits corresponden a identidades de Miguel (~89,4 %, incluidos todos los motores Rust, P2P, Central y modelado base) y 91 commits (~10,6 %) al colaborador Leonardo Gutiérrez en vistas y widgets Flutter.</p></section>
+    </div></div>
+    <div class="detail-actions"><a class="button button-primary" href="https://github.com/M4QSZ/BUCO" target="_blank" rel="noopener noreferrer">Ver repo público BUCO ↗</a><a class="button button-outline" href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">Ver dart-offline-outbox ↗</a><a class="button button-outline" href="/proyectos/meson/">Volver a Meson ↗</a></div>
+  </main>
+</Base>

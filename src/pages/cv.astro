@@ -30,14 +30,15 @@ import { profile } from '../data/profile';
       </section>
 
       <section>
-        <h2>Experiencia y proyecto principal</h2>
-        <h3>Desarrollador principal de producto multiplataforma — Meson (Proyecto independiente)</h3>
-        <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (PC/Windows, móvil y web)</p>
+        <h2>Experiencia y ecosistema principal</h2>
+        <h3>Arquitecto y desarrollador principal multiplataforma — Meson (Ecosistema independiente)</h3>
+        <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (Windows/Desktop, Móvil y Web · 769/860 commits en rama activa)</p>
         <ul>
-          <li>Diseñé e implementé la arquitectura principal de un ecosistema para restaurantes con apps de negocio, clientes/comunidad y reparto en Flutter/Dart y módulos nativos en Rust mediante <code>flutter_rust_bridge</code>.</li>
-          <li>Implementé red local P2P cifrada (UDP/TCP, AES-GCM) y persistencia offline-first (Isar/SQL) con sincronización diferida y migración de datos entre Firebase / Cloud Firestore (NoSQL) y Supabase / PostgreSQL (SQL).</li>
-          <li>Integré servicio Android en primer plano en Kotlin, un editor visual de mesas 2D/isométrico en Flame, shell personalizable de escritorio y una Store interna de módulos bajo arquitectura modular.</li>
-          <li>Supervisé las entregas de un colaborador en Flutter y definí prioridades técnicas del repositorio (Git / Git LFS).</li>
+          <li><strong>Núcleo de negocio y ERP (<code>meson_business</code> · 527 archivos de prueba):</strong> diseñé e implementé suites de POS, retail, autopago/escáner, KDS de cocina/barra, inventario multi-lote CRDT, recetario BOM, contabilidad doble partida, facturación fiscal, editor visual 2D/isométrico en Flame, shell multiventana y Store modular.</li>
+          <li><strong>Atelier HR y Kiosco de asistencia (<code>features/atelier</code> + <code>asistencia_kiosk</code>):</strong> construí la sub-plataforma laboral y de talento tipo LinkedIn (ofertas, candidatos, postulaciones, entrevistas, perfiles multipaso, contratos, nómina, turnos, RBAC) y un terminal offline de marcaje por cédula/PIN.</li>
+          <li><strong>Suites y 8 crates Rust nativos (<code>flutter_rust_bridge</code>):</strong> motor de hojas de cálculo con grafo DAG y XLSX (<code>meson_tools</code>), motor NLP local con TF-IDF/SIF/Levenshtein y SQLite RAG (<code>meson_ai</code>), parches binarios delta <code>qbsdiff</code> (<code>meson_shell</code>), red LAN P2P cifrada AES-256-GCM + ventana anti-replay de 128 bits, media SIMD y WebRTC.</li>
+          <li><strong>Apps satélites y web comercial:</strong> super-admin financiero y licenciamiento criptográfico (<code>meson_central</code>), entregas con biometría QR/NFC y <em>mesh relay</em> offline (<code>meson_delivery</code>), app social de clientes con backend Rust propio (<code>meson_customer</code>), <code>meson_pause</code> (15 tests), <code>meson_currency</code>, <code>BUCO</code> (22 tests), 10 paquetes internos (<code>meson_db</code>, <code>meson_chat</code> E2E, <code>meson_models</code>) y web comercial Astro (+300 páginas).</li>
+          <li><strong>Liderazgo técnico:</strong> arquitecto principal y autor del núcleo Rust/P2P, modelado NoSQL ↔ SQL (Firebase → Supabase/PostgreSQL) y Central; supervisé entregas puntuales de un colaborador en interfaces Flutter (~10,6 % de commits).</li>
         </ul>
       </section>
 
@@ -63,7 +64,7 @@ import { profile } from '../data/profile';
 
       <section>
         <h2>Tecnologías y conocimientos</h2>
-        <p><strong>Principal (activo):</strong> Flutter (Impeller / Skia), Dart, Flame, Rust, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, LLMs / IA aplicada.</p>
+        <p><strong>Principal (activo):</strong> Flutter (Impeller / Skia), Dart, Flame, Rust, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, LLMs / IA aplicada, SEO técnico.</p>
         <p><strong>Prácticas y coordinación:</strong> Conceptualización de proyectos (0 a 1), MVP y validación con retroalimentación, fidelidad 1:1 a diseño («on-model»), optimización de prompts y criterios de modelos IA, arquitectura modular, Clean Architecture, diseño offline-first, migración NoSQL ↔ SQL, pruebas unitarias, detección/corrección de bugs y ciberseguridad de aplicaciones, coordinación de proyectos y equipos multidisciplinarios, delegación y trabajo en equipo, Godot (base) y experiencia previa en C, C++, Java, PHP, Laravel y Django.</p>
       </section>
 
