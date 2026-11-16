@@ -98,7 +98,7 @@ export const projects: ProjectItem[] = [
     number: '01',
     title: 'Meson',
     type: 'Ecosistema privado · PC, móvil y web',
-    description: 'Suite multiplataforma con negocio/ERP, HR y nómina (Atelier), control central financiero, clientes, reparto mesh, 8 crates Rust nativos y web Astro.',
+    description: 'Suite multiplataforma (~963k LOC en meson_business): POS, autopago con balanzas, ERP contable/BOM/SENIAT, Atelier HR, chat WebRTC, Suite Office Rust e IA offline.',
     stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     href: '/proyectos/meson/',
     accent: 'orange',
@@ -250,7 +250,7 @@ export const projects: ProjectItem[] = [
     number: '17',
     title: 'Web Astro, Pausa y Paquetes',
     type: 'Suite comercial + 10 paquetes compartidos',
-    description: 'Web oficial Astro (+300 páginas, calculadora ROI), apps Meson Pausa, Currency y BUCO (repo público), junto a meson_db, meson_chat E2E y meson_models.',
+    description: 'Web oficial Astro (189 páginas), apps Meson Pausa, Currency y BUCO (repo público), junto a meson_db, meson_chat E2E y meson_models.',
     stack: ['Astro', 'Flutter', 'Isar', 'E2E Chat'],
     href: '/proyectos/ecosistema-paquetes/',
     accent: 'purple',
@@ -299,12 +299,12 @@ export const capabilities = [
   {
     label: 'Apps multiplataforma y sistemas',
     detail: 'PC (Windows), móvil y web con código modular, motores Skia/Impeller, FFI nativo y control de versiones.',
-    skills: ['Dart', 'Flutter', 'Skia / Impeller', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'],
+    skills: ['Dart', 'Flutter (Deferred Components)', 'Skia / Impeller', 'Rust (50k+ LOC)', 'C-ABI / FRB FFI', 'Kotlin', 'Isar / WAL', 'HLC / CRDT / AES-GCM', 'Win32 Interop', 'RS-232 / ESC-POS', 'Git', 'Git LFS'],
   },
   {
     label: 'Web, bases de datos e IA',
-    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, LLMs y Prompt Engineering.',
-    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA', 'Prompt Engineering'],
+    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, Whisper offline y RAG local.',
+    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'WebRTC', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite RAG', 'Cloud Firestore', 'Firebase', 'Whisper STT / Local AI', 'qbsdiff'],
   },
   {
     label: 'Videojuegos, producto y equipo',

@@ -19,7 +19,7 @@ export interface EnglishProject {
 export const englishProjects: EnglishProject[] = [
   {
     slug: 'meson', number: '01', title: 'Meson', type: 'Private ecosystem · desktop, mobile & web',
-    description: 'Multiplatform suite spanning Business/POS/ERP, Atelier HR & Payroll, Central financial control, Customer social app, Delivery mesh relay, 8 native Rust crates and a 300+ page Astro site.',
+    description: 'Multiplatform suite (~963k LOC in meson_business): POS, weigh-scale self-checkout, double-entry/BOM/SENIAT ERP, Atelier HR, WebRTC chat, Rust Office, Whisper offline AI & Astro web.',
     stack: ['Flutter', 'Dart', 'Rust', 'Kotlin'],
     accent: 'orange',
     variant: 'screenshot',
@@ -31,10 +31,10 @@ export const englishProjects: EnglishProject[] = [
       { src: '/images/meson-web-devices.webp', alt: 'Meson Web showcase across desktop, tablet and smartphone screens', caption: 'Official Meson web showcase across desktop, tablet and phone viewports.' },
     ],
     sections: [
-      ['Product scope', 'The monorepo houses specialized multiplatform apps — meson_business (with 527 test files covering POS, retail/self-checkout, KDS, BOM recipes, double-entry accounting, fiscal invoicing and Atelier HR/payroll), meson_central (global financial control & licensing), meson_delivery (logistics & peer mesh relay), meson_customer (social Radar + own Rust backend), meson_pause, meson_currency, BUCO and apps/website (300+ Astro pages) — plus 10 shared workspace packages.'],
-      ['Architecture', 'Flutter and Dart power the apps across desktop, mobile and web. Rust implements native and network logic through Flutter Rust Bridge, alongside Kotlin Android foreground services. Local persistence (Isar) supports work during Internet outages with deferred sync to Supabase/PostgreSQL after migration from Firebase/Firestore.'],
-      ['What this case proves', 'It shows how product flows, native integrations and relational/NoSQL data fit into one modular multiplatform system. The implementation remains private; the linked technical cases explain selected subsystems.'],
-      ['Measured repository scope', 'A local snapshot on September 27, 2026 counted 4,181 files with code extensions and 1,264,247 physical lines before filtering. This includes generated files. A heuristic filter for generated files and selected Meson app/package paths left 741,417 lines. These are repository metrics, not individual authorship or a measure of code quality.'],
+      ['Product scope', 'The monorepo houses specialized multiplatform apps — meson_business (2,521 Dart files / 527 test files covering POS, retail, restaurant & supermarket self-checkout with RS-232/USB weigh-scale anti-theft check, KDS, Flame 2.5D CAD with 70+ 360° assets, WebRTC VoIP/video chat, B2B marketplace, native Rust Office suite [Writer, DAG/XLSX Sheets, Slides], BOM recipes, 3-way AP invoice matching, double-entry accounting, SENIAT fiscal hash audit, Atelier HR/payroll + PIN kiosk and 18 Store industry suites), meson_central, meson_delivery (peer mesh relay), meson_customer (Rust backend), meson_pause, meson_currency, BUCO, 10 shared packages and a 189-page mobile-first Astro web platform.'],
+      ['Architecture', 'Flutter and Dart power the apps with Deferred Components loading and adaptive memory profiles. Rust implements native modules and 49 FFI APIs across 8 crates (including HLC/CRDT P2P, AES-256-GCM/Argon2, offline Whisper STT fallback, qbsdiff binary delta updater and Win32 user32.dll input-freeze recovery), alongside Kotlin Android foreground services and Isar + WAL persistence syncing to Supabase/PostgreSQL after migrating from Firebase.'],
+      ['What this case proves', 'It shows how complex retail/hospitality workflows, hardware drivers, local AI and distributed sync fit into one modular multiplatform system. The repo remains private; linked technical cases and OSS Rust/Dart repos explain core subsystems.'],
+      ['Measured repository scope', 'Direct audit of apps/meson_business verified 2,521 Dart source files (912,888 lines) and 273 Rust source files (50,270 lines) across rust/src and workspace crates — ~963,158 lines inside meson_business alone, within a broader monorepo that counted 4,181 code files in a prior September 2026 snapshot. These are source-code size metrics rather than external uptime claims.'],
       ['Operational boundaries', 'Offline work needs devices and a functioning local network. Power outages require batteries or backup power. Recovery and synchronization need multi-device tests before making measured reliability claims.'],
       ['Ownership and limits', 'Miguel has led most of Meson’s design and implementation. He supervised a Flutter collaborator’s work and assigned the next tasks. This case does not claim unverified production scale, availability or business outcomes.'],
     ],
@@ -215,24 +215,24 @@ export const englishProjects: EnglishProject[] = [
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     sections: [
       ['Desktop office engines (meson_tools)', 'Implements sheets_engine from scratch in Rust with chunked cell storage, a DAG dependency graph, formula parser/evaluator and XLSX export, plus writer_engine, slides_engine, phone_link_engine, snipping and file explorer engines.'],
-      ['Local NLP & SQLite RAG (meson_ai)', 'Runs intent classification, multi-intent resolution, TF-IDF and SIF embeddings, phonetic + Levenshtein spellchecking, stemming, slang dictionaries, SQLite retrieval and calibrated rate limiting natively without blocking the Dart isolate.'],
-      ['49 Rust API modules, SIMD media & crypto', 'meson_shell bundles licensing and qbsdiff binary delta patching; meson_media runs SIMD image resizing (fast_image_resize); additional APIs cover marketplace_engine, calculator_engine, device_scanner, printer_engine, procedural_3d_engine, WebRTC, TTS worker, AES-256-GCM LAN P2P (128-bit replay window) and delegated AES-256 messaging hooks.'],
+      ['Local NLP & SQLite RAG (meson_ai)', 'Runs intent classification, multi-intent resolution, TF-IDF and SIF embeddings, phonetic + Levenshtein spellchecking, stemming, slang dictionaries, SQLite retrieval and calibrated rate limiting natively without blocking the Dart isolate, paired with an offline local Whisper STT fallback and precached Rust TTS prompts during outages.'],
+      ['49 Rust API modules, 50,270 LOC, SIMD & Win32 recovery', 'meson_shell bundles hardware-bound HMAC licensing (7-day offline anti-clock-tampering grace window) and qbsdiff binary delta patching; meson_media runs SIMD image resizing (fast_image_resize); 273 Rust files cover marketplace_engine, calculator_engine (shrinkage & par math), device_scanner, printer_engine, procedural_3d_engine, meson_webrtc, AES-256-GCM + Argon2 LAN P2P and Win32 user32.dll C++/FFI input-freeze recovery.'],
       ['Public clean-room proof', 'While the 8 internal workspace crates remain private, public repositories ffi-arena-bridge and lan-delta-sync expose Miguel’s solo Rust FFI and AEAD/CRDT sync design with green Linux + Windows CI.'],
     ],
   },
   {
     slug: 'ecosistema-paquetes', number: '17', title: 'Astro Web, Pausa & Shared Packages', type: 'Commercial web + 10 monorepo packages',
-    description: '300+ page Astro web platform with canvas simulators, Meson Pausa wellness app, Currency calculator, public BUCO discovery app and decoupled packages (meson_db, meson_chat).',
+    description: '189-page mobile-first Astro commercial website, Meson Pausa wellness app, Currency calculator, public BUCO discovery app and decoupled packages (meson_db, meson_chat).',
     stack: ['Astro', 'Flutter', 'Isar', 'E2E Chat'],
     accent: 'purple',
     variant: 'screenshot',
     repoUrl: 'https://github.com/M4QSZ/BUCO',
     images: [
-      { src: '/images/meson-web-devices.webp', alt: 'Responsive Astro Meson commercial web platform across desktop, tablet and phone', caption: '300+ page Astro commercial platform with interactive Canvas desktop and mobile previews.' },
+      { src: '/images/meson-web-devices.webp', alt: 'Responsive Astro Meson commercial web platform across desktop, tablet and phone', caption: 'Astro commercial platform refactored for fast mobile conversion, ERP showcase and multi-language SEO.' },
       { src: '/images/meson-widgets.webp', alt: 'Shared desktop widgets and internal feed powered by decoupled monorepo packages', caption: 'Modular widgets and shared services backed by meson_models, meson_db and meson_chat.' },
     ],
     sections: [
-      ['300+ page Astro commercial platform (apps/website)', 'Features interactive HTML5 Canvas window/phone simulators, floor planner showcase, Voice AI demo, Hardware Hub, ROI savings calculator and multi-country Latin American SEO content clusters.'],
+      ['189-page mobile-first Astro web (apps/website)', 'Clean Tailwind + TypeScript conversion storefront (<95 KB HTML homepage), modular ERP breakdown (/modulos/), real desktop/mobile captures and 19-language SEO editorial cluster.'],
       ['Companion Flutter apps (meson_pause, currency & BUCO)', 'meson_pause (15 test files) combines circadian meal timing, intermittent fasting safety protocols, Web Audio calm soundscapes and embedded meson_brasas gameplay; meson_currency handles multi-currency calculations; BUCO (22 test files, public repo M4QSZ/BUCO) targets Panama restaurant discovery.'],
       ['10 decoupled workspace packages', 'Includes meson_db (Isar schemas + idempotency sync adapter, 7 tests), meson_chat (E2E encryption + presence across desktop/mobile), meson_models (33 domain models, 24 tests), meson_core (multi-tenant resolver), meson_maps, meson_ui, meson_brasas and shared_models.'],
       ['Attribution', 'Miguel led ecosystem architecture, core Rust/Flutter systems and package design (769/860 commits on active branch); collaborator Leonardo Gutiérrez contributed UI widgets and selected Flutter screens (~91 commits).'],

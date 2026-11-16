@@ -59,8 +59,13 @@
   *, *:before, *:after { transition: none !important; animation: none !important; }
 }
 
+@page {
+  margin: 12mm 14mm;
+  background: #fff;
+}
+
 @media print {
-  body { background: #fff; color: #000; padding-bottom: 0; }
+  :root, html, body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; margin: 0 !important; }
   .site-header,
   .site-footer,
   .back-link,
@@ -70,6 +75,6 @@
     display: none !important;
   }
   .wrap { width: 100%; max-width: none; margin: 0; }
-  .detail-main { padding: 0; }
-  .cv-sheet { border: 0; border-radius: 0; padding: 0; background: #fff; color: #000; max-width: none; }
+  .detail-main { padding: 0 !important; }
+  .cv-sheet { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; color: #000 !important; max-width: none !important; }
 }
