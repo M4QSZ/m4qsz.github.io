@@ -84,8 +84,8 @@ export const englishProjects: EnglishProject[] = [
     sections: [
       ['Purpose', 'The shell brings Meson modules together in a shared workspace instead of treating each module as an isolated screen.'],
       ['Window model', 'The code manages internal windows, stacking order, snapping, minimizing and maximizing, and multiple workspaces.'],
-      ['Personalization', 'Taskbar and visual settings include pinned items, themes, wallpaper and other saved preferences.'],
-      ['Scope', 'This is an application shell built inside Flutter, not a replacement operating system.'],
+      ['Personalization, subscriptions & peripherals', 'Layered settings across 176 files handle themes, plan subscriptions/licensing, WebView2 multi-tab browsing, audio/video/image media playback, native calculator, embedded games (Flame / meson_brasas) and device_hub (Customer-Facing Displays, scales, ESC/POS USB/LAN/BLE printers, NFC).'],
+      ['Multi-target optimization', 'Window state isolates tree rebuilds and batches resize ticks, while platform_specific conditional stubs tailor desktop, mobile and Web builds and offload compute to 49 Rust API modules.'],
     ],
   },
   {
@@ -216,7 +216,7 @@ export const englishProjects: EnglishProject[] = [
     sections: [
       ['Desktop office engines (meson_tools)', 'Implements sheets_engine from scratch in Rust with chunked cell storage, a DAG dependency graph, formula parser/evaluator and XLSX export, plus writer_engine, slides_engine, phone_link_engine, snipping and file explorer engines.'],
       ['Local NLP & SQLite RAG (meson_ai)', 'Runs intent classification, multi-intent resolution, TF-IDF and SIF embeddings, phonetic + Levenshtein spellchecking, stemming, slang dictionaries, SQLite retrieval and calibrated rate limiting natively without blocking the Dart isolate.'],
-      ['Binary delta updater, SIMD media & WebRTC', 'meson_shell bundles licensing and qbsdiff delta patching; meson_media performs fast SIMD image resizing (fast_image_resize); meson_webrtc & meson_speech_worker handle real-time media and standalone TTS; p2p_network adds AES-256-GCM + 128-bit replay protection.'],
+      ['49 Rust API modules, SIMD media & crypto', 'meson_shell bundles licensing and qbsdiff binary delta patching; meson_media runs SIMD image resizing (fast_image_resize); additional APIs cover marketplace_engine, calculator_engine, device_scanner, printer_engine, procedural_3d_engine, WebRTC, TTS worker, AES-256-GCM LAN P2P (128-bit replay window) and delegated AES-256 messaging hooks.'],
       ['Public clean-room proof', 'While the 8 internal workspace crates remain private, public repositories ffi-arena-bridge and lan-delta-sync expose Miguel’s solo Rust FFI and AEAD/CRDT sync design with green Linux + Windows CI.'],
     ],
   },
