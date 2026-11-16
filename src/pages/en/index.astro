@@ -33,72 +33,43 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
 ---
 <Base
   lang="en"
-  title={`${profile.name} — Multiplatform Software & Game Engineer`}
+  title={`${profile.name} | Multiplatform Software & Game Engineer`}
   description="Miguel Quevedo's portfolio: multiplatform apps (desktop, mobile, web) in Flutter and Rust, Unity C# & Roblox Luau games, Next.js/Astro web, and applied AI."
-  pageLabel="00 · Overview"
 >
   <main id="contenido">
-    <section class="hero wrap" data-scroll-label="00 · Overview">
+    <section class="hero wrap">
       <div class="hero-copy">
-        <div class="hero-identity">
-          <img
-            src="/images/miguel-avatar.webp"
-            alt="Portrait of Miguel Antonio Quevedo Simoza"
-            class="hero-avatar"
-            decoding="async"
-          />
-          <div class="hero-identity-meta">
-            <strong>{profile.shortName}</strong>
-            <span>Systems Engineering · UBA ’27</span>
-          </div>
-        </div>
-        <br />
-        <div class="eyebrow"><span class="status-dot"></span> Remote · Hybrid · On-site · Relocation</div>
-        <p class="hero-index">PORTFOLIO / 2026</p>
-        <h1>From product idea.<br /><em>To working software.</em></h1>
+        <h1>Multiplatform software, Rust systems and shipped games.</h1>
         <p class="hero-lede">
-          I build multiplatform software (desktop, mobile and web) with Flutter, Dart and Rust, plus games in Unity (C#)
-          and web platforms with Next.js and Astro.
+          I build desktop, mobile and web apps with Flutter, Dart and Rust, alongside Unity C# games and Next.js or Astro sites.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#proyectos">Explore projects ↘</a>
-          <a class="button button-outline" href="/en/cv/">View / Print CV ↗</a>
-          <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </div>
 
       <HeroShowcase isEnglish={true} />
     </section>
 
-    <div class="ticker" aria-label="Areas of work">
-      <div>
-        DESKTOP / MOBILE / WEB <span>✳</span> FLUTTER + RUST <span>✳</span> P2P / OFFLINE <span>✳</span> UNITY C# <span>✳</span> SQL / NOSQL <span>✳</span> AI / LLMS
-      </div>
-    </div>
-
-    <section class="proof-strip wrap" aria-label="Selected strengths" data-scroll-label="Core Strengths">
+    <section class="proof-strip wrap" aria-label="Selected strengths">
       <div class="reveal-on-scroll">
-        <span>01 / SYSTEMS</span>
         <strong>Local P2P network</strong>
-        <p>Device communication with deferred sync and Firebase → Supabase migration.</p>
+        <p>Device communication with deferred sync and Firebase to Supabase migration.</p>
       </div>
       <div class="reveal-on-scroll">
-        <span>02 / MULTIPLATFORM</span>
         <strong>Flutter + Rust + Kotlin</strong>
         <p>Desktop, mobile and web apps connected to native FFI logic.</p>
       </div>
       <div class="reveal-on-scroll">
-        <span>03 / GAMES</span>
         <strong>Unity C# · Flutter · Roblox</strong>
         <p>Decoupled C# core with automated tests, shared Flutter package and Luau.</p>
       </div>
     </section>
 
-    <section class="section wrap" id="proyectos" data-scroll-label="01 · Projects">
+    <section class="section wrap" id="proyectos">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">01 / WORK</p>
-          <h2>Products with<br /><em>real context.</em></h2>
+          <h2>Shipped products and systems</h2>
         </div>
         <p>Real captures from Meson, e-commerce, technical services, web prototypes, and games.</p>
       </div>
@@ -107,45 +78,41 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
 
       <div class="project-section-block">
         <div class="project-grid">
-          {featured.map((project) => <ProjectCard {...toCardProps(project, 'PROJECT')} />)}
+          {featured.map((project) => <ProjectCard {...toCardProps(project, 'Project')} />)}
         </div>
       </div>
 
       <div class="project-section-block">
-        <div class="subsection-heading" data-scroll-label="Games & AI">
-          <p class="section-kicker">GAMES & APPLIED AI</p>
-          <h3>Interactive engines and prototypes.</h3>
+        <div class="subsection-heading">
+          <h3>Interactive engines and applied AI</h3>
           <p>Brasas in both Flutter and Unity, El Pueblo del Faro in Roblox Studio, plus LLM tooling and Rust Bevy.</p>
         </div>
         <div class="project-grid">
-          {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project, 'INTERACTIVE')} />)}
+          {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project, 'Interactive')} />)}
         </div>
       </div>
 
       <div class="project-section-block">
-        <div class="subsection-heading" data-scroll-label="Inside Meson">
-          <p class="section-kicker">INSIDE MESON</p>
-          <h3>Architecture and interfaces.</h3>
+        <div class="subsection-heading">
+          <h3>Architecture and interfaces inside Meson</h3>
           <p>Current Meson desktop screenshots and architectural previews without exposing private code or data.</p>
         </div>
         <div class="project-grid">
-          {systems.map((project) => <ProjectCard {...toCardProps(project, 'SYSTEM')} />)}
+          {systems.map((project) => <ProjectCard {...toCardProps(project, 'System')} />)}
         </div>
       </div>
     </section>
 
-    <section class="section skills-section" id="tecnologias" data-scroll-label="02 · Expertise">
+    <section class="section skills-section" id="tecnologias">
       <div class="wrap">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">02 / EXPERTISE</p>
-            <h2>Tools for<br /><em>each layer.</em></h2>
+            <h2>Tools for each layer</h2>
           </div>
           <p>Active verified stack separated clearly from prior coursework and pre-Git experience.</p>
         </div>
         <div class="capability-grid">
           <div class="capability-card reveal-on-scroll">
-            <div class="capability-number">01</div>
             <h3>Multiplatform & systems</h3>
             <p>Desktop (Windows), mobile and web with modular code, Skia/Impeller engines, FFI, persistence and Git.</p>
             <div class="skill-list">
@@ -153,15 +120,13 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
             </div>
           </div>
           <div class="capability-card reveal-on-scroll">
-            <div class="capability-number">02</div>
             <h3>Web, databases & AI</h3>
-            <p>Web platforms, relational/NoSQL modeling, Firebase/Firestore → Supabase/PostgreSQL migration, LLMs and Prompt Engineering.</p>
+            <p>Web platforms, relational/NoSQL modeling, Firebase/Firestore to Supabase/PostgreSQL migration, LLMs and Prompt Engineering.</p>
             <div class="skill-list">
               {['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA', 'Prompt Engineering'].map((skill) => <span>{skill}</span>)}
             </div>
           </div>
           <div class="capability-card reveal-on-scroll">
-            <div class="capability-number">03</div>
             <h3>Games, product & teamwork</h3>
             <p>Active engines, 0-to-1 MVP with feedback, 1:1 "on-model" design fidelity, cross-functional teams, AppSec and pre-Git stack.</p>
             <div class="skill-list">
@@ -176,34 +141,33 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
       </div>
     </section>
 
-    <section class="section wrap architecture-section" data-scroll-label="03 · Architecture">
+    <section class="section wrap architecture-section">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">03 / ARCHITECTURE</p>
-          <h2>Built for unstable<br /><em>connections.</em></h2>
+          <h2>Built for unstable connections</h2>
         </div>
         <p>Local operations do not depend on cloud availability for every action.</p>
       </div>
       <div class="architecture-grid">
         <div class="architecture-diagram reveal-on-scroll" aria-label="Point of sale, floor and kitchen devices communicate locally, then synchronize remotely">
-          <div class="diagram-label">MESON / LOCAL NETWORK</div>
-          <div class="diagram-devices"><span>POS</span><span>FLOOR</span><span>KITCHEN</span></div>
-          <div class="diagram-flow">↔ &nbsp; DISCOVERY + P2P MESSAGES &nbsp; ↔</div>
-          <div class="diagram-store">LOCAL DATA AND QUEUE</div>
+          <div class="diagram-label">Meson local network</div>
+          <div class="diagram-devices"><span>POS</span><span>Floor</span><span>Kitchen</span></div>
+          <div class="diagram-flow">↔ Discovery + P2P messages ↔</div>
+          <div class="diagram-store">Local data and queue</div>
           <div class="diagram-arrow">↓ when connected</div>
-          <div class="diagram-cloud">REMOTE SYNC</div>
+          <div class="diagram-cloud">Remote sync</div>
         </div>
         <div class="architecture-copy reveal-on-scroll">
-          <div><span>01</span><h3>Local work</h3><p>Devices can exchange changes over the restaurant network during an Internet outage.</p></div>
-          <div><span>02</span><h3>Native network layer</h3><p>The Rust engine implements encrypted envelopes and replay controls.</p></div>
-          <div><span>03</span><h3>NoSQL ↔ SQL migration</h3><p>Hands-on data modeling across Isar, SQLite, MySQL and migrating Firebase / Cloud Firestore into Supabase / PostgreSQL.</p></div>
+          <div><h3>Local work</h3><p>Devices can exchange changes over the restaurant network during an Internet outage.</p></div>
+          <div><h3>Native network layer</h3><p>The Rust engine implements encrypted envelopes and replay controls.</p></div>
+          <div><h3>NoSQL & SQL migration</h3><p>Hands-on data modeling across Isar, SQLite, MySQL and migrating Firebase / Cloud Firestore into Supabase / PostgreSQL.</p></div>
           <a class="text-link" href="/en/projects/red-p2p/">Explore the architecture ↗</a>
         </div>
       </div>
       <p class="architecture-caveat">During a power outage, devices need batteries and the local network needs backup power.</p>
     </section>
 
-    <section class="section wrap about-section" id="sobre-mi" data-scroll-label="04 · About">
+    <section class="section wrap about-section" id="sobre-mi">
       <div class="about-portrait-card reveal-on-scroll">
         <img
           src="/images/miguel-avatar.webp"
@@ -213,16 +177,12 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
           decoding="async"
         />
         <div class="about-portrait-caption">
-          <div>
-            <strong>{profile.name}</strong>
-            <span>Aragua, VE · 6 languages · UBA 2027</span>
-          </div>
-          <span class="about-badge">Available</span>
+          <strong>{profile.name}</strong>
+          <span>Aragua, VE · Open to remote, hybrid & relocation · UBA 2027</span>
         </div>
       </div>
       <div class="about-copy reveal-on-scroll">
-        <p class="section-kicker">04 / APPROACH</p>
-        <h2>Clean modules.<br /><em>Broad delivery.</em></h2>
+        <h2>Clean modules and broad delivery</h2>
         <p>
           I take concepts from 0-to-1 ideation and feedback-validated MVPs to working software with 1:1 "on-model"
           design fidelity, up-to-date AI prompt engineering, modular architecture and explicit dependency injection.
@@ -238,17 +198,16 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
       </div>
     </section>
 
-    <section class="contact-section" id="contacto" data-scroll-label="05 · Contact">
+    <section class="contact-section" id="contacto">
       <div class="wrap contact-inner">
-        <p class="section-kicker">05 / CONTACT</p>
-        <h2>Let's build<br /><em>useful software.</em></h2>
+        <h2>Let's build useful software</h2>
         <p>{profile.locationEn} · Full-time or part-time · Open to international relocation.</p>
         <div class="contact-actions">
           <a class="button button-primary" href={`mailto:${profile.email}`}>Email ({profile.email}) ↗</a>
           <CopyEmailButton email={profile.email} isEnglish={true} />
-          <a class="button button-outline" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-          <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-          <a class="button button-outline" href="/en/cv/">CV / PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          <a class="text-link" style="margin-top:0" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/cv/">CV / PDF ↗</a>
         </div>
       </div>
     </section>

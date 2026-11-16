@@ -44,25 +44,23 @@ const thumbs = isEnglish
 
 <div class="hero-showcase" aria-label={isEnglish ? 'Interactive software gallery' : 'Galería de interfaces reales'}>
   <div class="showcase-frame">
-    <div class="showcase-bar">
-      <span class="showcase-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span>{isEnglish ? 'MESON DESKTOP · REAL CAPTURE (NOV 2026)' : 'MESON DESKTOP · CAPTURA REAL (NOV 2026)'}</span>
-    </div>
     <button
       type="button"
       class="showcase-trigger"
       data-lightbox-src="/images/meson-shell.webp"
       data-lightbox-alt={isEnglish ? 'Meson Desktop current workspace and launcher' : 'Escritorio actual de Meson con lanzador de aplicaciones y Phone Link'}
-      data-lightbox-caption={isEnglish ? 'Meson Desktop — customizable shell, launcher and Phone Link.' : 'Meson Desktop — shell personalizable, lanzador modular y Phone Link.'}
+      data-lightbox-caption={isEnglish ? 'Meson Desktop — customizable shell, launcher and Phone Link.' : 'Meson Desktop: shell personalizable, lanzador modular y Phone Link.'}
       aria-label={isEnglish ? 'Expand Meson Desktop screenshot' : 'Ampliar captura de Meson Desktop'}
     >
       <img
         src="/images/meson-shell.webp"
         alt={isEnglish ? 'Meson Desktop current launcher and Phone Link panel' : 'Escritorio actual de Meson con lanzador de aplicaciones y panel Phone Link'}
-        decoding="async"
+        width="1280"
+        height="800"
+        loading="eager"
+        fetchpriority="high"
+        decoding="sync"
       />
-      <span class="shot-badge">{isEnglish ? 'Live workspace' : 'Sistema en vivo'}</span>
-      <span class="shot-zoom-pill" aria-hidden="true">↗</span>
     </button>
   </div>
 
@@ -76,8 +74,15 @@ const thumbs = isEnglish
         data-lightbox-caption={thumb.alt}
         aria-label={`${isEnglish ? 'Expand' : 'Ampliar'}: ${thumb.label}`}
       >
-        <img src={thumb.src} alt={thumb.alt} loading="lazy" />
-        <span>{thumb.label} ↗</span>
+        <img
+          src={thumb.src}
+          alt={thumb.alt}
+          width="1280"
+          height="800"
+          loading="eager"
+          decoding="sync"
+        />
+        <span>{thumb.label}</span>
       </button>
     ))}
   </div>

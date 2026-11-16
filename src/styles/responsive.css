@@ -27,12 +27,9 @@
   .wrap { width: calc(100% - 28px); }
   .hero { padding-top: 28px; padding-bottom: 42px; gap: 28px; }
   .hero h1 { font-size: clamp(36px, 10.5vw, 52px); }
-  .showcase-bar { font-size: 9px; letter-spacing: 0.08em; }
   .showcase-thumbs { gap: 7px; }
   .showcase-thumb { padding: 6px; }
-  .showcase-thumb span { font-size: 10px; }
-  .ticker { white-space: normal; line-height: 1.8; font-size: 10px; padding: 14px; }
-  .ticker span { margin: 0 10px; }
+  .showcase-thumb span { font-size: 0.8125rem; }
   .section { padding-top: 58px; padding-bottom: 58px; }
   .section-heading { display: block; margin-bottom: 28px; }
   .section-heading > p { margin-top: 12px; }

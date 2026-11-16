@@ -8,37 +8,10 @@ const { isEnglish, pageLabel } = Astro.props;
 const defaultLabel = pageLabel ?? (isEnglish ? 'Overview' : 'Inicio');
 ---
 
-<aside
-  class="bottom-progress-dock"
-  aria-label={isEnglish ? 'Reading progress and section indicator' : 'Progreso de lectura y sección actual'}
->
-  <div class="bottom-progress-pill">
-    <span class="bottom-progress-dot" aria-hidden="true"></span>
-    <span class="bottom-progress-section" id="scroll-section-label">{defaultLabel}</span>
-    <span class="bottom-progress-divider" aria-hidden="true">·</span>
-    <span class="bottom-progress-pct" id="scroll-progress-pct">0%</span>
-    <button
-      type="button"
-      class="bottom-progress-top"
-      id="scroll-to-top-btn"
-      aria-label={isEnglish ? 'Back to top' : 'Volver arriba'}
-      title={isEnglish ? 'Back to top' : 'Volver arriba'}
-    >
-      ↑
-    </button>
-  </div>
-</aside>
-
 <script is:inline define:vars={{ defaultLabel }}>
   (() => {
     const header = document.querySelector('.site-header');
     const fill = document.getElementById('nav-scroll-progress');
-    const pctEl = document.getElementById('scroll-progress-pct');
-    const labelEl = document.getElementById('scroll-section-label');
-    const topBtn = document.getElementById('scroll-to-top-btn');
-    if (!pctEl) return;
-
-    const trackedSections = Array.from(document.querySelectorAll('[data-scroll-label]'));
     const projectsSection = document.getElementById('proyectos');
     const skillsSection = document.getElementById('tecnologias');
     const navProjects = document.querySelector('[data-nav-section="proyectos"]');
@@ -48,18 +21,12 @@ const defaultLabel = pageLabel ?? (isEnglish ? 'Overview' : 'Inicio');
       const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
       const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       const ratio = scrollHeight > 0 ? Math.min(1, Math.max(0, scrollTop / scrollHeight)) : 1;
-      const pct = Math.round(ratio * 100);
 
       if (header) {
         header.classList.toggle('is-scrolled', scrollTop > 12);
       }
       if (fill) {
         fill.style.width = `${(ratio * 100).toFixed(2)}%`;
-      }
-      pctEl.textContent = `${pct}%`;
-
-      if (topBtn) {
-        topBtn.dataset.visible = scrollTop > 320 ? 'true' : 'false';
       }
 
       if (projectsSection && skillsSection && navProjects && navSkills) {
@@ -68,35 +35,12 @@ const defaultLabel = pageLabel ?? (isEnglish ? 'Overview' : 'Inicio');
         navProjects.classList.toggle('is-active', !inSkills);
         navSkills.classList.toggle('is-active', inSkills);
       }
-
-      if (labelEl && trackedSections.length > 0) {
-        const visibleSections = trackedSections.filter((section) => section.getClientRects().length > 0);
-        let activeLabel = defaultLabel;
-        const probeY = window.innerHeight * 0.38;
-        for (const section of visibleSections) {
-          const rect = section.getBoundingClientRect();
-          if (rect.top <= probeY) {
-            activeLabel = section.getAttribute('data-scroll-label') || activeLabel;
-          }
-        }
-        if (scrollHeight > 0 && ratio >= 0.98 && visibleSections.length > 0) {
-          const last = visibleSections[visibleSections.length - 1];
-          activeLabel = last.getAttribute('data-scroll-label') || activeLabel;
-        }
-        labelEl.textContent = activeLabel;
-      }
     };
 
     window.addEventListener('scroll', updateScroll, { passive: true });
     window.addEventListener('resize', updateScroll, { passive: true });
-    if (topBtn) {
-      topBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
     updateScroll();
 
-    // Subtle reveal-on-scroll matching Meson web rhythm
     const revealEls = Array.from(document.querySelectorAll('.reveal-on-scroll'));
     if (revealEls.length > 0 && 'IntersectionObserver' in window) {
       const observer = new IntersectionObserver(

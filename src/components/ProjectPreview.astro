@@ -24,7 +24,6 @@ const {
 } = Astro.props;
 
 const zoomLabel = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
-const liveBadge = isEnglish ? 'Real build' : 'Captura real';
 ---
 
 <div class:list={['project-visual', `accent-${accent}`, image ? 'is-photo' : `is-${variant}`]}>
@@ -36,12 +35,10 @@ const liveBadge = isEnglish ? 'Real build' : 'Captura real';
           class="shot-zoom-trigger"
           data-lightbox-src={image}
           data-lightbox-alt={imageAlt || title}
-          data-lightbox-caption={caption || `${number} · ${title}`}
+          data-lightbox-caption={caption || title}
           aria-label={`${zoomLabel}: ${title}`}
         >
           <img src={image} alt={imageAlt || title} loading="lazy" decoding="async" class="shot-main" />
-          <span class="shot-badge">{liveBadge}</span>
-          <span class="shot-zoom-pill" aria-hidden="true">↗</span>
         </button>
         {secondaryImage && (
           <img src={secondaryImage} alt="" aria-hidden="true" loading="lazy" decoding="async" class="shot-pip" />

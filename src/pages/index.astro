@@ -12,69 +12,43 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
 const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
 ---
 <Base
-  title={`${profile.name} — Ingeniería de software y videojuegos`}
+  title={`${profile.name} | Ingeniería de software y videojuegos`}
   description="Portafolio de Miguel Quevedo: apps multiplataforma (PC, móvil, web) en Flutter y Rust, videojuegos Unity C# y Roblox Luau, web Next.js/Astro e IA aplicada."
-  pageLabel="00 · Inicio"
 >
   <main id="contenido">
-    <section class="hero wrap" data-scroll-label="00 · Inicio">
+    <section class="hero wrap">
       <div class="hero-copy">
-        <div class="hero-identity">
-          <img
-            src="/images/miguel-avatar.webp"
-            alt="Retrato de Miguel Antonio Quevedo Simoza"
-            class="hero-avatar"
-            decoding="async"
-          />
-          <div class="hero-identity-meta">
-            <strong>{profile.shortName}</strong>
-            <span>Ing. en Sistemas · UBA ’27</span>
-          </div>
-        </div>
-        <br />
-        <div class="eyebrow"><span class="status-dot"></span> {profile.availability}</div>
-        <p class="hero-index">PORTAFOLIO / 2026</p>
-        <h1>Diseño la idea.<br /><em>Construyo el sistema.</em></h1>
-        <p class="hero-lede">{profile.headline}</p>
+        <h1>Diseño la idea y construyo el sistema completo.</h1>
+        <p class="hero-lede">
+          Apps multiplataforma en Flutter y Rust, videojuegos en Unity C# y plataformas web con Next.js y Astro.
+        </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#proyectos">Explorar proyectos <span aria-hidden="true">↘</span></a>
-          <a class="button button-outline" href="/cv/">Ver / Imprimir CV <span aria-hidden="true">↗</span></a>
-          <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </div>
 
       <HeroShowcase isEnglish={false} />
     </section>
 
-    <div class="ticker" aria-label="Áreas de trabajo">
-      <div>
-        PC / MÓVIL / WEB <span>✳</span> FLUTTER + RUST <span>✳</span> P2P / OFFLINE <span>✳</span> UNITY C# <span>✳</span> SQL / NOSQL <span>✳</span> IA / LLMS
-      </div>
-    </div>
-
-    <section class="proof-strip wrap" aria-label="Especialidades destacadas" data-scroll-label="Resumen técnico">
+    <section class="proof-strip wrap" aria-label="Especialidades destacadas">
       <div class="reveal-on-scroll">
-        <span>01 / SISTEMAS</span>
         <strong>Red P2P de Meson</strong>
-        <p>Comunicación local entre dispositivos y sincronización diferida Firebase → Supabase.</p>
+        <p>Comunicación local entre dispositivos y sincronización diferida Firebase y Supabase.</p>
       </div>
       <div class="reveal-on-scroll">
-        <span>02 / MULTIPLATAFORMA</span>
         <strong>Flutter + Rust + Kotlin</strong>
         <p>Apps para PC, móvil y web conectadas con lógica nativa mediante FFI.</p>
       </div>
       <div class="reveal-on-scroll">
-        <span>03 / VIDEOJUEGOS</span>
         <strong>Unity C# · Flutter · Roblox</strong>
         <p>Núcleo desacoplado con pruebas automatizadas, paquete compartido y Luau.</p>
       </div>
     </section>
 
-    <section class="section wrap" id="proyectos" data-scroll-label="01 · Proyectos">
+    <section class="section wrap" id="proyectos">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">01 / TRABAJO</p>
-          <h2>Productos con<br /><em>contexto real.</em></h2>
+          <h2>Productos en producción y sistemas</h2>
         </div>
         <p>Capturas reales de Meson, web comercial, servicios técnicos, prototipos y videojuegos.</p>
       </div>
@@ -84,51 +58,47 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       <div class="project-section-block">
         <div class="project-grid">
           {featuredProjects.map((project) => (
-            <ProjectCard {...project} categoryLabel="PROYECTO" group={getGroup(project.number)} isEnglish={false} />
+            <ProjectCard {...project} categoryLabel="Proyecto" group={getGroup(project.number)} isEnglish={false} />
           ))}
         </div>
       </div>
 
       <div class="project-section-block">
-        <div class="subsection-heading" data-scroll-label="Videojuegos e IA">
-          <p class="section-kicker">VIDEOJUEGOS E IA</p>
-          <h3>Motores interactivos y prototipos.</h3>
+        <div class="subsection-heading">
+          <h3>Videojuegos, motores interactivos e IA</h3>
           <p>Versiones de Brasas en Flutter y Unity, Roblox Studio y experimentación con LLMs y Rust Bevy.</p>
         </div>
         <div class="project-grid">
           {gamesAndAi.map((project) => (
-            <ProjectCard {...project} categoryLabel="INTERACTIVO" group="games" isEnglish={false} />
+            <ProjectCard {...project} categoryLabel="Interactivo" group="games" isEnglish={false} />
           ))}
         </div>
       </div>
 
       <div class="project-section-block">
-        <div class="subsection-heading" data-scroll-label="Meson por dentro">
-          <p class="section-kicker">DENTRO DE MESON</p>
-          <h3>Arquitectura e interfaces destacadas.</h3>
+        <div class="subsection-heading">
+          <h3>Arquitectura e interfaces dentro de Meson</h3>
           <p>Capturas actuales de Meson y diagramas técnicos de sus subsistemas sin publicar código privado.</p>
         </div>
         <div class="project-grid">
           {mesonSystems.map((project) => (
-            <ProjectCard {...project} categoryLabel="SISTEMA" group="systems" isEnglish={false} />
+            <ProjectCard {...project} categoryLabel="Sistema" group="systems" isEnglish={false} />
           ))}
         </div>
       </div>
     </section>
 
-    <section class="section skills-section" id="tecnologias" data-scroll-label="02 · Tecnologías">
+    <section class="section skills-section" id="tecnologias">
       <div class="wrap">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">02 / TECNOLOGÍAS</p>
-            <h2>Herramientas para<br /><em>cada capa.</em></h2>
+            <h2>Herramientas para cada capa</h2>
           </div>
           <p>Stack activo verificado en código junto a conocimientos previos de formación y proyectos anteriores.</p>
         </div>
         <div class="capability-grid">
-          {capabilities.map((group, index) => (
+          {capabilities.map((group) => (
             <div class="capability-card reveal-on-scroll">
-              <div class="capability-number">0{index + 1}</div>
               <h3>{group.label}</h3>
               <p>{group.detail}</p>
               <div class="skill-list">
@@ -144,37 +114,33 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       </div>
     </section>
 
-    <section class="section wrap architecture-section" data-scroll-label="03 · Arquitectura">
+    <section class="section wrap architecture-section">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">03 / ARQUITECTURA</p>
-          <h2>Preparado para<br /><em>conexiones inestables.</em></h2>
+          <h2>Preparado para conexiones inestables</h2>
         </div>
         <p>El trabajo local no depende de que la nube esté disponible en cada operación.</p>
       </div>
       <div class="architecture-grid">
         <div class="architecture-diagram reveal-on-scroll" aria-label="Dispositivos conectados por una red local con sincronización diferida">
-          <div class="diagram-label">RED LOCAL / MESON</div>
-          <div class="diagram-devices"><span>CAJA</span><span>SALA</span><span>COCINA</span></div>
-          <div class="diagram-flow">↔ &nbsp; DESCUBRIMIENTO + MENSAJES P2P &nbsp; ↔</div>
-          <div class="diagram-store">DATOS Y COLA LOCAL</div>
+          <div class="diagram-label">Red local Meson</div>
+          <div class="diagram-devices"><span>Caja</span><span>Sala</span><span>Cocina</span></div>
+          <div class="diagram-flow">↔ Descubrimiento + mensajes P2P ↔</div>
+          <div class="diagram-store">Datos y cola local</div>
           <div class="diagram-arrow">↓ cuando hay conexión</div>
-          <div class="diagram-cloud">NUBE / SINCRONIZACIÓN</div>
+          <div class="diagram-cloud">Nube / sincronización</div>
         </div>
         <div class="architecture-copy reveal-on-scroll">
           <div>
-            <span>01</span>
             <h3>Operación local</h3>
             <p>Los dispositivos pueden intercambiar acciones dentro de la red del restaurante aunque falle Internet.</p>
           </div>
           <div>
-            <span>02</span>
             <h3>Protocolo propio</h3>
             <p>El motor en Rust implementa sobres cifrados y una ventana de control de mensajes repetidos.</p>
           </div>
           <div>
-            <span>03</span>
-            <h3>Migración NoSQL ↔ SQL</h3>
+            <h3>Migración NoSQL y SQL</h3>
             <p>Experiencia práctica conectando persistencia local (Isar, SQLite) y migrando entre Firebase / Cloud Firestore y Supabase / PostgreSQL o MySQL.</p>
           </div>
           <a class="text-link" href="/proyectos/red-p2p/">Explorar la arquitectura <span aria-hidden="true">↗</span></a>
@@ -185,7 +151,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       </p>
     </section>
 
-    <section class="section wrap about-section" id="sobre-mi" data-scroll-label="04 · Sobre mí">
+    <section class="section wrap about-section" id="sobre-mi">
       <div class="about-portrait-card reveal-on-scroll">
         <img
           src="/images/miguel-avatar.webp"
@@ -195,16 +161,12 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
           decoding="async"
         />
         <div class="about-portrait-caption">
-          <div>
-            <strong>{profile.name}</strong>
-            <span>Estado Aragua, VE · 6 idiomas · UBA 2027</span>
-          </div>
-          <span class="about-badge">Disponible</span>
+          <strong>{profile.name}</strong>
+          <span>Estado Aragua, Venezuela · Disponible remoto, híbrido y reubicación · UBA 2027</span>
         </div>
       </div>
       <div class="about-copy reveal-on-scroll">
-        <p class="section-kicker">04 / ENFOQUE</p>
-        <h2>Código limpio.<br /><em>Producto completo.</em></h2>
+        <h2>Código limpio y producto completo</h2>
         <p>
           Llevo ideas y conceptos a software funcional (0 a 1): prototipado rápido, MVP validado con retroalimentación,
           fidelidad visual 1:1 a diseño («on-model»), optimización de prompts con criterio actualizado de modelos de IA,
@@ -220,17 +182,16 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       </div>
     </section>
 
-    <section class="contact-section" id="contacto" data-scroll-label="05 · Contacto">
+    <section class="contact-section" id="contacto">
       <div class="wrap contact-inner">
-        <p class="section-kicker">05 / CONTACTO</p>
-        <h2>Construyamos<br /><em>algo útil.</em></h2>
+        <h2>Construyamos algo útil</h2>
         <p>{profile.location} · Jornada completa o media jornada · Reubicación internacional.</p>
         <div class="contact-actions">
           <a class="button button-primary" href={`mailto:${profile.email}`}>Escribirme ({profile.email}) ↗</a>
           <CopyEmailButton email={profile.email} isEnglish={false} />
-          <a class="button button-outline" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-          <a class="button button-outline" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-          <a class="button button-outline" href="/cv/">CV / PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          <a class="text-link" style="margin-top:0" href={profile.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <a class="text-link" style="margin-top:0" href="/cv/">CV / PDF ↗</a>
         </div>
       </div>
     </section>

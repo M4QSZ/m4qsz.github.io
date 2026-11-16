@@ -20,13 +20,14 @@ const filters = isEnglish
     ];
 ---
 
-<div class="project-filter-bar" role="group" aria-label={isEnglish ? 'Filter projects by area' : 'Filtrar proyectos por área'}>
+<div class="project-filter-bar" role="tablist" aria-label={isEnglish ? 'Filter projects by area' : 'Filtrar proyectos por área'}>
   {filters.map((item, idx) => (
     <button
       type="button"
+      role="tab"
       class:list={['filter-chip', idx === 0 && 'is-active']}
       data-filter-group={item.id}
-      aria-pressed={idx === 0 ? 'true' : 'false'}
+      aria-selected={idx === 0 ? 'true' : 'false'}
     >
       {item.label}
     </button>
@@ -48,7 +49,7 @@ const filters = isEnglish
         buttons.forEach((btn) => {
           const active = btn.getAttribute('data-filter-group') === group;
           btn.classList.toggle('is-active', active);
-          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
         });
 
         cards.forEach((card) => {

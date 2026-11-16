@@ -102,89 +102,63 @@
 
 .brand-name strong {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 15px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: #f3f0e7;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
-.brand-name small {
-  margin: 2px 0 0;
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #8e988f;
-}
-
-/* Center floating pill nav */
+/* Single-line desktop navigation */
 .nav-pill-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid #303934;
-  background: rgba(25, 30, 28, 0.85);
+  gap: 8px;
 }
 
 .nav-pill-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  font-size: 12.5px;
-  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #b4bab5;
-  transition: color 0.18s ease, background 0.18s ease;
+  transition: color 180ms ease, background-color 180ms ease;
 }
 
 .nav-pill-link:hover {
   color: #f3f0e7;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .nav-pill-link.is-active {
-  color: #f3f0e7;
-  background: rgba(228, 165, 108, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(228, 165, 108, 0.28);
+  color: #e4a56c;
+  font-weight: 600;
 }
 
-.nav-pill-badge {
-  font-style: normal;
-  font-size: 9.5px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: rgba(131, 198, 160, 0.14);
-  border: 1px solid rgba(131, 198, 160, 0.35);
-  color: #83c6a0;
-}
-
-/* Right actions: ES|EN toggle, GitHub pill, Contact CTA */
+/* Right actions: ES|EN toggle, GitHub link, Contact CTA */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
 .lang-switch {
   display: inline-flex;
   align-items: center;
-  padding: 3px;
-  border-radius: 999px;
+  padding: 2px;
+  border-radius: 8px;
   border: 1px solid #37423c;
   background: #171c1b;
 }
 
 .lang-opt {
-  padding: 5px 9px;
-  border-radius: 999px;
-  font: 700 11px 'Space Grotesk', sans-serif;
-  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font: 700 0.8125rem 'Space Grotesk', sans-serif;
   color: #9ba59d;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
 .lang-opt:hover:not(.is-current) {
@@ -196,40 +170,34 @@
   color: #e4a56c;
 }
 
-.header-github-pill {
+.header-github-link {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 13px;
-  border-radius: 999px;
-  border: 1px solid #3a453e;
-  background: #181e1c;
-  font-size: 12.5px;
+  gap: 4px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #dce2dc;
-  transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  transition: color 180ms ease;
 }
 
-.header-github-pill span {
+.header-github-link span {
   color: #e4a56c;
 }
 
-.header-github-pill:hover {
-  border-color: #e4a56c;
+.header-github-link:hover {
   color: #f3f0e7;
-  transform: translateY(-1px);
 }
 
 .header-contact-pill {
   display: inline-flex;
   align-items: center;
-  padding: 8px 15px;
-  border-radius: 999px;
+  padding: 9px 16px;
+  border-radius: 8px;
   background: #e4a56c;
   color: #141513;
-  font-size: 12.5px;
+  font-size: 0.875rem;
   font-weight: 700;
-  transition: background 0.18s ease, transform 0.18s ease;
+  transition: background-color 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .header-contact-pill:hover {
@@ -341,6 +309,5 @@
 
 @media (max-width: 640px) {
   .header-inner { min-height: 66px; }
-  .brand-name small { display: none; }
-  .header-github-pill { display: none; }
+  .header-github-link { display: none; }
 }

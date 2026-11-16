@@ -40,16 +40,12 @@ const {
   repoUrl,
 } = Astro.props;
 
-const ctaLabel = isEnglish ? 'Open technical case →' : 'Abrir caso técnico →';
+const ctaLabel = isEnglish ? 'Read case study →' : 'Abrir caso técnico →';
 const liveLabel = isEnglish ? 'Live site ↗' : 'Ver en vivo ↗';
 const repoLabel = isEnglish ? 'Rust crate ↗' : 'Crate Rust ↗';
 ---
 
 <article class={`project-card accent-${accent} reveal-on-scroll`} data-group={group}>
-  <div class="project-top">
-    <span>{number} / {categoryLabel}</span>
-    <a class="card-arrow" href={href} aria-label={`${title} — ${ctaLabel}`}>↗</a>
-  </div>
   <ProjectPreview
     number={number}
     title={title}
@@ -59,15 +55,13 @@ const repoLabel = isEnglish ? 'Rust crate ↗' : 'Crate Rust ↗';
     imageAlt={imageAlt}
     variant={variant}
     isEnglish={isEnglish}
-    caption={`${number} · ${title}`}
+    caption={title}
   />
   <div class="project-copy">
     <p class="project-type">{type}</p>
     <h3><a href={href}>{title}</a></h3>
     <p>{description}</p>
-    <div class="tags">
-      {stack.map((skill) => <span>{skill}</span>)}
-    </div>
+    <p class="stack-line">{stack.join(' · ')}</p>
     <div class="card-cta-row">
       <a class="card-cta" href={href}>{ctaLabel}</a>
       {liveUrl && (
