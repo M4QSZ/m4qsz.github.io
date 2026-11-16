@@ -105,7 +105,7 @@ export const projects: ProjectItem[] = [
     variant: 'screenshot',
     image: '/images/meson-shell.webp',
     secondaryImage: '/images/meson-web-devices.webp',
-    imageAlt: 'Captura actual del escritorio de Meson con lanzador de módulos y panel Phone Link',
+    imageAlt: 'Captura actual del escritorio de Meson con 44 módulos y ventanas acopladas',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
   },
   {

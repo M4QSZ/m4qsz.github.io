@@ -25,7 +25,7 @@ export const englishProjects: EnglishProject[] = [
     variant: 'screenshot',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     images: [
-      { src: '/images/meson-shell.webp', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell: module launcher, Phone Link and live taskbar.' },
+      { src: '/images/meson-shell.webp', alt: 'Meson Desktop 44-module launcher with snapped 2.5D Tables and System Health windows', caption: 'Desktop shell: 44-module launcher, snapped windows and live taskbar.' },
       { src: '/images/meson-floor-editor.webp', alt: 'Current isometric floor editor window in Meson', caption: 'Interactive isometric floor editor with multi-floor selector.' },
       { src: '/images/meson-widgets.webp', alt: 'Meson live widgets board and internal digest El Diario', caption: 'Widgets & News drawer with real-time operational counters.' },
       { src: '/images/meson-web-devices.webp', alt: 'Meson Web showcase across desktop, tablet and smartphone screens', caption: 'Official Meson web showcase across desktop, tablet and phone viewports.' },
@@ -79,7 +79,7 @@ export const englishProjects: EnglishProject[] = [
     variant: 'screenshot',
     images: [
       { src: '/images/meson-widgets.webp', alt: 'Widgets and El Diario digest drawer inside Meson customizable shell', caption: 'Live Widgets & News drawer anchored inside the desktop shell.' },
-      { src: '/images/meson-shell.webp', alt: 'Meson shell with app launcher, Phone Link panel and docked taskbar', caption: 'Modular app drawer, quick search bar and multi-window taskbar.' },
+      { src: '/images/meson-shell.webp', alt: 'Meson shell with app launcher, snapped 2.5D Tables and System Health panels', caption: 'Modular app drawer, snapped multi-window layout and live taskbar.' },
     ],
     sections: [
       ['Purpose', 'The shell brings Meson modules together in a shared workspace instead of treating each module as an isolated screen.'],
