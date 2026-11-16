@@ -16,25 +16,18 @@ const status = project.status ?? 'Reviewed implementation';
   lang="en"
   title={`${project.title} | Miguel`}
   description={project.description}
-  pageLabel={`${project.number} · ${project.title}`}
 >
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/">← Back to portfolio</a>
-    <div class="detail-hero" data-scroll-label={`${project.number} · Overview`}>
-      <div>
-        <p class="section-kicker">CASE STUDY / {project.number}</p>
-        <h1 class="long-title">{project.title}<span>.</span></h1>
-        <p class="detail-lede">{project.description}</p>
-      </div>
-      <div class="detail-badge">
-        {project.stack.slice(0, 2).join(' + ')}<br /><strong>{project.type.toUpperCase()}</strong>
-      </div>
+    <div class="detail-hero">
+      <h1 class="long-title">{project.title}</h1>
+      <p class="detail-lede">{project.description}</p>
     </div>
 
     <div class="detail-meta">
-      <div><span>PROJECT</span><strong>{scope}</strong></div>
-      <div><span>TECHNOLOGIES</span><strong>{project.stack.join(' · ')}</strong></div>
-      <div><span>STATUS</span><strong>{status}</strong></div>
+      <div><span>Scope</span><strong>{scope}</strong></div>
+      <div><span>Technologies</span><strong>{project.stack.join(' · ')}</strong></div>
+      <div><span>Status</span><strong>{status}</strong></div>
     </div>
 
     {project.images && project.images.length > 0 ? (
@@ -52,12 +45,11 @@ const status = project.status ?? 'Reviewed implementation';
     )}
 
     <div class="case-layout">
-      <aside>{project.sections.map(([heading], index) => <span>0{index + 1} / {heading.toUpperCase()}</span>)}</aside>
+      <aside>{project.sections.map(([heading]) => <span>{heading}</span>)}</aside>
       <div class="case-content">
-        {project.sections.map(([heading, body], index) => (
-          <section data-scroll-label={`0${index + 1} · ${heading}`}>
-            <p class="section-kicker">0{index + 1} / {heading.toUpperCase()}</p>
-            <h2>{heading}.</h2>
+        {project.sections.map(([heading, body]) => (
+          <section>
+            <h2>{heading}</h2>
             <p>{body}</p>
           </section>
         ))}
@@ -70,7 +62,7 @@ const status = project.status ?? 'Reviewed implementation';
       {project.repoUrl && (
         <a class="button button-primary" href={project.repoUrl} target="_blank" rel="noopener noreferrer">Inspect public Rust crate ↗</a>
       )}
-      <a class="button button-outline" href="/en/">All projects ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/">All projects ↗</a>
     </div>
   </main>
 </Base>

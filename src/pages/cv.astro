@@ -2,12 +2,12 @@
 import Base from '../layouts/Base.astro';
 import { profile } from '../data/profile';
 ---
-<Base title={`CV — ${profile.name}`} description="Currículum de Miguel Antonio Quevedo Simoza: Ingeniero de software multiplataforma (PC, móvil, web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL e IA.">
+<Base title={`CV | ${profile.name}`} description="Currículum de Miguel Antonio Quevedo Simoza: Ingeniero de software multiplataforma (PC, móvil, web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL e IA.">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="cv-actions">
       <button class="button button-primary" type="button" onclick="window.print()">Imprimir / Guardar PDF ↗</button>
-      <a class="button button-outline" href="/en/cv/">English version (EN) ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/cv/">English version (EN) ↗</a>
     </div>
     <article class="cv-sheet">
       <h1>{profile.name}</h1>
@@ -31,7 +31,7 @@ import { profile } from '../data/profile';
 
       <section>
         <h2>Experiencia y ecosistema principal</h2>
-        <h3>Arquitecto y desarrollador principal multiplataforma — Meson (Ecosistema independiente)</h3>
+        <h3>Arquitecto y desarrollador principal multiplataforma en Meson (Ecosistema independiente)</h3>
         <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (Windows/Desktop, Móvil y Web · 769/860 commits en rama activa · 912.888 líneas Dart + 50.270 Rust en <code>meson_business</code>)</p>
         <ul>
           <li><strong>POS, doble Autopago y Periféricos (<code>meson_business</code> · 2.521 archivos Dart / 527 de prueba):</strong> arquitecturé suites POS gastronómico/retail, KDS cocina/barra, autopago restaurante y supermercado (<code>auto_pago</code> con validación anti-hurto en balanza RS-232/USB), editor CAD Flame 2.5D (+70 activos isométricos 360°), 18 suites por industria y <code>device_hub</code> (CFD, impresoras ESC/POS USB/LAN/BLE, NFC/RFID).</li>
@@ -70,7 +70,7 @@ import { profile } from '../data/profile';
 
       <section>
         <h2>Educación e idiomas</h2>
-        <p><strong>Universidad Bicentenaria de Aragua (UBA)</strong> — Ingeniería en Sistemas, mención Programación (2023 – julio 2027, en curso).</p>
+        <p><strong>Universidad Bicentenaria de Aragua (UBA):</strong> Ingeniería en Sistemas, mención Programación (2023 a julio 2027, en curso).</p>
         <p><strong>Idiomas:</strong> Español (Nativo) · Inglés (Bilingüe / C2) · Portugués (Avanzado) · Italiano (Avanzado) · Alemán (Básico) · Japonés (Básico).</p>
       </section>
     </article>

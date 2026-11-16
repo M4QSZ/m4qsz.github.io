@@ -12,14 +12,24 @@ const example = `match local.clock.compare(&remote.clock) {
 <Base lang="en" title="Local sync Rust sample | Miguel" description="Independent Rust example with vector clocks, conflict detection and an acknowledged outbox.">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/lab/">← Back to the lab</a>
-    <div class="detail-hero"><div><p class="section-kicker">LAB / RUST</p><h1 class="long-title">Local changes<span>.</span></h1><p class="detail-lede">A small example of causal versus concurrent changes and retrying pending operations.</p></div><div class="detail-badge">RUST / STD<br /><strong>INDEPENDENT SAMPLE</strong></div></div>
-    <div class="detail-meta"><div><span>CAUSALITY</span><strong>Vector clocks</strong></div><div><span>DELIVERY</span><strong>Acknowledged outbox</strong></div><div><span>VERIFIED</span><strong>5 local tests</strong></div></div>
-    <div class="case-layout"><aside><span>01 / PROBLEM</span><span>02 / DECISION</span><span>03 / CODE</span><span>04 / LIMITS</span></aside><div class="case-content">
-      <section><p class="section-kicker">01 / PROBLEM</p><h2>Two devices can edit the same record.</h2><p>When both work offline, a timestamp cannot show whether one change had observed the other. The sample uses per actor counters to identify causal order and concurrency.</p></section>
-      <section><p class="section-kicker">02 / DECISION</p><h2>Detect before resolving.</h2><p>A causally newer clock can win. Concurrent clocks produce an explicit conflict for product rules to resolve. Outgoing operations remain pending until acknowledged.</p></section>
-      <section><p class="section-kicker">03 / CODE</p><h2>The comparison is explicit.</h2><pre class="sample-code"><code>{example}</code></pre><p>The full code and tests are in <code>samples/local-sync-rust</code> inside this independent portfolio repository. Miguel should review and explain the sample before using it as professional evidence.</p></section>
-      <section><p class="section-kicker">04 / LIMITS</p><h2>A sample, not a production engine.</h2><p>It has no durable persistence, transport, authentication, encryption or automatic conflict policy. It contains no private Meson code.</p></section>
-    </div></div>
-    <div class="detail-actions"><a class="button button-outline" href="/en/projects/red-p2p/">Read the Meson P2P case ↗</a></div>
+    <div class="detail-hero">
+      <h1 class="long-title">Local changes</h1>
+      <p class="detail-lede">A small Rust sample separating causal ordering from concurrent writes and retrying unacknowledged operations.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Causality</span><strong>Vector clocks</strong></div>
+      <div><span>Delivery</span><strong>Acknowledged outbox</strong></div>
+      <div><span>Verification</span><strong>5 local tests</strong></div>
+    </div>
+    <div class="case-layout">
+      <aside><span>Problem</span><span>Decision</span><span>Code</span><span>Limits</span></aside>
+      <div class="case-content">
+        <section><h2>Two devices can edit the same record.</h2><p>When both work offline, a timestamp cannot show whether one change had observed the other. The sample uses per actor counters to identify causal order and concurrency.</p></section>
+        <section><h2>Detect before resolving.</h2><p>A causally newer clock can win. Concurrent clocks produce an explicit conflict for product rules to resolve. Outgoing operations remain pending until acknowledged.</p></section>
+        <section><h2>The comparison is explicit.</h2><pre class="sample-code"><code>{example}</code></pre><p>The full code and tests are in <code>samples/local-sync-rust</code> inside this independent portfolio repository.</p></section>
+        <section><h2>A sample, not a production engine.</h2><p>It has no durable persistence, transport, authentication, encryption or automatic conflict policy. It contains no private Meson code.</p></section>
+      </div>
+    </div>
+    <div class="detail-actions"><a class="text-link" style="margin-top:0" href="/en/projects/red-p2p/">Read the Meson P2P case ↗</a></div>
   </main>
 </Base>

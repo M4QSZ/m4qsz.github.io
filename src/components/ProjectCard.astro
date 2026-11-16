@@ -14,9 +14,9 @@ interface Props {
   image?: string;
   secondaryImage?: string;
   imageAlt?: string;
-  categoryLabel: string;
   group?: string;
   isEnglish?: boolean;
+  featured?: boolean;
   liveUrl?: string;
   repoUrl?: string;
 }
@@ -33,9 +33,9 @@ const {
   image,
   secondaryImage,
   imageAlt,
-  categoryLabel,
   group = 'systems',
   isEnglish = false,
+  featured = false,
   liveUrl,
   repoUrl,
 } = Astro.props;
@@ -45,7 +45,7 @@ const liveLabel = isEnglish ? 'Live site ↗' : 'Ver en vivo ↗';
 const repoLabel = isEnglish ? 'Rust crate ↗' : 'Crate Rust ↗';
 ---
 
-<article class={`project-card accent-${accent} reveal-on-scroll`} data-group={group}>
+<article class:list={['project-card', `accent-${accent}`, 'reveal-on-scroll', featured && 'project-card--featured']} data-group={group}>
   <ProjectPreview
     number={number}
     title={title}

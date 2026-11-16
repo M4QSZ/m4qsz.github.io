@@ -25,16 +25,16 @@ export const englishProjects: EnglishProject[] = [
     variant: 'screenshot',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     images: [
-      { src: '/images/meson-shell.webp', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell — module launcher, Phone Link and live taskbar.' },
+      { src: '/images/meson-shell.webp', alt: 'Current Meson desktop shell with launcher and Phone Link pane', caption: 'Current desktop shell: module launcher, Phone Link and live taskbar.' },
       { src: '/images/meson-floor-editor.webp', alt: 'Current isometric floor editor window in Meson', caption: 'Interactive isometric floor editor with multi-floor selector.' },
       { src: '/images/meson-widgets.webp', alt: 'Meson live widgets board and internal digest El Diario', caption: 'Widgets & News drawer with real-time operational counters.' },
       { src: '/images/meson-web-devices.webp', alt: 'Meson Web showcase across desktop, tablet and smartphone screens', caption: 'Official Meson web showcase across desktop, tablet and phone viewports.' },
     ],
     sections: [
-      ['Product scope', 'The monorepo houses specialized multiplatform apps — meson_business (2,521 Dart files / 527 test files covering POS, retail, restaurant & supermarket self-checkout with RS-232/USB weigh-scale anti-theft check, KDS, Flame 2.5D CAD with 70+ 360° assets, WebRTC VoIP/video chat, B2B marketplace, native Rust Office suite [Writer, DAG/XLSX Sheets, Slides], BOM recipes, 3-way AP invoice matching, double-entry accounting, SENIAT fiscal hash audit, Atelier HR/payroll + PIN kiosk and 18 Store industry suites), meson_central, meson_delivery (peer mesh relay), meson_customer (Rust backend), meson_pause, meson_currency, BUCO, 10 shared packages and a 189-page mobile-first Astro web platform.'],
+      ['Product scope', 'The monorepo houses specialized multiplatform apps: meson_business (2,521 Dart files / 527 test files covering POS, retail, restaurant & supermarket self-checkout with RS-232/USB weigh-scale anti-theft check, KDS, Flame 2.5D CAD with 70+ 360° assets, WebRTC VoIP/video chat, B2B marketplace, native Rust Office suite [Writer, DAG/XLSX Sheets, Slides], BOM recipes, 3-way AP invoice matching, double-entry accounting, SENIAT fiscal hash audit, Atelier HR/payroll + PIN kiosk and 18 Store industry suites), meson_central, meson_delivery (peer mesh relay), meson_customer (Rust backend), meson_pause, meson_currency, BUCO, 10 shared packages and a 189-page mobile-first Astro web platform.'],
       ['Architecture', 'Flutter and Dart power the apps with Deferred Components loading and adaptive memory profiles. Rust implements native modules and 49 FFI APIs across 8 crates (including HLC/CRDT P2P, AES-256-GCM/Argon2, offline Whisper STT fallback, qbsdiff binary delta updater and Win32 user32.dll input-freeze recovery), alongside Kotlin Android foreground services and Isar + WAL persistence syncing to Supabase/PostgreSQL after migrating from Firebase.'],
       ['What this case proves', 'It shows how complex retail/hospitality workflows, hardware drivers, local AI and distributed sync fit into one modular multiplatform system. The repo remains private; linked technical cases and OSS Rust/Dart repos explain core subsystems.'],
-      ['Measured repository scope', 'Direct audit of apps/meson_business verified 2,521 Dart source files (912,888 lines) and 273 Rust source files (50,270 lines) across rust/src and workspace crates — ~963,158 lines inside meson_business alone, within a broader monorepo that counted 4,181 code files in a prior September 2026 snapshot. These are source-code size metrics rather than external uptime claims.'],
+      ['Measured repository scope', 'Direct audit of apps/meson_business verified 2,521 Dart source files (912,888 lines) and 273 Rust source files (50,270 lines) across rust/src and workspace crates (~963,158 lines) inside meson_business alone, within a broader monorepo that counted 4,181 code files in a prior September 2026 snapshot. These are source-code size metrics rather than external uptime claims.'],
       ['Operational boundaries', 'Offline work needs devices and a functioning local network. Power outages require batteries or backup power. Recovery and synchronization need multi-device tests before making measured reliability claims.'],
       ['Ownership and limits', 'Miguel has led most of Meson’s design and implementation. He supervised a Flutter collaborator’s work and assigned the next tasks. This case does not claim unverified production scale, availability or business outcomes.'],
     ],
@@ -102,7 +102,7 @@ export const englishProjects: EnglishProject[] = [
     ],
   },
   {
-    slug: 'comercio-nextjs', number: '06', title: 'Alma — Next.js e-commerce platform', type: 'Independent project · case study',
+    slug: 'comercio-nextjs', number: '06', title: 'Alma: Next.js e-commerce platform', type: 'Independent project · case study',
     description: 'Marketplace-style storefront with catalog, fuzzy search (Fuse.js), accounts, Recharts analytics, Resend emails, admin panel and demo checkout.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],
     accent: 'gold',
@@ -194,7 +194,7 @@ export const englishProjects: EnglishProject[] = [
     ],
   },
   {
-    slug: 'meson-central', number: '15', title: 'Meson Central — Global Control', type: 'Standalone Flutter app · SaaS super-admin',
+    slug: 'meson-central', number: '15', title: 'Meson Central: Global Control', type: 'Standalone Flutter app · SaaS super-admin',
     description: 'Centralized operations and financial control plane for the ecosystem: cryptographic node licensing, SaaS revenue, cloud costs, fleet monitor and support desk.',
     stack: ['Flutter', 'Supabase', 'Licensing', 'fl_chart'],
     accent: 'gold',
@@ -248,12 +248,12 @@ export const englishProjects: EnglishProject[] = [
       {
         src: '/images/brasas-play.webp',
         alt: 'Unity editor runtime capture of Brasas showing character Lía, lantern companion Tilo, and HUD',
-        caption: 'Unity 6.3 LTS capture — Refugio de las promesas scene and custom HUD.',
+        caption: 'Unity 6.3 LTS capture: Refugio de las promesas scene and custom HUD.',
       },
       {
         src: '/images/brasas-map.webp',
         alt: 'Unity route map overlay for Brasas showing connected chapter locations',
-        caption: 'Unity 6.3 LTS capture — interactive route map and checkpoint progression.',
+        caption: 'Unity 6.3 LTS capture: interactive route map and checkpoint progression.',
       },
     ],
     sections: [

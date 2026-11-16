@@ -157,7 +157,7 @@ export const projects: ProjectItem[] = [
   },
   {
     number: '06',
-    title: 'Alma — Comercio web en Next.js',
+    title: 'Alma: Comercio web en Next.js',
     type: 'Proyecto independiente · e-commerce',
     description: 'Tienda estilo marketplace en Next.js con catálogo, búsqueda difusa (Fuse.js), cuentas, Recharts, Resend, panel admin y checkout demo.',
     stack: ['Next.js', 'React', 'TypeScript', 'Supabase'],

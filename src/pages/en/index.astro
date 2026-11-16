@@ -12,7 +12,7 @@ const gamesAndAi = englishProjects.filter((project) => ['11', '12', '13'].includ
 const systems = englishProjects.filter((project) => ['02', '03', '04', '05', '09', '10', '14', '15', '16', '17'].includes(project.number));
 const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
 
-const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string) => ({
+const toCardProps = (p: (typeof englishProjects)[number]) => ({
   number: p.number,
   title: p.title,
   type: p.type,
@@ -24,7 +24,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
   image: p.images?.[0]?.src,
   secondaryImage: p.images?.[1]?.src,
   imageAlt: p.images?.[0]?.alt,
-  categoryLabel,
+  featured: p.number === '01',
   group: getGroup(p.number),
   isEnglish: true,
   liveUrl: p.liveUrl,
@@ -41,7 +41,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
       <div class="hero-copy">
         <h1>Multiplatform software, Rust systems and shipped games.</h1>
         <p class="hero-lede">
-          I build desktop, mobile and web apps with Flutter, Dart and Rust, alongside Unity C# games and Next.js or Astro sites.
+          Desktop, mobile and web apps with Flutter and Rust, Unity C# games, and Next.js or Astro sites.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#proyectos">Explore projects ↘</a>
@@ -78,7 +78,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
 
       <div class="project-section-block">
         <div class="project-grid">
-          {featured.map((project) => <ProjectCard {...toCardProps(project, 'Project')} />)}
+          {featured.map((project) => <ProjectCard {...toCardProps(project)} />)}
         </div>
       </div>
 
@@ -88,7 +88,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
           <p>Brasas in both Flutter and Unity, El Pueblo del Faro in Roblox Studio, plus LLM tooling and Rust Bevy.</p>
         </div>
         <div class="project-grid">
-          {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project, 'Interactive')} />)}
+          {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project)} />)}
         </div>
       </div>
 
@@ -98,7 +98,7 @@ const toCardProps = (p: (typeof englishProjects)[number], categoryLabel: string)
           <p>Current Meson desktop screenshots and architectural previews without exposing private code or data.</p>
         </div>
         <div class="project-grid">
-          {systems.map((project) => <ProjectCard {...toCardProps(project, 'System')} />)}
+          {systems.map((project) => <ProjectCard {...toCardProps(project)} />)}
         </div>
       </div>
     </section>

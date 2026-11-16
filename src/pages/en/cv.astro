@@ -2,12 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import { profile } from '../../data/profile';
 ---
-<Base lang="en" title={`Resume — ${profile.name}`} description="Resume of Miguel Antonio Quevedo Simoza: Multiplatform Software Engineer (Desktop, Mobile, Web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL & AI.">
+<Base lang="en" title={`Resume | ${profile.name}`} description="Resume of Miguel Antonio Quevedo Simoza: Multiplatform Software Engineer (Desktop, Mobile, Web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL & AI.">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/">← Back to portfolio</a>
     <div class="cv-actions">
       <button class="button button-primary" type="button" onclick="window.print()">Print / Save PDF ↗</button>
-      <a class="button button-outline" href="/cv/">Versión en español (ES) ↗</a>
+      <a class="text-link" style="margin-top:0" href="/cv/">Versión en español (ES) ↗</a>
     </div>
     <article class="cv-sheet">
       <h1>{profile.name}</h1>
@@ -31,7 +31,7 @@ import { profile } from '../../data/profile';
 
       <section>
         <h2>Experience &amp; flagship ecosystem</h2>
-        <h3>Lead Architect &amp; Multiplatform Software Engineer — Meson (Independent Product Suite)</h3>
+        <h3>Lead Architect &amp; Multiplatform Software Engineer at Meson (Independent Product Suite)</h3>
         <p class="cv-sub">September 2025 – Present · Remote (Windows/Desktop, Mobile &amp; Web · 769/860 active-branch commits · 912,888 Dart + 50,270 Rust LOC in <code>meson_business</code>)</p>
         <ul>
           <li><strong>POS, Dual Self-Checkout &amp; Peripherals (<code>meson_business</code> · 2,521 Dart files / 527 test files):</strong> architected hospitality &amp; retail POS, Kitchen/Bar KDS, Restaurant &amp; Supermarket self-checkout (<code>auto_pago</code> / RS-232 &amp; USB weigh-scale anti-theft check), Flame 2.5D CAD floor planner (+70 360° isometric assets), 18 industry suites in MesOn Store and <code>device_hub</code> (CFDs, ESC/POS LAN/USB/BLE printers, NFC/RFID).</li>
@@ -70,7 +70,7 @@ import { profile } from '../../data/profile';
 
       <section>
         <h2>Education & languages</h2>
-        <p><strong>Universidad Bicentenaria de Aragua (UBA)</strong> — B.S. in Systems Engineering, Programming Concentration (2023 – July 2027, expected).</p>
+        <p><strong>Universidad Bicentenaria de Aragua (UBA):</strong> B.S. in Systems Engineering, Programming Concentration (2023 to July 2027, expected).</p>
         <p><strong>Languages:</strong> Spanish (Native) · English (Bilingual / C2) · Portuguese (Advanced) · Italian (Advanced) · German (Basic) · Japanese (Basic).</p>
       </section>
     </article>

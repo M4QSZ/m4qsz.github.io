@@ -20,7 +20,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       <div class="hero-copy">
         <h1>Diseño la idea y construyo el sistema completo.</h1>
         <p class="hero-lede">
-          Apps multiplataforma en Flutter y Rust, videojuegos en Unity C# y plataformas web con Next.js y Astro.
+          Apps multiplataforma en Flutter y Rust, videojuegos en Unity C# y web Next.js o Astro.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#proyectos">Explorar proyectos <span aria-hidden="true">↘</span></a>
@@ -58,7 +58,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       <div class="project-section-block">
         <div class="project-grid">
           {featuredProjects.map((project) => (
-            <ProjectCard {...project} categoryLabel="Proyecto" group={getGroup(project.number)} isEnglish={false} />
+            <ProjectCard {...project} featured={project.number === '01'} group={getGroup(project.number)} isEnglish={false} />
           ))}
         </div>
       </div>
@@ -70,7 +70,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
         </div>
         <div class="project-grid">
           {gamesAndAi.map((project) => (
-            <ProjectCard {...project} categoryLabel="Interactivo" group="games" isEnglish={false} />
+            <ProjectCard {...project} group="games" isEnglish={false} />
           ))}
         </div>
       </div>
@@ -82,7 +82,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
         </div>
         <div class="project-grid">
           {mesonSystems.map((project) => (
-            <ProjectCard {...project} categoryLabel="Sistema" group="systems" isEnglish={false} />
+            <ProjectCard {...project} group="systems" isEnglish={false} />
           ))}
         </div>
       </div>

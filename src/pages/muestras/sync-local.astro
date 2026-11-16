@@ -12,14 +12,24 @@ const example = `match local.clock.compare(&remote.clock) {
 <Base title="Muestra Rust de sincronización local | Miguel" description="Ejemplo independiente en Rust: relojes vectoriales, detección de conflictos y cola de operaciones pendientes.">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/laboratorio/">← Volver al laboratorio</a>
-    <div class="detail-hero"><div><p class="section-kicker">LABORATORIO / RUST</p><h1 class="long-title">Cambios locales<span>.</span></h1><p class="detail-lede">Una muestra pequeña de cómo distinguir un cambio posterior de dos cambios concurrentes y cómo reintentar operaciones pendientes.</p></div><div class="detail-badge">RUST / STD<br /><strong>MUESTRA INDEPENDIENTE</strong></div></div>
-    <div class="detail-meta"><div><span>CAUSALIDAD</span><strong>Relojes vectoriales</strong></div><div><span>ENTREGA</span><strong>Cola con confirmación</strong></div><div><span>VERIFICACIÓN</span><strong>5 pruebas locales</strong></div></div>
-    <div class="case-layout"><aside><span>01 / PROBLEMA</span><span>02 / DECISIÓN</span><span>03 / CÓDIGO</span><span>04 / LÍMITES</span></aside><div class="case-content">
-      <section><p class="section-kicker">01 / PROBLEMA</p><h2>Dos equipos pueden cambiar lo mismo.</h2><p>Si ambos trabajan desconectados, una marca de tiempo no basta para saber si un cambio conocía al otro. La muestra usa un contador por actor para distinguir orden causal de concurrencia.</p></section>
-      <section><p class="section-kicker">02 / DECISIÓN</p><h2>Detectar antes de resolver.</h2><p>Cuando un reloj domina al otro, se puede elegir la versión más reciente en sentido causal. Cuando son concurrentes, el resultado es un conflicto explícito: la regla de negocio debe decidir qué hacer. Las operaciones salientes permanecen en la cola hasta recibir confirmación.</p></section>
-      <section><p class="section-kicker">03 / CÓDIGO</p><h2>La comparación es visible.</h2><pre class="sample-code"><code>{example}</code></pre><p>El código completo y sus pruebas están en la carpeta <code>samples/local-sync-rust</code> del repositorio independiente de este portafolio. Antes de compartirlo públicamente, Miguel debe revisarlo y poder explicar sus decisiones.</p></section>
-      <section><p class="section-kicker">04 / LÍMITES</p><h2>Una muestra, no un motor productivo.</h2><p>No incluye persistencia en disco, transporte, autenticación, cifrado ni resolución automática de conflictos. Es código original de demostración y no reutiliza el código privado de Meson.</p></section>
-    </div></div>
-    <div class="detail-actions"><a class="button button-outline" href="/proyectos/red-p2p/">Ver el caso P2P de Meson ↗</a></div>
+    <div class="detail-hero">
+      <h1 class="long-title">Cambios locales</h1>
+      <p class="detail-lede">Muestra pequeña en Rust para distinguir cambios causales de cambios concurrentes y reintentar operaciones pendientes.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Causalidad</span><strong>Relojes vectoriales</strong></div>
+      <div><span>Entrega</span><strong>Cola con confirmación</strong></div>
+      <div><span>Verificación</span><strong>5 pruebas locales</strong></div>
+    </div>
+    <div class="case-layout">
+      <aside><span>Problema</span><span>Decisión</span><span>Código</span><span>Límites</span></aside>
+      <div class="case-content">
+        <section><h2>Dos equipos pueden cambiar lo mismo.</h2><p>Si ambos trabajan desconectados, una marca de tiempo no basta para saber si un cambio conocía al otro. La muestra usa un contador por actor para distinguir orden causal de concurrencia.</p></section>
+        <section><h2>Detectar antes de resolver.</h2><p>Cuando un reloj domina al otro, se puede elegir la versión más reciente en sentido causal. Cuando son concurrentes, el resultado es un conflicto explícito: la regla de negocio debe decidir qué hacer. Las operaciones salientes permanecen en la cola hasta recibir confirmación.</p></section>
+        <section><h2>La comparación es visible.</h2><pre class="sample-code"><code>{example}</code></pre><p>El código completo y sus pruebas están en <code>samples/local-sync-rust</code> del repositorio independiente de este portafolio.</p></section>
+        <section><h2>Una muestra, no un motor productivo.</h2><p>No incluye persistencia en disco, transporte, autenticación, cifrado ni resolución automática de conflictos. Es código original de demostración y no reutiliza el código privado de Meson.</p></section>
+      </div>
+    </div>
+    <div class="detail-actions"><a class="text-link" style="margin-top:0" href="/proyectos/red-p2p/">Ver el caso P2P de Meson ↗</a></div>
   </main>
 </Base>

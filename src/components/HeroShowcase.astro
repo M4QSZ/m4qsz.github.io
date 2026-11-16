@@ -5,56 +5,78 @@ interface Props {
 
 const { isEnglish = false } = Astro.props;
 
-const thumbs = isEnglish
+const frames = isEnglish
   ? [
+      {
+        src: '/images/meson-shell.webp',
+        alt: 'Meson Desktop current launcher and Phone Link panel',
+        caption: 'Meson Desktop: customizable shell, module launcher and Phone Link.',
+        label: 'Desktop shell',
+      },
       {
         src: '/images/meson-floor-editor.webp',
         alt: 'Meson isometric floor editor in Flutter + Flame',
+        caption: 'Interactive isometric floor editor with multi-floor view in Flame.',
         label: 'Isometric tables',
       },
       {
         src: '/images/meson-widgets.webp',
         alt: 'Meson live widgets board and news drawer',
+        caption: 'Live widgets workspace and internal El Diario feed.',
         label: 'Live widgets',
       },
       {
         src: '/images/meson-web-devices.webp',
-        alt: 'Meson multi-device responsive showcase',
+        alt: 'Meson multi-device responsive web showcase',
+        caption: 'Multiplatform web views across desktop, tablet and mobile.',
         label: 'Multi-device web',
       },
     ]
   : [
       {
+        src: '/images/meson-shell.webp',
+        alt: 'Escritorio actual de Meson con lanzador de aplicaciones y panel Phone Link',
+        caption: 'Meson Desktop: shell personalizable, lanzador modular y Phone Link.',
+        label: 'Shell escritorio',
+      },
+      {
         src: '/images/meson-floor-editor.webp',
         alt: 'Editor isométrico de mesas en Meson Desktop',
+        caption: 'Editor visual isométrico 2.5D con selector de pisos en Flame.',
         label: 'Editor isométrico',
       },
       {
         src: '/images/meson-widgets.webp',
         alt: 'Tablero de widgets en vivo y El Diario en Meson',
+        caption: 'Tablero de widgets operativos y noticias internas en vivo.',
         label: 'Widgets en vivo',
       },
       {
         src: '/images/meson-web-devices.webp',
         alt: 'Meson web adaptado a escritorio, tablet y móvil',
-        label: 'Web multi-dispositivo',
+        caption: 'Plataforma web comercial adaptada a escritorio, tablet y teléfono.',
+        label: 'Web adaptativa',
       },
     ];
+
+const initial = frames[0];
 ---
 
-<div class="hero-showcase" aria-label={isEnglish ? 'Interactive software gallery' : 'Galería de interfaces reales'}>
+<div class="hero-showcase" data-hero-stage aria-label={isEnglish ? 'Interactive software gallery' : 'Galería interactiva de interfaces'}>
   <div class="showcase-frame">
     <button
       type="button"
       class="showcase-trigger"
-      data-lightbox-src="/images/meson-shell.webp"
-      data-lightbox-alt={isEnglish ? 'Meson Desktop current workspace and launcher' : 'Escritorio actual de Meson con lanzador de aplicaciones y Phone Link'}
-      data-lightbox-caption={isEnglish ? 'Meson Desktop — customizable shell, launcher and Phone Link.' : 'Meson Desktop: shell personalizable, lanzador modular y Phone Link.'}
-      aria-label={isEnglish ? 'Expand Meson Desktop screenshot' : 'Ampliar captura de Meson Desktop'}
+      data-stage-zoom
+      data-lightbox-src={initial.src}
+      data-lightbox-alt={initial.alt}
+      data-lightbox-caption={initial.caption}
+      aria-label={isEnglish ? 'Expand active screenshot' : 'Ampliar captura activa'}
     >
       <img
-        src="/images/meson-shell.webp"
-        alt={isEnglish ? 'Meson Desktop current launcher and Phone Link panel' : 'Escritorio actual de Meson con lanzador de aplicaciones y panel Phone Link'}
+        data-stage-img
+        src={initial.src}
+        alt={initial.alt}
         width="1280"
         height="800"
         loading="eager"
@@ -64,26 +86,65 @@ const thumbs = isEnglish
     </button>
   </div>
 
-  <div class="showcase-thumbs">
-    {thumbs.map((thumb) => (
+  <div class="showcase-thumbs" role="tablist" aria-label={isEnglish ? 'Select product view' : 'Seleccionar vista del sistema'}>
+    {frames.map((frame, index) => (
       <button
         type="button"
-        class="showcase-thumb"
-        data-lightbox-src={thumb.src}
-        data-lightbox-alt={thumb.alt}
-        data-lightbox-caption={thumb.alt}
-        aria-label={`${isEnglish ? 'Expand' : 'Ampliar'}: ${thumb.label}`}
+        role="tab"
+        aria-selected={index === 0 ? 'true' : 'false'}
+        class:list={['showcase-thumb', index === 0 && 'is-active']}
+        data-stage-tab
+        data-src={frame.src}
+        data-alt={frame.alt}
+        data-caption={frame.caption}
       >
         <img
-          src={thumb.src}
-          alt={thumb.alt}
+          src={frame.src}
+          alt=""
+          aria-hidden="true"
           width="1280"
           height="800"
           loading="eager"
           decoding="sync"
         />
-        <span>{thumb.label}</span>
+        <span>{frame.label}</span>
       </button>
     ))}
   </div>
 </div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-hero-stage]');
+    if (!root) return;
+    const img = root.querySelector('[data-stage-img]');
+    const zoom = root.querySelector('[data-stage-zoom]');
+    const tabs = Array.from(root.querySelectorAll('[data-stage-tab]'));
+    if (!(img instanceof HTMLImageElement) || !(zoom instanceof HTMLButtonElement)) return;
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const src = tab.getAttribute('data-src');
+        const alt = tab.getAttribute('data-alt') || '';
+        const caption = tab.getAttribute('data-caption') || alt;
+        if (!src || img.getAttribute('src') === src) return;
+
+        tabs.forEach((item) => {
+          const active = item === tab;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-selected', String(active));
+        });
+
+        img.classList.add('is-switching');
+        window.setTimeout(() => {
+          img.src = src;
+          img.alt = alt;
+          zoom.setAttribute('data-lightbox-src', src);
+          zoom.setAttribute('data-lightbox-alt', alt);
+          zoom.setAttribute('data-lightbox-caption', caption);
+          img.classList.remove('is-switching');
+        }, 90);
+      });
+    });
+  })();
+</script>

@@ -1,4 +1,4 @@
-/* Project Cards, Visual Previews, Capabilities, Architecture, About & Bottom Progress */
+/* Project Cards, Spotlight Layout, Capabilities, Architecture, About & Contact */
 .project-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -8,25 +8,43 @@
 .project-card {
   display: flex;
   flex-direction: column;
-  background: #1a201e;
-  border: 1px solid #2e3732;
+  background: #171d1b;
+  border: 1px solid #2b342f;
   border-radius: 14px;
   overflow: hidden;
-  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms ease, box-shadow 200ms ease;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms ease;
 }
 
 .project-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: #c58a58;
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32);
 }
 
-/* ProjectVisual Container (Screenshots + Custom Schematics) */
+/* Featured flagship split card breaks uniform grid rhythm */
+.project-card--featured {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+}
+
+.project-card--featured .project-visual {
+  height: auto;
+  min-height: 310px;
+  border-bottom: 0;
+  border-right: 1px solid #2b342f;
+}
+
+.project-card--featured .project-copy {
+  padding: 28px 30px;
+  justify-content: center;
+}
+
+/* ProjectVisual Container */
 .project-visual {
   position: relative;
   height: 224px;
   background: #121715;
-  border-bottom: 1px solid #2b332e;
+  border-bottom: 1px solid #2b342f;
   overflow: hidden;
 }
 
@@ -47,68 +65,55 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 24%;
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  object-position: 50% 20%;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.shot-zoom-trigger:hover .shot-main { transform: scale(1.03); }
+.shot-zoom-trigger:hover .shot-main { transform: scale(1.02); }
 
-.shot-pip {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 110px;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid rgba(228, 165, 108, 0.72);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-}
-
-/* Card Body & Stack Metadata */
+/* Card Body & Metadata: strictly 3-size discipline (1rem + 0.875rem) */
 .project-copy {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 20px 22px 22px;
+  padding: 22px 24px 24px;
 }
 
 .project-type {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #e4a56c;
   margin-bottom: 6px;
 }
 
 .project-copy h3 {
-  font-size: 1.5rem;
-  letter-spacing: -0.025em;
+  font-size: var(--text-body);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f3f0e7;
   margin-bottom: 8px;
 }
 
 .project-copy > p:not(.project-type):not(.stack-line) {
-  font-size: 1rem;
+  font-size: var(--text-body);
   color: #b8bfb8;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .stack-line {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: #939d94;
   margin-bottom: 14px;
 }
 
-.tags,
 .skill-list {
   display: flex;
-  gap: 8px 14px;
+  gap: 8px 16px;
   flex-wrap: wrap;
 }
 
-.tags span,
 .skill-list span {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: #c8d0c7;
 }
@@ -116,7 +121,7 @@
 .card-cta-row {
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid #28302b;
+  border-top: 1px solid #262e29;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -125,15 +130,15 @@
 }
 
 .card-cta {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: #e4a56c;
 }
 
 .card-ext-link {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #f3f0e7;
+  color: #dce2dc;
   transition: color 180ms ease;
 }
 
@@ -141,66 +146,76 @@
 .card-ext-live { color: #83c6a0; }
 .card-ext-live:hover { color: #a7dfc0; }
 
-/* Contrasting Light Skills Section */
+/* Contrasting Light Capabilities Band */
 .skills-section { background: #e8e5da; color: #1b211d; }
-.skills-section em { color: #a0653f; }
-.skills-section .section-heading > p { color: #58625a; }
+.skills-section .section-heading > p { color: #4c554c; }
 .capability-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .capability-card {
-  padding: 28px;
+  padding: 26px;
   border: 1px solid #c8ccbe;
   border-radius: 12px;
   background: #f4f1e8;
 }
-.capability-card h3 { font-size: 1.5rem; margin: 0 0 10px; letter-spacing: -0.025em; }
-.capability-card p { font-size: 1rem; color: #4c554c; margin-bottom: 16px; }
-.skills-section .skill-list span { color: #28332c; font-size: 0.875rem; }
-.skills-note { margin: 24px 0 0; max-width: 65ch; color: #4c554c; font-size: 0.9375rem; }
+.capability-card h3 {
+  font-size: var(--text-body);
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #141916;
+}
+.capability-card p { font-size: var(--text-body); color: #3c453c; margin-bottom: 14px; }
+.skills-section .skill-list span { color: #28332c; font-size: var(--text-sm); font-weight: 600; }
+.skills-note { margin: 24px 0 0; max-width: 65ch; color: #3c453c; font-size: var(--text-sm); }
 
-/* Architecture, About with Portrait & Contact */
-.architecture-section { border-top: 1px solid #303933; }
-.architecture-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 60px; }
+/* Architecture Section */
+.architecture-section { border-top: 1px solid #2e3732; }
+.architecture-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; }
 .architecture-diagram {
-  background: #1b2520;
-  border: 1px solid #465c48;
+  background: #171f1b;
+  border: 1px solid #354639;
   border-radius: 14px;
-  padding: 32px;
-  min-height: 410px;
+  padding: 28px;
+  min-height: 380px;
   text-align: center;
-  background-image: linear-gradient(90deg, #ffffff07 1px, transparent 1px), linear-gradient(#ffffff07 1px, transparent 1px);
+  background-image: linear-gradient(90deg, #ffffff06 1px, transparent 1px), linear-gradient(#ffffff06 1px, transparent 1px);
   background-size: 28px 28px;
 }
 .architecture-diagram .diagram-label { text-align: left; }
-.diagram-devices { display: flex; justify-content: space-between; gap: 12px; margin: 46px 0 22px; }
+.diagram-devices { display: flex; justify-content: space-between; gap: 12px; margin: 40px 0 20px; }
 .diagram-devices span,
 .diagram-store,
 .diagram-cloud {
-  background: #2e4033;
-  border: 1px solid #6d8e73;
+  background: #233027;
+  border: 1px solid #5a7860;
   border-radius: 8px;
-  padding: 15px 12px;
-  font: 700 0.875rem 'Space Grotesk', sans-serif;
+  padding: 14px 12px;
+  font: 700 var(--text-sm) 'Space Grotesk', sans-serif;
 }
 .diagram-devices span { width: 33%; }
-.diagram-flow { color: #d4ae80; font-size: 0.875rem; font-weight: 700; }
-.diagram-store { margin: 20px auto 14px; max-width: 280px; border-color: #d4ae80; background: #45392c; }
-.diagram-arrow { font-size: 0.875rem; color: #9fac9d; margin: 10px; }
-.diagram-cloud { margin: auto; max-width: 280px; background: #26303b; border-color: #6d91ab; }
-.architecture-copy > div { border-bottom: 1px solid #344038; padding: 0 0 18px; margin-bottom: 20px; }
-.architecture-copy h3 { font-size: 1.5rem; margin: 0 0 8px; }
-.architecture-copy p { color: #aeb8ad; font-size: 1rem; margin: 0; }
-.architecture-caveat { color: #8e9b8e; font-size: 0.875rem; margin-top: 22px; max-width: 65ch; }
+.diagram-flow { color: #d4ae80; font-size: var(--text-sm); font-weight: 700; }
+.diagram-store { margin: 18px auto 12px; max-width: 280px; border-color: #d4ae80; background: #362d24; }
+.diagram-arrow { font-size: var(--text-sm); color: #9fac9d; margin: 10px; }
+.diagram-cloud { margin: auto; max-width: 280px; background: #212a34; border-color: #62839b; }
+.architecture-copy > div { border-bottom: 1px solid #2e3732; padding: 0 0 18px; margin-bottom: 18px; }
+.architecture-copy h3 {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: #f3f0e7;
+  margin: 0 0 6px;
+}
+.architecture-copy p { color: #b4bab5; font-size: var(--text-body); margin: 0; }
+.architecture-caveat { color: #939d94; font-size: var(--text-sm); margin-top: 22px; max-width: 65ch; }
 
+/* About Section */
 .about-section {
   display: grid;
-  grid-template-columns: 0.88fr 1.12fr;
-  gap: 56px;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 52px;
   align-items: center;
 }
 
 .about-portrait-card {
-  padding: 12px;
-  border: 1px solid #303933;
+  padding: 10px;
+  border: 1px solid #2e3732;
   border-radius: 16px;
   background: #171c1b;
 }
@@ -213,53 +228,51 @@
   border-radius: 12px;
 }
 
-.about-portrait-caption {
-  padding: 14px 4px 4px;
-}
+.about-portrait-caption { padding: 14px 4px 4px; }
+.about-portrait-caption strong { display: block; font-size: var(--text-body); color: #f3f0e7; }
+.about-portrait-caption span { font-size: var(--text-sm); color: #9fac9d; }
 
-.about-portrait-caption strong { display: block; font-size: 1rem; color: #f3f0e7; }
-.about-portrait-caption span { font-size: 0.875rem; color: #9fac9d; }
-
-.about-copy { color: #b7beb7; max-width: 65ch; }
-.about-copy p { font-size: 1rem; margin-top: 18px; }
+.about-copy { color: #b8bfb8; max-width: 65ch; }
+.about-copy p { font-size: var(--text-body); margin-top: 16px; }
 
 .text-link {
   display: inline-flex;
-  gap: 10px;
+  gap: 8px;
   color: #e4a56c;
   border-bottom: 1px solid #e4a56c;
-  padding-bottom: 4px;
-  margin-top: 18px;
+  padding-bottom: 3px;
+  margin-top: 16px;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
-.contact-section { background: #26332c; border-top: 1px solid #3c5444; }
-.contact-inner { padding-top: 84px; padding-bottom: 92px; }
-.contact-section h2 { font-size: clamp(2.5rem, 5.5vw, 4.5rem); }
-.contact-section p { color: #c4cec2; font-size: 1rem; margin-top: 12px; }
+/* Contact Band */
+.contact-section { background: #18211c; border-top: 1px solid #2c3b33; }
+.contact-inner { padding-top: 76px; padding-bottom: 84px; }
+.contact-section h2 { font-size: var(--text-heading); }
+.contact-section p { color: #c4cec2; font-size: var(--text-body); margin-top: 10px; }
 
 .site-footer {
   display: flex;
   justify-content: space-between;
   gap: 30px;
-  padding-top: 38px;
-  padding-bottom: 42px;
+  padding-top: 34px;
+  padding-bottom: 38px;
 }
-.site-footer strong { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; }
-.site-footer p { color: #8e988f; font-size: 0.875rem; margin: 7px 0 0; }
-.footer-links { display: flex; align-items: start; gap: 22px; font-size: 0.875rem; flex-wrap: wrap; }
+.site-footer strong { font-family: 'Space Grotesk', sans-serif; font-size: var(--text-body); }
+.site-footer p { color: #939d94; font-size: var(--text-sm); margin: 6px 0 0; }
+.footer-links { display: flex; align-items: start; gap: 22px; font-size: var(--text-sm); flex-wrap: wrap; }
 
-/* Connected Segmented Control for Project Filter */
+/* Connected Segmented Project Filter */
 .project-filter-bar {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 4px;
   padding: 4px;
   border-radius: 10px;
-  border: 1px solid #343d37;
+  border: 1px solid #2e3732;
   background: #161b19;
-  margin: 0 0 32px;
+  margin: 0 0 28px;
 }
 
 .filter-chip {
@@ -267,15 +280,14 @@
   border-radius: 7px;
   border: 0;
   background: transparent;
-  color: #aeb8ad;
-  font-size: 0.875rem;
+  color: #b4bab5;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: color 160ms ease, background-color 160ms ease;
 }
 
 .filter-chip:hover { color: #f3f0e7; }
-
 .filter-chip.is-active {
   background: #27302b;
   color: #e4a56c;

@@ -12,13 +12,23 @@ const details = sample.en;
 <Base lang="en" title={`${details.title} | Miguel Quevedo's lab`} description={details.lead}>
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/lab/">← Back to lab</a>
-    <div class="detail-hero"><div><p class="section-kicker">LAB / {details.eyebrow}</p><h1 class="long-title">{details.title}<span>.</span></h1><p class="detail-lede">{details.lead}</p></div><div class="detail-badge">SAMPLE<br /><strong>{sample.verified ? 'LOCALLY VERIFIED' : 'TESTS PENDING'}</strong></div></div>
-    <div class="tags">{sample.stack.map((skill) => <span>{skill}</span>)}</div>
-    <div class="case-layout"><aside><span>01 / PROBLEM</span><span>02 / DECISION</span><span>03 / VERIFICATION</span><span>04 / LIMITS</span></aside><div class="case-content">
-      <section><p class="section-kicker">01 / PROBLEM</p><h2>What it solves</h2><p>{details.problem}</p></section>
-      <section><p class="section-kicker">02 / DECISION</p><h2>How it works</h2><p>{details.decision}</p></section>
-      <section><p class="section-kicker">03 / VERIFICATION</p><h2>How to check it</h2><p>{details.verification}</p><pre class="sample-code"><code>{details.command}</code></pre><p>The source is in <code>samples/{sample.folder}</code> within this independent repository.</p></section>
-      <section><p class="section-kicker">04 / LIMITS</p><h2>Scope</h2><p>{details.limits}</p><p>Miguel should personally review and explain this code before using it as professional evidence.</p></section>
-    </div></div>
+    <div class="detail-hero">
+      <h1 class="long-title">{details.title}</h1>
+      <p class="detail-lede">{details.lead}</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Stack</span><strong>{sample.stack.join(' · ')}</strong></div>
+      <div><span>Status</span><strong>{sample.verified ? 'Locally verified' : 'Tests pending'}</strong></div>
+      <div><span>Location</span><strong>samples/{sample.folder}</strong></div>
+    </div>
+    <div class="case-layout">
+      <aside><span>Problem</span><span>Decision</span><span>Verification</span><span>Limits</span></aside>
+      <div class="case-content">
+        <section><h2>What it solves</h2><p>{details.problem}</p></section>
+        <section><h2>How it works</h2><p>{details.decision}</p></section>
+        <section><h2>How to check it</h2><p>{details.verification}</p><pre class="sample-code"><code>{details.command}</code></pre><p>The source is in <code>samples/{sample.folder}</code> within this independent repository.</p></section>
+        <section><h2>Scope</h2><p>{details.limits}</p><p>Miguel should personally review and explain this code before using it as professional evidence.</p></section>
+      </div>
+    </div>
   </main>
 </Base>
