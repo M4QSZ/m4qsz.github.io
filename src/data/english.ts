@@ -185,7 +185,7 @@ export const englishProjects: EnglishProject[] = [
     description: 'LinkedIn-style talent marketplace + enterprise workforce suite inside meson_business: recruiting, interviews, RBAC, shifts, payroll and PIN attendance kiosk.',
     stack: ['Flutter', 'Dart', 'Supabase', 'Isar'],
     accent: 'teal',
-    variant: 'modules',
+    variant: 'atelier-hr',
     sections: [
       ['Talent marketplace workflow', 'features/atelier connects job offers (ofertas), candidate pipelines (candidatos), multi-step worker profiles (worker_profile), applications (postulaciones) and interviews (entrevistas) inside the core suite.'],
       ['Payroll, contracts & RBAC', 'Covers active staff directory (empleados_personal), hiring and termination workflows (laboral_tab), payroll calculations (nomina_tab), shift scheduling, leave/permit petitions and granular role/permission tables (roles_tab / permissions_tab).'],
@@ -198,7 +198,7 @@ export const englishProjects: EnglishProject[] = [
     description: 'Centralized operations and financial control plane for the ecosystem: cryptographic node licensing, SaaS revenue, cloud costs, fleet monitor and support desk.',
     stack: ['Flutter', 'Supabase', 'Licensing', 'fl_chart'],
     accent: 'gold',
-    variant: 'modules',
+    variant: 'meson-central',
     sections: [
       ['Financial & revenue governance', 'Tracks global SaaS revenue streams (revenue_streams_screen & revenue_registry), infrastructure/cloud platform costs (platform_costs_screen) and cash flow visualizations with fl_chart.'],
       ['Cryptographic node licensing', 'license_service.dart and key_generator_dialog.dart issue and validate node license keys linked to storefront feature suites and audit states.'],
@@ -211,7 +211,7 @@ export const englishProjects: EnglishProject[] = [
     description: 'Production Rust engine behind flutter_rust_bridge: DAG spreadsheet + XLSX engine, local TF-IDF/RAG NLP assistant, qbsdiff delta updater, SIMD media and WebRTC.',
     stack: ['Rust', 'FRB FFI', 'SQLite RAG', 'SIMD'],
     accent: 'orange',
-    variant: 'ai-bevy',
+    variant: 'rust-suite',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     sections: [
       ['Desktop office engines (meson_tools)', 'Implements sheets_engine from scratch in Rust with chunked cell storage, a DAG dependency graph, formula parser/evaluator and XLSX export, plus writer_engine, slides_engine, phone_link_engine, snipping and file explorer engines.'],

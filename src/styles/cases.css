@@ -107,8 +107,9 @@
 .tech-matrix span { font-size: var(--text-sm); color: #b8bfb8; }
 
 .lab-intro { font-size: var(--text-body); color: #b8bfb8; max-width: 65ch; margin: 0 0 28px; }
-.lab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.lab-grid article { border: 1px solid #2e3732; background: #171d1b; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+.lab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.lab-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lab-grid article { border-top: 2px solid #38443d; background: #141918; border-radius: 0 0 12px 12px; padding: 22px 24px; display: flex; flex-direction: column; gap: 8px; }
 .lab-card-label { font-size: var(--text-sm); font-weight: 600; color: #e4a56c; }
 .lab-grid h2 { font-size: var(--text-body); font-weight: 700; color: #f3f0e7; margin: 2px 0 4px; }
 .lab-grid p { font-size: var(--text-body); color: #b8bfb8; margin: 0; }
@@ -121,7 +122,7 @@
 
 /* CV Document Sheet */
 .cv-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin: 8px 0 24px; }
-.cv-sheet { background: #f7f5ef; color: #171c18; border: 1px solid #c9ccbf; border-radius: 12px; padding: 36px 40px; max-width: 860px; margin: 0 auto; }
+.cv-sheet { color-scheme: light; background: #f7f5ef; color: #171c18; border: 1px solid #c9ccbf; border-radius: 12px; padding: 36px 40px; max-width: 860px; margin: 0 auto; }
 .cv-sheet h1 { font-size: var(--text-heading); letter-spacing: -0.03em; margin: 0 0 6px; color: #141915; }
 .cv-sheet .cv-role { font-size: var(--text-body); font-weight: 700; color: #8e532e; margin: 0 0 8px; }
 .cv-sheet .cv-meta { font-size: var(--text-sm); color: #3d483f; margin: 0 0 20px; }

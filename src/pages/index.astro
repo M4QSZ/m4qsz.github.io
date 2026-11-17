@@ -6,10 +6,10 @@ import ProjectFilter from '../components/ProjectFilter.astro';
 import CopyEmailButton from '../components/CopyEmailButton.astro';
 import { capabilities, profile, projects } from '../data/profile';
 
-const featuredProjects = projects.filter((project) => ['01', '06', '07', '08'].includes(project.number));
+const flagshipProject = projects.find((project) => project.number === '01')!;
+const webProjects = projects.filter((project) => ['06', '07', '08'].includes(project.number));
 const mesonSystems = projects.filter((project) => ['02', '03', '04', '05', '09', '10', '14', '15', '16', '17'].includes(project.number));
 const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(project.number));
-const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
 ---
 <Base
   title={`${profile.name} | Ingeniería de software y videojuegos`}
@@ -57,8 +57,11 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
 
       <div class="project-section-block">
         <div class="project-grid">
-          {featuredProjects.map((project) => (
-            <ProjectCard {...project} featured={project.number === '01'} group={getGroup(project.number)} isEnglish={false} />
+          <ProjectCard {...flagshipProject} featured={true} group="systems" isEnglish={false} />
+        </div>
+        <div class="project-grid project-grid--3" style="margin-top: 22px;">
+          {webProjects.map((project) => (
+            <ProjectCard {...project} group="web" isEnglish={false} />
           ))}
         </div>
       </div>
@@ -68,7 +71,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
           <h3>Videojuegos, motores interactivos e IA</h3>
           <p>Versiones de Brasas en Flutter y Unity, Roblox Studio y experimentación con LLMs y Rust Bevy.</p>
         </div>
-        <div class="project-grid">
+        <div class="project-grid project-grid--3">
           {gamesAndAi.map((project) => (
             <ProjectCard {...project} group="games" isEnglish={false} />
           ))}
@@ -98,7 +101,7 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
         </div>
         <div class="capability-grid">
           {capabilities.map((group) => (
-            <div class="capability-card reveal-on-scroll">
+            <div class="capability-col reveal-on-scroll">
               <h3>{group.label}</h3>
               <p>{group.detail}</p>
               <div class="skill-list">
@@ -123,12 +126,23 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
       </div>
       <div class="architecture-grid">
         <div class="architecture-diagram reveal-on-scroll" aria-label="Dispositivos conectados por una red local con sincronización diferida">
-          <div class="diagram-label">Red local Meson</div>
-          <div class="diagram-devices"><span>Caja</span><span>Sala</span><span>Cocina</span></div>
-          <div class="diagram-flow">↔ Descubrimiento + mensajes P2P ↔</div>
-          <div class="diagram-store">Datos y cola local</div>
-          <div class="diagram-arrow">↓ cuando hay conexión</div>
-          <div class="diagram-cloud">Nube / sincronización</div>
+          <div class="diagram-label">Red local Meson · mDNS + AES-256-GCM</div>
+          <div class="diagram-devices">
+            <div class="arch-node"><strong>Caja</strong><small>POS + WAL</small></div>
+            <div class="arch-node"><strong>Sala</strong><small>Tablets 2.5D</small></div>
+            <div class="arch-node"><strong>Cocina</strong><small>KDS / ESC-POS</small></div>
+          </div>
+          <div class="diagram-connector" aria-hidden="true"></div>
+          <div class="diagram-flow">Bus P2P en red local (HLC + CRDT)</div>
+          <div class="diagram-store">
+            <strong>Cola e Isar local</strong>
+            <small>Persistencia transaccional sin nube</small>
+          </div>
+          <div class="diagram-arrow">↓ Reconciliación diferida al reconectar</div>
+          <div class="diagram-cloud">
+            <strong>Supabase / PostgreSQL</strong>
+            <small>Réplica multi-sucursal y respaldo</small>
+          </div>
         </div>
         <div class="architecture-copy reveal-on-scroll">
           <div>
@@ -152,19 +166,21 @@ const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['
     </section>
 
     <section class="section wrap about-section" id="sobre-mi">
-      <div class="about-portrait-card reveal-on-scroll">
+      <figure class="about-portrait reveal-on-scroll">
         <img
           src="/images/miguel-avatar.webp"
           alt="Miguel Antonio Quevedo Simoza"
           class="about-portrait-img"
+          width="800"
+          height="1000"
           loading="lazy"
           decoding="async"
         />
-        <div class="about-portrait-caption">
+        <figcaption class="about-portrait-caption">
           <strong>{profile.name}</strong>
           <span>Estado Aragua, Venezuela · Disponible remoto, híbrido y reubicación · UBA 2027</span>
-        </div>
-      </div>
+        </figcaption>
+      </figure>
       <div class="about-copy reveal-on-scroll">
         <h2>Código limpio y producto completo</h2>
         <p>

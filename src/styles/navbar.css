@@ -1,4 +1,4 @@
-/* Clean Sticky Navbar with Hairline Progress */
+/* Clean Sticky Navbar with Scroll-Driven Hairline Progress */
 .site-header {
   position: sticky;
   top: 0;
@@ -6,16 +6,13 @@
   width: 100%;
   border-bottom: 1px solid transparent;
   background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
 
 .site-header.is-scrolled,
 .site-header.is-menu-open {
   border-bottom-color: rgba(255, 255, 255, 0.08);
-  background: rgba(16, 19, 20, 0.92);
+  background: rgba(14, 18, 17, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -26,7 +23,7 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   pointer-events: none;
   opacity: 0;
   transition: opacity 180ms ease;
@@ -35,14 +32,29 @@
 .site-header.is-scrolled .nav-progress-track { opacity: 1; }
 
 .nav-progress-fill {
-  width: 0%;
+  width: 100%;
   height: 100%;
   background: #e4a56c;
-  transition: width 60ms linear;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    @keyframes nav-scroll-progress {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    .nav-progress-fill {
+      animation: nav-scroll-progress auto linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
 }
 
 .header-inner {
-  min-height: 74px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,6 +107,7 @@
 }
 
 .nav-pill-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   padding: 8px 12px;
@@ -110,9 +123,22 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.nav-pill-link.is-active {
-  color: #e4a56c;
+.nav-pill-link.is-active,
+.nav-pill-link[aria-current="page"] {
+  color: #f3f0e7;
   font-weight: 600;
+}
+
+.nav-pill-link.is-active::after,
+.nav-pill-link[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 99px;
+  background: #e4a56c;
 }
 
 .header-actions {

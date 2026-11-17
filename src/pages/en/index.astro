@@ -7,7 +7,8 @@ import CopyEmailButton from '../../components/CopyEmailButton.astro';
 import { profile } from '../../data/profile';
 import { englishProjects } from '../../data/english';
 
-const featured = englishProjects.filter((project) => ['01', '06', '07', '08'].includes(project.number));
+const flagship = englishProjects.find((project) => project.number === '01')!;
+const webProjects = englishProjects.filter((project) => ['06', '07', '08'].includes(project.number));
 const gamesAndAi = englishProjects.filter((project) => ['11', '12', '13'].includes(project.number));
 const systems = englishProjects.filter((project) => ['02', '03', '04', '05', '09', '10', '14', '15', '16', '17'].includes(project.number));
 const getGroup = (num: string) => (['06', '07', '08'].includes(num) ? 'web' : ['11', '12', '13'].includes(num) ? 'games' : 'systems');
@@ -78,7 +79,10 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
 
       <div class="project-section-block">
         <div class="project-grid">
-          {featured.map((project) => <ProjectCard {...toCardProps(project)} />)}
+          <ProjectCard {...toCardProps(flagship)} />
+        </div>
+        <div class="project-grid project-grid--3" style="margin-top: 22px;">
+          {webProjects.map((project) => <ProjectCard {...toCardProps(project)} />)}
         </div>
       </div>
 
@@ -87,7 +91,7 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
           <h3>Interactive engines and applied AI</h3>
           <p>Brasas in both Flutter and Unity, El Pueblo del Faro in Roblox Studio, plus LLM tooling and Rust Bevy.</p>
         </div>
-        <div class="project-grid">
+        <div class="project-grid project-grid--3">
           {gamesAndAi.map((project) => <ProjectCard {...toCardProps(project)} />)}
         </div>
       </div>
@@ -112,21 +116,21 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
           <p>Active verified stack separated clearly from prior coursework and pre-Git experience.</p>
         </div>
         <div class="capability-grid">
-          <div class="capability-card reveal-on-scroll">
+          <div class="capability-col reveal-on-scroll">
             <h3>Multiplatform & systems</h3>
             <p>Desktop (Windows), mobile and web with modular code, Skia/Impeller engines, FFI, persistence and Git.</p>
             <div class="skill-list">
               {['Dart', 'Flutter', 'Skia / Impeller', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'].map((skill) => <span>{skill}</span>)}
             </div>
           </div>
-          <div class="capability-card reveal-on-scroll">
+          <div class="capability-col reveal-on-scroll">
             <h3>Web, databases & AI</h3>
             <p>Web platforms, relational/NoSQL modeling, Firebase/Firestore to Supabase/PostgreSQL migration, LLMs and Prompt Engineering.</p>
             <div class="skill-list">
               {['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA', 'Prompt Engineering'].map((skill) => <span>{skill}</span>)}
             </div>
           </div>
-          <div class="capability-card reveal-on-scroll">
+          <div class="capability-col reveal-on-scroll">
             <h3>Games, product & teamwork</h3>
             <p>Active engines, 0-to-1 MVP with feedback, 1:1 "on-model" design fidelity, cross-functional teams, AppSec and pre-Git stack.</p>
             <div class="skill-list">
@@ -150,12 +154,23 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
       </div>
       <div class="architecture-grid">
         <div class="architecture-diagram reveal-on-scroll" aria-label="Point of sale, floor and kitchen devices communicate locally, then synchronize remotely">
-          <div class="diagram-label">Meson local network</div>
-          <div class="diagram-devices"><span>POS</span><span>Floor</span><span>Kitchen</span></div>
-          <div class="diagram-flow">↔ Discovery + P2P messages ↔</div>
-          <div class="diagram-store">Local data and queue</div>
-          <div class="diagram-arrow">↓ when connected</div>
-          <div class="diagram-cloud">Remote sync</div>
+          <div class="diagram-label">Meson local network · mDNS + AES-256-GCM</div>
+          <div class="diagram-devices">
+            <div class="arch-node"><strong>POS</strong><small>Cash + WAL</small></div>
+            <div class="arch-node"><strong>Floor</strong><small>2.5D Tablets</small></div>
+            <div class="arch-node"><strong>Kitchen</strong><small>KDS / ESC-POS</small></div>
+          </div>
+          <div class="diagram-connector" aria-hidden="true"></div>
+          <div class="diagram-flow">Local LAN P2P bus (HLC + CRDT)</div>
+          <div class="diagram-store">
+            <strong>Local Isar & outbox queue</strong>
+            <small>Transactional offline persistence</small>
+          </div>
+          <div class="diagram-arrow">↓ Deferred reconciliation on reconnect</div>
+          <div class="diagram-cloud">
+            <strong>Supabase / PostgreSQL</strong>
+            <small>Multi-branch replication & cloud backup</small>
+          </div>
         </div>
         <div class="architecture-copy reveal-on-scroll">
           <div><h3>Local work</h3><p>Devices can exchange changes over the restaurant network during an Internet outage.</p></div>
@@ -168,19 +183,21 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
     </section>
 
     <section class="section wrap about-section" id="sobre-mi">
-      <div class="about-portrait-card reveal-on-scroll">
+      <figure class="about-portrait reveal-on-scroll">
         <img
           src="/images/miguel-avatar.webp"
           alt="Miguel Antonio Quevedo Simoza"
           class="about-portrait-img"
+          width="800"
+          height="1000"
           loading="lazy"
           decoding="async"
         />
-        <div class="about-portrait-caption">
+        <figcaption class="about-portrait-caption">
           <strong>{profile.name}</strong>
           <span>Aragua, VE · Open to remote, hybrid & relocation · UBA 2027</span>
-        </div>
-      </div>
+        </figcaption>
+      </figure>
       <div class="about-copy reveal-on-scroll">
         <h2>Clean modules and broad delivery</h2>
         <p>

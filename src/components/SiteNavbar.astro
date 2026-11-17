@@ -63,6 +63,7 @@ const navLinks = [
         <a
           href={item.href}
           class:list={['nav-pill-link', item.active && 'is-active']}
+          aria-current={item.active ? 'page' : undefined}
           data-nav-section={item.sectionId}
         >
           <span>{item.label}</span>

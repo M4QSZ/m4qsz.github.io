@@ -6,7 +6,17 @@ interface Props {
   image?: string;
   secondaryImage?: string;
   imageAlt?: string;
-  variant?: 'screenshot' | 'p2p' | 'modules' | 'mobile-clients' | 'mobile-delivery' | 'roblox' | 'ai-bevy';
+  variant?:
+    | 'screenshot'
+    | 'p2p'
+    | 'modules'
+    | 'mobile-clients'
+    | 'mobile-delivery'
+    | 'atelier-hr'
+    | 'meson-central'
+    | 'rust-suite'
+    | 'roblox'
+    | 'ai-bevy';
   isEnglish?: boolean;
   caption?: string;
 }
@@ -15,7 +25,6 @@ const {
   title,
   accent = 'orange',
   image,
-  secondaryImage,
   imageAlt,
   variant = 'screenshot',
   isEnglish = false,
@@ -37,32 +46,34 @@ const zoomLabel = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
           data-lightbox-caption={caption || title}
           aria-label={`${zoomLabel}: ${title}`}
         >
-          <img src={image} alt={imageAlt || title} loading="lazy" decoding="async" class="shot-main" />
+          <img src={image} alt={imageAlt || title} loading="lazy" decoding="async" width="1280" height="800" class="shot-main" />
         </button>
-        {secondaryImage && (
-          <img src={secondaryImage} alt="" aria-hidden="true" loading="lazy" decoding="async" class="shot-pip" />
-        )}
       </div>
     ) : variant === 'p2p' ? (
       <div class="schematic schematic-p2p" aria-hidden="true">
         <div class="schematic-head">
-          <span class="schem-title">mDNS · UDP LAN</span>
-          <span class="schem-status">Sync CRDT offline</span>
+          <span class="schem-title">mDNS · UDP / TCP LAN</span>
+          <span class="schem-status">HLC + CRDT</span>
         </div>
-        <div class="p2p-mesh">
-          <div class="p2p-node is-primary">
-            <strong>{isEnglish ? 'POS Register' : 'Caja POS'}</strong>
-            <small>Rust · Isar</small>
+        <div class="p2p-topology">
+          <div class="p2p-nodes-row">
+            <div class="p2p-node is-primary">
+              <strong>{isEnglish ? 'POS Register' : 'Caja POS'}</strong>
+              <small>Rust · Isar</small>
+            </div>
+            <div class="p2p-connector"><span>⇄</span></div>
+            <div class="p2p-node">
+              <strong>{isEnglish ? 'Kitchen KDS' : 'Cocina KDS'}</strong>
+              <small>{isEnglish ? 'Live tickets' : 'Comandas'}</small>
+            </div>
+            <div class="p2p-connector"><span>⇄</span></div>
+            <div class="p2p-node">
+              <strong>{isEnglish ? 'Bar / Mobile' : 'Barra / Móvil'}</strong>
+              <small>{isEnglish ? 'Local LAN' : 'Red local'}</small>
+            </div>
           </div>
-          <div class="p2p-link"><span>⇄</span></div>
-          <div class="p2p-node">
-            <strong>{isEnglish ? 'Kitchen KDS' : 'Cocina KDS'}</strong>
-            <small>{isEnglish ? 'Live tickets' : 'Comandas'}</small>
-          </div>
-          <div class="p2p-link"><span>⇄</span></div>
-          <div class="p2p-node">
-            <strong>{isEnglish ? 'Bar / Mobile' : 'Barra / Móvil'}</strong>
-            <small>{isEnglish ? 'Local LAN' : 'Red local'}</small>
+          <div class="p2p-bus">
+            <span>AES-256-GCM · {isEnglish ? 'Offline replay window' : 'Ventana anti-replay offline'}</span>
           </div>
         </div>
       </div>
@@ -70,15 +81,70 @@ const zoomLabel = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
       <div class="schematic schematic-modules" aria-hidden="true">
         <div class="schematic-head">
           <span class="schem-title">Meson Store</span>
-          <span class="schem-status">{isEnglish ? '44+ modules · Rust FFI' : '44+ módulos · Rust FFI'}</span>
+          <span class="schem-status">{isEnglish ? '44 modules · Suites' : '44 módulos · Suites'}</span>
         </div>
-        <div class="module-tile-grid">
-          <span class="mod-tile t-blue"><i>⊞</i>{isEnglish ? 'Inventory' : 'Inventario'}</span>
-          <span class="mod-tile t-orange"><i>▤</i>{isEnglish ? 'Orders' : 'Comandera'}</span>
-          <span class="mod-tile t-green"><i>◈</i>{isEnglish ? 'Finance' : 'Finanzas'}</span>
-          <span class="mod-tile t-purple"><i>❖</i>{isEnglish ? 'Floors' : 'Salones'}</span>
-          <span class="mod-tile t-gold"><i>★</i>{isEnglish ? 'Loyalty' : 'Fidelidad'}</span>
-          <span class="mod-tile t-teal"><i>⚡</i>Meson IA</span>
+        <div class="module-dock-grid">
+          <span class="dock-item t-blue"><i>⊞</i>{isEnglish ? 'Inventory' : 'Inventario'}</span>
+          <span class="dock-item t-orange"><i>▤</i>{isEnglish ? 'Orders' : 'Comandera'}</span>
+          <span class="dock-item t-green"><i>◈</i>{isEnglish ? 'Finance' : 'Finanzas'}</span>
+          <span class="dock-item t-purple"><i>❖</i>{isEnglish ? 'Floors' : 'Salones'}</span>
+          <span class="dock-item t-gold"><i>★</i>{isEnglish ? 'Loyalty' : 'Fidelidad'}</span>
+          <span class="dock-item t-teal"><i>⚡</i>Meson IA</span>
+        </div>
+      </div>
+    ) : variant === 'atelier-hr' ? (
+      <div class="schematic schematic-atelier" aria-hidden="true">
+        <div class="schematic-head">
+          <span class="schem-title">Atelier HR + PIN Kiosk</span>
+          <span class="schem-status">{isEnglish ? 'RBAC · Payroll' : 'RBAC · Nómina'}</span>
+        </div>
+        <div class="atelier-split">
+          <ol class="atelier-pipeline">
+            <li class="is-done"><strong>{isEnglish ? 'Vacancies & Candidates' : 'Vacantes y candidatos'}</strong><span>{isEnglish ? 'Pipeline' : 'Embudo'}</span></li>
+            <li class="is-active"><strong>{isEnglish ? 'Shifts & Payroll' : 'Turnos y nómina'}</strong><span>{isEnglish ? 'Active' : 'Activo'}</span></li>
+            <li><strong>{isEnglish ? 'Role Permissions' : 'Roles y permisos'}</strong><span>meson_models</span></li>
+          </ol>
+          <div class="kiosk-pad">
+            <span class="kiosk-tag">{isEnglish ? 'Store PIN' : 'Kiosco PIN'}</span>
+            <div class="kiosk-dots"><i></i><i></i><i></i><i></i></div>
+            <span class="kiosk-state">{isEnglish ? 'Shift clock-in' : 'Marcaje local'}</span>
+          </div>
+        </div>
+      </div>
+    ) : variant === 'meson-central' ? (
+      <div class="schematic schematic-central" aria-hidden="true">
+        <div class="schematic-head">
+          <span class="schem-title">Meson Central</span>
+          <span class="schem-status">{isEnglish ? 'Multi-tenant · HMAC' : 'Multi-tenant · HMAC'}</span>
+        </div>
+        <div class="central-stage">
+          <svg class="central-spark" viewBox="0 0 260 56" fill="none" preserveAspectRatio="none">
+            <path d="M0 44 C32 42, 52 28, 86 30 C118 32, 140 16, 174 20 C206 24, 232 10, 260 6 L260 56 L0 56 Z" fill="url(#centralFill)" />
+            <path d="M0 44 C32 42, 52 28, 86 30 C118 32, 140 16, 174 20 C206 24, 232 10, 260 6" stroke="#e4a56c" stroke-width="2" />
+            <defs>
+              <linearGradient id="centralFill" x1="0" y1="0" x2="0" y2="56" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#e4a56c" stop-opacity="0.28" />
+                <stop offset="100%" stop-color="#e4a56c" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="central-metrics">
+            <div><small>{isEnglish ? 'SaaS Revenue' : 'Ingresos SaaS'}</small><strong>fl_chart</strong></div>
+            <div><small>{isEnglish ? 'Node Keys' : 'Llaves nodo'}</small><strong>HMAC-SHA256</strong></div>
+            <div><small>{isEnglish ? 'Fleet & Tickets' : 'Flota y soporte'}</small><strong>Supabase</strong></div>
+          </div>
+        </div>
+      </div>
+    ) : variant === 'rust-suite' ? (
+      <div class="schematic schematic-rust" aria-hidden="true">
+        <div class="schematic-head">
+          <span class="schem-title">8 Rust Crates · FRB</span>
+          <span class="schem-status">50.2k LOC · C-ABI</span>
+        </div>
+        <div class="rust-layers">
+          <div class="rust-layer"><strong>meson_tools</strong><span>DAG Sheets · XLSX · Writer · Slides</span></div>
+          <div class="rust-layer"><strong>meson_ai</strong><span>TF-IDF / SQLite RAG · Whisper STT</span></div>
+          <div class="rust-layer"><strong>meson_shell</strong><span>qbsdiff · SIMD Media · Win32 FFI</span></div>
         </div>
       </div>
     ) : variant === 'mobile-clients' ? (
@@ -104,24 +170,14 @@ const zoomLabel = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
       </div>
     ) : variant === 'mobile-delivery' ? (
       <div class="schematic schematic-mobile" aria-hidden="true">
-        <div class="phone-mockup">
-          <div class="phone-bar">
-            <span>{isEnglish ? 'Active route' : 'Ruta activa'}</span>
-            <span>3 / 4</span>
-          </div>
-          <div class="delivery-stops">
-            <div class="stop done">{isEnglish ? 'Order #104 · Delivered' : 'Pedido #104 · Entregado'}</div>
-            <div class="stop active">{isEnglish ? 'Order #108 · En route' : 'Pedido #108 · En camino'}</div>
-            <div class="stop">{isEnglish ? 'Offline queue synced' : 'Cola offline lista'}</div>
-          </div>
-          <div class="phone-cta-row">
-            <span>GPS + Isar</span>
-            <span class="phone-action">{isEnglish ? 'Sign' : 'Firmar'}</span>
-          </div>
+        <div class="delivery-timeline">
+          <div class="timeline-step is-done"><i></i><div><strong>{isEnglish ? 'Order #104' : 'Pedido #104'}</strong><small>{isEnglish ? 'Delivered · QR/NFC' : 'Entregado · QR/NFC'}</small></div></div>
+          <div class="timeline-step is-active"><i></i><div><strong>{isEnglish ? 'Order #108' : 'Pedido #108'}</strong><small>{isEnglish ? 'En route · GPS geofence' : 'En camino · Geocerca GPS'}</small></div></div>
+          <div class="timeline-step"><i></i><div><strong>mesh_relay</strong><small>{isEnglish ? 'Offline retry queue' : 'Cola local P2P'}</small></div></div>
         </div>
         <div class="phone-meta">
           <strong>{isEnglish ? 'Resilient dispatch' : 'Despacho resiliente'}</strong>
-          <small>{isEnglish ? 'Works in zero-signal zones and reconciles states on reconnect.' : 'Opera en zonas sin cobertura y reconcilia estados al volver.'}</small>
+          <small>{isEnglish ? 'Works in zero-signal zones and reconciles states on reconnect.' : 'Opera sin cobertura móvil y reconcilia estados al volver.'}</small>
         </div>
       </div>
     ) : variant === 'roblox' ? (
@@ -146,18 +202,18 @@ const zoomLabel = isEnglish ? 'Expand screenshot' : 'Ampliar captura';
       <div class="schematic schematic-ai" aria-hidden="true">
         <div class="schematic-head">
           <span class="schem-title">Meson IA + Bevy ECS</span>
-          <span class="schem-status">Rust · Tool Calling</span>
+          <span class="schem-status">LLM · Rust 2024</span>
         </div>
         <div class="ai-split">
-          <div class="ai-card">
+          <div class="ai-track">
             <strong>{isEnglish ? 'Ops Assistant' : 'Asistente operativo'}</strong>
-            <span class="ai-cmd">&gt; cierre_caja("night")</span>
-            <small>{isEnglish ? 'Voice intent validation' : 'Voz, intención y validación'}</small>
+            <span class="ai-cmd">&gt; cierre_caja("noche")</span>
+            <small>{isEnglish ? 'Intent routing & prompts' : 'Flujos LLM y prompts'}</small>
           </div>
-          <div class="ai-card is-engine">
-            <strong>Bevy World</strong>
+          <div class="ai-track is-engine">
+            <strong>Bevy 0.14 ECS</strong>
             <span class="ai-cmd">Query&lt;(&amp;Pos, &amp;Vel)&gt;</span>
-            <small>{isEnglish ? 'Parallel systems' : 'Sistemas paralelos en Rust'}</small>
+            <small>{isEnglish ? '2D prototype in Rust' : 'Prototipo 2D en Rust'}</small>
           </div>
         </div>
       </div>

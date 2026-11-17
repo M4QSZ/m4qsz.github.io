@@ -1,20 +1,20 @@
-/* Bespoke Schematic Card Previews: strict 3-size & 2-font discipline */
+/* Bespoke Non-Repetitive Card Previews: open tonal hierarchy, strict 3-size scale */
 .schematic {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
   padding: 16px 18px;
-  background: radial-gradient(circle at 88% 12%, rgba(228, 165, 108, 0.14), transparent 52%), #141a18;
+  background: radial-gradient(circle at 88% 12%, rgba(228, 165, 108, 0.13), transparent 54%), #131816;
 }
 
 .accent-blue .schematic,
 .accent-teal .schematic {
-  background: radial-gradient(circle at 88% 12%, rgba(131, 198, 160, 0.14), transparent 52%), #141c1a;
+  background: radial-gradient(circle at 88% 12%, rgba(131, 198, 160, 0.13), transparent 54%), #121a18;
 }
 
 .accent-purple .schematic {
-  background: radial-gradient(circle at 88% 12%, rgba(180, 167, 217, 0.14), transparent 52%), #1a1922;
+  background: radial-gradient(circle at 88% 12%, rgba(180, 167, 217, 0.14), transparent 54%), #181720;
 }
 
 .schematic-head {
@@ -23,6 +23,8 @@
   justify-content: space-between;
   gap: 8px;
   font-size: var(--text-sm);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .schem-title {
@@ -36,74 +38,158 @@
   font-weight: 600;
 }
 
-.p2p-mesh {
+/* 02: P2P Topology */
+.p2p-topology { display: grid; gap: 10px; }
+.p2p-nodes-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto 1fr;
   align-items: center;
   gap: 6px;
 }
-
 .p2p-node {
   padding: 10px 8px;
-  border-radius: 9px;
-  border: 1px solid #38463e;
-  background: #1e2722;
+  border-top: 2px solid #4f6659;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 0 0 8px 8px;
   text-align: center;
 }
-.p2p-node.is-primary { border-color: #e4a56c; background: #29231c; }
+.p2p-node.is-primary { border-top-color: #e4a56c; background: rgba(228, 165, 108, 0.08); }
 .p2p-node strong { display: block; font-size: var(--text-sm); color: #f3f0e7; }
 .p2p-node small { display: block; margin-top: 2px; font-size: var(--text-sm); color: #b4bab5; }
-.p2p-link { font-size: var(--text-sm); color: #e4a56c; font-weight: 700; }
-
-.module-tile-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+.p2p-connector { font-size: var(--text-sm); color: #e4a56c; font-weight: 700; }
+.p2p-bus {
+  padding-top: 8px;
+  border-top: 1px dashed rgba(131, 198, 160, 0.32);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: #b8c2b9;
 }
 
-.mod-tile {
+/* 05: Meson Store Launcher Dock (borderless open grid) */
+.module-dock-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 10px;
+}
+
+.dock-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #354039;
-  background: #1f2622;
+  gap: 8px;
   font-size: var(--text-sm);
   font-weight: 600;
   color: #e6ece6;
 }
 
-.mod-tile i {
+.dock-item i {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   font-style: normal;
   font-size: var(--text-sm);
   color: #fff;
   flex-shrink: 0;
 }
-.mod-tile.t-blue i { background: #3668c9; }
-.mod-tile.t-orange i { background: #c86432; }
-.mod-tile.t-green i { background: #2c8a66; }
-.mod-tile.t-purple i { background: #7451b8; }
-.mod-tile.t-gold i { background: #b58336; }
-.mod-tile.t-teal i { background: #248491; }
+.dock-item.t-blue i { background: #3668c9; }
+.dock-item.t-orange i { background: #c86432; }
+.dock-item.t-green i { background: #2c8a66; }
+.dock-item.t-purple i { background: #7451b8; }
+.dock-item.t-gold i { background: #b58336; }
+.dock-item.t-teal i { background: #248491; }
 
+/* 14: Atelier HR Pipeline + PIN Kiosk */
+.atelier-split {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 14px;
+  align-items: center;
+}
+.atelier-pipeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+.atelier-pipeline li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding-left: 10px;
+  border-left: 2px solid #3c4b42;
+  font-size: var(--text-sm);
+}
+.atelier-pipeline li.is-done { border-left-color: #83c6a0; }
+.atelier-pipeline li.is-active { border-left-color: #e4a56c; }
+.atelier-pipeline strong { color: #f3f0e7; font-weight: 600; }
+.atelier-pipeline span { color: #a8b3aa; }
+.kiosk-pad {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.kiosk-tag { font-size: var(--text-sm); font-weight: 700; color: #83c6a0; }
+.kiosk-dots { display: flex; gap: 7px; }
+.kiosk-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e4a56c;
+}
+.kiosk-state { font-size: var(--text-sm); color: #dce2dc; }
+
+/* 15: Meson Central Control Plane */
+.central-stage { display: grid; gap: 10px; }
+.central-spark { width: 100%; height: 52px; display: block; }
+.central-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.central-metrics small { display: block; font-size: var(--text-sm); color: #a8b3aa; }
+.central-metrics strong {
+  display: block;
+  font-size: var(--text-sm);
+  color: #f3f0e7;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 16: 8-Crate Rust Workspace & FFI */
+.rust-layers { display: grid; gap: 7px; }
+.rust-layer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 10px;
+  border-left: 2px solid #e4a56c;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: var(--text-sm);
+}
+.rust-layer strong { color: #f2bb88; font-weight: 700; }
+.rust-layer span { color: #c8d0c7; text-align: right; }
+
+/* 09 & 10: Mobile Clients & Delivery Timeline */
 .schematic-mobile {
   display: grid;
-  grid-template-columns: 185px 1fr;
+  grid-template-columns: 190px 1fr;
   gap: 16px;
   align-items: center;
 }
 
 .phone-mockup {
   padding: 10px;
-  border-radius: 14px;
-  border: 1px solid #45524a;
-  background: #101413;
+  border-radius: 12px;
+  background: #0d1110;
+  border-top: 2px solid #83c6a0;
   font-size: var(--text-sm);
 }
 
@@ -116,20 +202,14 @@
 }
 
 .phone-radar-box {
-  position: relative;
-  height: 62px;
+  padding: 6px 8px;
   border-radius: 8px;
-  background: radial-gradient(circle, rgba(131, 198, 160, 0.2), #131c19);
-  overflow: hidden;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  background: radial-gradient(circle, rgba(131, 198, 160, 0.16), #121a17);
+  display: grid;
   gap: 4px;
 }
 
 .radar-pin {
-  position: relative;
   display: block;
   font-size: var(--text-sm);
   color: #dce2dc;
@@ -137,11 +217,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.delivery-stops { display: grid; gap: 4px; margin: 6px 0; }
-.stop { padding: 4px 6px; border-radius: 5px; background: #1d2521; font-size: var(--text-sm); color: #c8d0c7; }
-.stop.done { color: #83c6a0; }
-.stop.active { background: #36291f; color: #f2bb88; font-weight: 700; }
 
 .phone-cta-row {
   display: flex;
@@ -156,18 +231,41 @@
 .phone-meta strong { font-size: var(--text-body); color: #f3f0e7; }
 .phone-meta small { font-size: var(--text-sm); line-height: 1.45; color: #b4bab5; }
 
+.delivery-timeline {
+  display: grid;
+  gap: 8px;
+  padding-left: 10px;
+  border-left: 2px solid #2e3b34;
+}
+.timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.timeline-step i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #58695f;
+  flex-shrink: 0;
+}
+.timeline-step.is-done i { background: #83c6a0; }
+.timeline-step.is-active i { background: #e4a56c; }
+.timeline-step strong { display: block; font-size: var(--text-sm); color: #f3f0e7; line-height: 1.2; }
+.timeline-step small { display: block; font-size: var(--text-sm); color: #aeb8af; line-height: 1.25; }
+
+/* 12: Roblox Coastal Scene */
 .lighthouse-scene {
   position: relative;
-  height: 140px;
+  height: 132px;
   border-radius: 10px;
   background: linear-gradient(180deg, #111826 0%, #19283d 68%, #101b2d 100%);
   overflow: hidden;
-  border: 1px solid #354760;
 }
 .lighthouse-beam {
   position: absolute;
   left: 38px;
-  top: 24px;
+  top: 22px;
   width: 210px;
   height: 46px;
   background: linear-gradient(90deg, rgba(228, 165, 108, 0.45), transparent);
@@ -178,7 +276,7 @@
   left: 26px;
   bottom: 24px;
   width: 18px;
-  height: 70px;
+  height: 68px;
   border-radius: 4px 4px 0 0;
   background: linear-gradient(180deg, #f3f0e7 0%, #aeb3ad 100%);
 }
@@ -201,9 +299,9 @@
 .roblox-nodes {
   position: absolute;
   right: 12px;
-  bottom: 32px;
+  bottom: 30px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 .roblox-nodes span,
 .ai-cmd {
@@ -212,22 +310,20 @@
   color: #e6ece6;
 }
 .roblox-nodes span {
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: rgba(16, 19, 20, 0.88);
-  border: 1px solid #424f49;
+  padding: 2px 6px;
+  background: rgba(14, 18, 17, 0.72);
+  border-radius: 4px;
 }
 
-.ai-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.ai-card {
+/* 13: Meson IA & Bevy ECS */
+.ai-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ai-track {
   display: grid;
-  gap: 6px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #354039;
-  background: #1d2320;
+  gap: 4px;
+  padding-left: 10px;
+  border-left: 2px solid #83c6a0;
 }
-.ai-card strong { font-size: var(--text-body); color: #f3f0e7; }
+.ai-track.is-engine { border-left-color: #e4a56c; }
+.ai-track strong { font-size: var(--text-body); color: #f3f0e7; }
 .ai-cmd { color: #e4a56c; }
-.ai-card small { font-size: var(--text-sm); color: #b4bab5; }
-.ai-card.is-engine { border-color: #5c4d3a; }
+.ai-track small { font-size: var(--text-sm); color: #b4bab5; }

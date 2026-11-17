@@ -17,6 +17,9 @@ export type ProjectVariant =
   | 'modules'
   | 'mobile-clients'
   | 'mobile-delivery'
+  | 'atelier-hr'
+  | 'meson-central'
+  | 'rust-suite'
   | 'roblox'
   | 'ai-bevy';
 
@@ -223,7 +226,7 @@ export const projects: ProjectItem[] = [
     stack: ['Flutter', 'Dart', 'Supabase', 'Isar'],
     href: '/proyectos/atelier-empleados/',
     accent: 'teal',
-    variant: 'modules',
+    variant: 'atelier-hr',
   },
   {
     number: '15',
@@ -233,7 +236,7 @@ export const projects: ProjectItem[] = [
     stack: ['Flutter', 'Supabase', 'Licencias', 'fl_chart'],
     href: '/proyectos/meson-central/',
     accent: 'gold',
-    variant: 'modules',
+    variant: 'meson-central',
   },
   {
     number: '16',
@@ -243,7 +246,7 @@ export const projects: ProjectItem[] = [
     stack: ['Rust', 'FRB FFI', 'SQLite RAG', 'SIMD'],
     href: '/proyectos/suite-rust-nativa/',
     accent: 'orange',
-    variant: 'ai-bevy',
+    variant: 'rust-suite',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
   },
   {
