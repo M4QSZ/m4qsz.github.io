@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
+---
+<Base
+  title="Cockpit: Orquestador Nativo Multi-CLI (Rust + GPUI + MCP) | Miguel"
+  description="Aplicación nativa de escritorio en Rust + GPUI y servidor MCP stdio que unifica Claude Code, Codex CLI, Antigravity y OpenCode con cuotas en vivo, skeletons 94.13% más compactos, filtrado CLI y Git worktrees."
+  pageLabel="18 · Cockpit MCP"
+>
+  <main id="contenido" class="detail-main wrap">
+    <a class="back-link" href="/">← Volver al portafolio</a>
+    <div class="detail-hero">
+      <div>
+        <h1 class="long-title">Cockpit: Orquestador Multi-CLI</h1>
+        <p class="detail-lede">
+          Escritorio nativo en Rust + GPUI CE y servidor MCP stdio concurrente que unifica Claude Code, Codex CLI, Antigravity y OpenCode con telemetría de cuotas en vivo y optimización determinista de tokens.
+        </p>
+      </div>
+    </div>
+    <div class="detail-meta">
+      <div><span>Workspace</span><strong>3 crates Rust (core · runtime · ui)</strong></div>
+      <div><span>Ahorro medido</span><strong>94.13% skeleton · 84.94% CLI · 88–97% ctx</strong></div>
+      <div><span>Evidencia pública</span><strong>Technical Report + PDF + 139 tests</strong></div>
+    </div>
+    <div class="detail-schematic-stage" aria-label="Esquema arquitectónico de Cockpit en Rust y MCP">
+      <ProjectPreview number="18" title="Cockpit Multi-CLI" accent="orange" variant="rust-suite" isEnglish={false} />
+    </div>
+    <div class="case-layout">
+      <aside>
+        <span>Problema y arquitectura</span>
+        <span>Eficiencia determinista</span>
+        <span>Concurrencia y guardias</span>
+        <span>Revisión humana y alcance</span>
+      </aside>
+      <div class="case-content">
+        <section>
+          <h2>Cuatro CLIs heterogéneos bajo un solo runtime Rust</h2>
+          <p>
+            <code>agent-orchestrator</code> (Cockpit) coordina <strong>Claude Code</strong>, <strong>Codex CLI</strong>, <strong>Antigravity</strong> y <strong>OpenCode</strong> desde una interfaz nativa en <strong>GPUI CE 0.3.0</strong> sin WebViews ni ventanas de consola visibles en Windows. <code>orchestrator-core</code> normaliza flujos NDJSON en un esquema único, mientras <code>accounts.rs</code> sondea ventanas reales de 5 h y 7 d cada 90 segundos para alimentar el enrutamiento automático de modelos.
+          </p>
+        </section>
+        <section>
+          <h2>Reducción de tokens fuera del modelo (94.13% / 84.94% / 88–97%)</h2>
+          <p>
+            En lugar de quemar contexto leyendo archivos de 20.000 líneas o logs verbosos, <code>code_intel.rs</code> genera esqueletos estructurales en Rust puro (<code>fs_skeleton</code>: <strong>94.13%</strong> de reducción promedio; <strong>97.07%</strong> en <code>app.rs</code> en 38.0 ms), <code>cli_filter.rs</code> comprime <code>cargo test</code> y stacktraces de 45 frames (<strong>84.94%</strong> promedio; <strong>96.83%</strong> en tests), y <code>compact_context.rs</code> compacta sesiones de 18 turnos preservando el prefijo de KV-cache (<strong>88.34%</strong> cápsula / <strong>97.31%</strong> traspaso de 5 líneas / <strong>69.51%</strong> enmascaramiento).
+          </p>
+        </section>
+        <section>
+          <h2>Servidor MCP concurrente, <code>hashline</code> y <code>LoopGuard</code></h2>
+          <p>
+            <code>mcp_server.rs</code> despacha herramientas largas (<code>cockpit_delegate_agent</code>, benchmarks y rebuilds) en hilos dedicados sobre <code>Arc&lt;Mutex&lt;Stdout&gt;&gt;</code> para que delegaciones paralelas nunca bloqueen lecturas/parches rápidos. <code>fs_patch</code> soporta anclaje por hash de línea (<code>hashline</code>), <em>leases</em> TTL por archivo y verificación de compilador inline, mientras <code>loop_guard.rs</code> frena bucles repetitivos u oscilaciones <em>ping-pong</em> (<strong>3/3</strong> verdaderos positivos, <strong>0</strong> falsos positivos en <code>&lt; 1 µs</code>).
+          </p>
+        </section>
+        <section>
+          <h2>Git Worktrees, diff lado a lado y reporte técnico público</h2>
+          <p>
+            La interfaz incluye timeline adaptativo, visor de diff unificado y <strong>lado a lado (Split)</strong> con comentarios inline al agente, aislamiento por <strong>Git worktree</strong> y <em>quality gate</em> pre-merge (<code>cargo check</code> / <code>tsc</code> / <code>pytest</code>). El código fuente vive en un repositorio privado (<code>agent-orchestrator</code>), respaldado por <strong>139 tests Rust</strong> (16 core + 123 runtime) y el reporte técnico público con metodología, tablas de ablación y 12 citas verificadas de arXiv.
+          </p>
+        </section>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/cockpit-paper/">Leer Technical Report ↗</a>
+      <a class="button button-outline" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Ir al laboratorio técnico ↗</a>
+    </div>
+  </main>
+</Base>

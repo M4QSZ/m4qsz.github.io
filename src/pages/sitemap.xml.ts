@@ -9,6 +9,8 @@ const staticRoutes = [
   '/en/cv/',
   '/laboratorio/',
   '/en/lab/',
+  '/laboratorio/cockpit-paper/',
+  '/en/lab/cockpit-paper/',
   '/muestras/sync-local/',
   '/en/samples/local-sync/',
   ...labSamples.map((sample) => `/muestras/${sample.slug}/`),

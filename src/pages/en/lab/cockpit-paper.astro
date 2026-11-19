@@ -1,0 +1,188 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Technical Report: Cockpit Multi-CLI Orchestrator | Miguel Quevedo"
+  description="Technical Report (v1.0) on Cockpit (agent-orchestrator): native Rust + GPUI desktop orchestrator & concurrent stdio MCP harness with 94.13% skeleton reduction, 84.94% CLI filtering, and 88.34%–97.31% context compaction."
+  pageLabel="Paper · Cockpit"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Cockpit: A Native Multi-CLI Orchestrator</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 — Quota-constrained, token-efficient agentic software engineering via a native Rust + GPUI desktop harness and concurrent stdio MCP runtime.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Evaluated system</span><strong>agent-orchestrator (Rust · GPUI · MCP · private)</strong></div>
+      <div><span>Verification</span><strong>Deterministic harness + 139 Rust tests</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download Print-Ready PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Leer resumen en Español ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Architecture case study ↗</a>
+    </div>
+
+    <div class="paper-kpis" aria-label="Measured deterministic benchmark results">
+      <div class="paper-kpi"><strong>94.13%</strong><span>Avg token reduction in <code>fs_skeleton</code> (up to 97.07% in 38.0 ms)</span></div>
+      <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests)</span></div>
+      <div class="paper-kpi"><strong>88.3–97.3%</strong><span>18-turn session compaction (Capsule / 5-line structured handoff)</span></div>
+      <div class="paper-kpi"><strong>3/3 · 0 FP</strong><span><code>LoopGuard</code> true positives &amp; 8/8 (100%) prompt routing in &lt;20 µs</span></div>
+    </div>
+
+    <div class="case-layout">
+      <aside>
+        <span>Abstract</span>
+        <span>Introduction &amp; Related Work</span>
+        <span>System Architecture</span>
+        <span>Ablation Results</span>
+        <span>LoopGuard &amp; Telemetry</span>
+        <span>Threats to Validity</span>
+        <span>References (12 arXiv)</span>
+      </aside>
+      <div class="case-content">
+        <section>
+          <h2>Abstract</h2>
+          <p>
+            Local agentic coding workflows increasingly span heterogeneous CLI agents—each backed by distinct model families, billing structures, and rolling subscription quotas (e.g., 5-hour and 7-day rate-limit windows). Running these tools independently forces developers to manually switch terminals, loses cross-session context, wastes substantial context tokens on raw file reads and verbose CLI output, and lacks deterministic safeguards against tool-call loops.
+          </p>
+          <p>
+            We present <strong>Cockpit (<code>agent-orchestrator</code>)</strong>, a native Rust + GPUI desktop orchestrator and concurrent stdio Model Context Protocol (MCP) server that unifies Claude Code, Codex CLI, Antigravity, and OpenCode behind a single workspace, live quota telemetry layer, and deterministic token-efficiency harness. Across an offline ablation suite run directly on Cockpit's own Rust codebase, structural skeletons cut tokens by <strong>94.13%</strong> on average (up to <strong>97.07%</strong> on <code>app.rs</code> in 38.0 ms), CLI filtering cuts verbose logs by <strong>84.94%</strong> (<strong>96.83%</strong> on 123-test <code>cargo test</code> output), context compaction reduces an 18-turn session by <strong>88.34%</strong> (Capsule) and <strong>97.31%</strong> (5-line handoff), observation masking cuts stale tool output by <strong>69.51%</strong>, <code>LoopGuard</code> catches <strong>3/3</strong> loops with <strong>0 false positives</strong>, and deterministic routing achieves <strong>100.0%</strong> accuracy in <code>&lt; 20 µs</code>. All invariants pass <strong>139 Rust unit tests</strong> (16 core + 123 runtime).
+          </p>
+        </section>
+
+        <section>
+          <h2>1. Introduction &amp; 2. Related Work</h2>
+          <p>
+            Operating heterogeneous CLIs concurrently exposes four systemic bottlenecks that model scaling alone does not solve: context bloat from raw reads and logs, search-and-replace edit fragility, silent tool-call loops, and fragmented 5h/7d quota visibility across providers. Cockpit addresses these bottlenecks at the local systems layer, building on empirical findings from:
+          </p>
+          <ul>
+            <li><strong>Structural Localization:</strong> <em>AutoCodeRover</em> (<code>arXiv:2404.05427</code>), <em>Agentless</em> (<code>arXiv:2407.01489</code>), <em>RepoGraph</em> (<code>arXiv:2410.14684</code>), and <em>LocAgent</em> (<code>arXiv:2503.09089</code>) — operationalized in pure Rust (<code>fs_skeleton</code>, symbol-annotated <code>fs_search</code>, <code>blast_radius</code>) with sub-40 ms latency and zero external indexer daemon.</li>
+            <li><strong>Diff Interfaces &amp; External Oracles:</strong> <em>Diff-XYZ</em> (<code>arXiv:2510.12487</code>), Huang et al. (<code>arXiv:2310.01798</code>), and <em>TDD-Bench Verified</em> (<code>arXiv:2412.02883</code>) — applied via hash-anchored reads (<code>hashline</code>), inline compiler verification (<code>fs_patch(..., verify: true)</code>), and pre-merge Git worktree quality gates.</li>
+            <li><strong>Quota-Aware Routing &amp; Multi-Agent Scaling Limits:</strong> <em>RouteLLM</em> (<code>arXiv:2406.18665</code>), <em>MasRouter</em> (<code>arXiv:2502.11133</code>), <em>Puppeteer</em> (<code>arXiv:2505.19591</code>), <em>MAST</em> (<code>arXiv:2503.13657</code>), and <em>Towards a Science of Scaling Agent Systems</em> (<code>arXiv:2512.08296</code>) — motivating single-agent defaults, bounded delegation depth (<code>COCKPIT_DELEGATE_DEPTH=1</code>), and live quota-weighted routing.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. System Architecture</h2>
+          <pre class="sample-code">┌─────────────────────────────────────────────────────────────────────────┐
+│  orchestrator-ui (GPUI CE 0.3.0 Native Desktop UI)                      │
+│  • Multi-project chat &amp; adaptive left timeline (sparse / prop / dense)  │
+│  • Unified &amp; Side-by-Side diff review + inline agent line comments      │
+│  • Live 90s quota telemetry &amp; per-model visual hover cards              │
+│  • Floating planning drawer (&gt;5 tasks) &amp; Worktree Diff/Gate/Merge UI    │
+└───────────────────────────────────┬─────────────────────────────────────┘
+                                    │ tokio channels &amp; atomic state
+┌───────────────────────────────────▼─────────────────────────────────────┐
+│  orchestrator-runtime (Supervision, Routing, Concurrent MCP &amp; Safety)   │
+│  • agent_runner.rs   : Headless CLI spawner (hidden Windows processes)  │
+│  • mcp_server.rs     : Concurrent stdio MCP (fs_*, batch, delegate)     │
+│  • code_intel.rs     : Pure-Rust fs_skeleton, repomap, blast_radius     │
+│  • cli_filter.rs     : Output compression, stacktrace &amp; log folding     │
+│  • compact_context.rs: KV-cache-safe capsules, 5-line handoffs, masking │
+│  • loop_guard.rs     : Sliding-window repeat/error/oscillation guard    │
+│  • router.rs         : Quota-aware model/subagent routing + benchmarks  │
+│  • worktree.rs       : Git worktree isolation, quality gates, PR/merge  │
+│  • accounts.rs       : Multi-engine 5h/7d quota &amp; telemetry probing     │
+└───────────────────────────────────┬─────────────────────────────────────┘
+                                    │ NDJSON streaming
+┌───────────────────────────────────▼─────────────────────────────────────┐
+│  orchestrator-core (Unified Event Schema &amp; NDJSON Parsers)              │
+│  • Claude Code | Codex CLI | Antigravity (agy) | OpenCode v2.3          │
+└─────────────────────────────────────────────────────────────────────────┘</pre>
+          <p>
+            Long-running MCP tools (<code>cockpit_delegate_agent</code>, <code>cockpit_benchmark_models</code>, <code>cockpit_self_rebuild</code>) run on dedicated worker threads synchronized over <code>Arc&lt;Mutex&lt;Stdout&gt;&gt;</code> so parallel delegations never stall fast <code>fs_*</code> calls. Exclusive per-file TTL leases guard concurrent writes, while <code>compact_context.rs</code> preserves a byte-identical <code>static_prefix</code> for KV-cache reuse.
+          </p>
+        </section>
+
+        <section>
+          <h2>4. Setup &amp; 5.1 Token Reduction Ablation</h2>
+          <p>
+            Collected directly on Cockpit's production Rust workspace via <code>cargo run -p orchestrator-runtime --example paper_benchmark</code> using the deterministic BPE proxy <code>ceil(chars / 4)</code> alongside exact byte counts and latencies.
+          </p>
+          <div class="paper-table-wrap">
+            <table class="paper-table">
+              <thead>
+                <tr><th>Module / Mechanism</th><th>Test Case</th><th class="num">Baseline (Tok)</th><th class="num">Optimized (Tok)</th><th class="num">Reduction</th><th class="num">Latency</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/ui/src/app.rs</code> (20,422 L)</td><td class="num">254,608</td><td class="num">7,459</td><td class="num"><strong>97.07%</strong></td><td class="num">38.0 ms</td></tr>
+                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/runtime/src/mcp_server.rs</code> (3,662 L)</td><td class="num">39,386</td><td class="num">2,062</td><td class="num"><strong>94.76%</strong></td><td class="num">6.4 ms</td></tr>
+                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/core/src/agent.rs</code> (2,356 L)</td><td class="num">23,824</td><td class="num">1,475</td><td class="num"><strong>93.81%</strong></td><td class="num">3.9 ms</td></tr>
+                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/runtime/src/router.rs</code> (2,221 L)</td><td class="num">22,040</td><td class="num">2,014</td><td class="num"><strong>90.86%</strong></td><td class="num">3.7 ms</td></tr>
+                <tr class="paper-summary"><td colspan="4">Skeleton Extraction Average (4 production Rust files)</td><td class="num">94.13%</td><td class="num">—</td></tr>
+                <tr><td><code>cli_filter::filter_cli_output</code></td><td><code>cargo test</code> (123 passing tests)</td><td class="num">2,206</td><td class="num">70</td><td class="num"><strong>96.83%</strong></td><td class="num">0.69 ms</td></tr>
+                <tr><td><code>cli_filter::filter_cli_output</code></td><td>45-frame Rust panic stacktrace</td><td class="num">1,778</td><td class="num">606</td><td class="num"><strong>65.92%</strong></td><td class="num">7.80 ms</td></tr>
+                <tr><td><code>cli_filter::filter_cli_output</code></td><td>80 repetitive INFO logs + 1 ERROR</td><td class="num">2,142</td><td class="num">83</td><td class="num"><strong>96.13%</strong></td><td class="num">1.84 ms</td></tr>
+                <tr class="paper-summary"><td colspan="4">CLI Output Filter Average (3 trace categories)</td><td class="num">84.94%</td><td class="num">—</td></tr>
+                <tr><td><code>compact_context::build</code></td><td>18-turn multi-file session → Capsule</td><td class="num">3,268</td><td class="num">381</td><td class="num"><strong>88.34%</strong></td><td class="num">0.15 ms</td></tr>
+                <tr><td><code>compact_context::build_handoff_5_lines</code></td><td>18-turn session → 5-line Handoff</td><td class="num">3,268</td><td class="num">88</td><td class="num"><strong>97.31%</strong></td><td class="num">0.01 ms</td></tr>
+                <tr><td><code>compact_context::mask_observations</code></td><td>12 tool reads (active file protected)</td><td class="num">4,018</td><td class="num">1,225</td><td class="num"><strong>69.51%</strong></td><td class="num">0.01 ms</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>5.2 Loop Detection, Routing &amp; 5.3 Observed Telemetry</h2>
+          <div class="paper-table-wrap">
+            <table class="paper-table">
+              <thead>
+                <tr><th>Subsystem</th><th>Scenario / Metric</th><th>Expected</th><th>Observed</th><th class="num">Latency</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>LoopGuard</code></td><td>Repeated identical <code>fs_read_range</code> (10 steps)</td><td>Trigger</td><td><strong>Degraded @ step 3</strong></td><td class="num">&lt; 1 µs</td></tr>
+                <tr><td><code>LoopGuard</code></td><td>Repeated failing <code>fs_patch</code> (same error, 10 steps)</td><td>Trigger</td><td><strong>Tripped @ step 3</strong></td><td class="num">&lt; 1 µs</td></tr>
+                <tr><td><code>LoopGuard</code></td><td>Ping-pong <code>A-B-A-B</code> oscillation (12 steps)</td><td>Trigger</td><td><strong>Tripped @ step 4</strong></td><td class="num">&lt; 1 µs</td></tr>
+                <tr><td><code>LoopGuard</code></td><td>Normal diverse 7-step edit workflow</td><td>No trigger</td><td><strong>Ok (0 false positives)</strong></td><td class="num">&lt; 1 µs</td></tr>
+                <tr><td><code>router::classify_prompt</code></td><td>8-prompt labeled suite (Simple / Coding / Deep / Vision)</td><td>8/8</td><td><strong>8/8 (100.0%)</strong></td><td class="num">0–19 µs</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Across 349 anonymized live multi-engine turns recorded during development, fast routes (<code>claude-haiku-5-5</code>: 34/34, mean 23.9 s; <code>gemini-4-hydrogen</code>: 25/25, mean 45.8 s; <code>gpt-6-luna</code>: 9/10, mean 49.3 s) handle scoped work quickly, whereas frontier reasoning routes (<code>gemini-4-neon</code>: 123/146, mean 132.7 s; <code>gpt-6.2-sol</code>: 41/54, mean 444.0 s) consume 10×–100× more tokens per turn and encounter rate limits when invoked indiscriminately.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. Threats to Validity &amp; 7. Conclusion</h2>
+          <ul>
+            <li><strong>Offline Token Proxy vs. Vendor Tokenizers:</strong> <code>ceil(chars / 4)</code> may differ by ±5–10% from provider-specific BPE tokenizers, while 69%–97% compression ratios remain structurally stable because byte volume drops equivalently.</li>
+            <li><strong>Controlled E2E Solve-Rate Ablation:</strong> Deterministic ablations isolate compression, loop detection, and routing latency with zero variance; Section 5.3 reports observational telemetry rather than a randomized SWE-bench trial (planned future work).</li>
+            <li><strong>Platform &amp; Source Scope:</strong> Cockpit targets Windows desktop workflows and resides in a private repository (<code>agent-orchestrator</code>). Future work covers paired E2E evaluations, automatic per-subagent worktree isolation, and cross-model diff verification.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>References</h2>
+          <ol class="paper-refs">
+            <li>Xia, C. S., Deng, Y., Dunn, S., &amp; Zhang, L. (2024). <em>Agentless: Demystifying LLM-based Software Engineering Agents</em>. <a href="https://arxiv.org/abs/2407.01489" target="_blank" rel="noopener noreferrer">arXiv:2407.01489</a>.</li>
+            <li>Zhang, Y., Ruan, H., Fan, Z., &amp; Roychoudhury, A. (2024). <em>AutoCodeRover: Autonomous Program Improvement</em>. <a href="https://arxiv.org/abs/2404.05427" target="_blank" rel="noopener noreferrer">arXiv:2404.05427</a>.</li>
+            <li>Ouyang, S., Yu, W., Ma, K., Han, J., Yu, D., et al. (2024). <em>RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</em>. <a href="https://arxiv.org/abs/2410.14684" target="_blank" rel="noopener noreferrer">arXiv:2410.14684</a>.</li>
+            <li>Chen, Z., et al. (2025). <em>LocAgent: Graph-Guided LLM Agents for Code Localization</em>. <a href="https://arxiv.org/abs/2503.09089" target="_blank" rel="noopener noreferrer">arXiv:2503.09089</a>.</li>
+            <li>Ong, I., Almahairi, A., Wu, V., Chiang, W.-L., Wu, T., Gonzalez, J. E., Kadous, M. W., &amp; Stoica, I. (2024). <em>RouteLLM: Learning to Route LLMs with Preference Data</em>. <a href="https://arxiv.org/abs/2406.18665" target="_blank" rel="noopener noreferrer">arXiv:2406.18665</a>.</li>
+            <li>Huang, J., Chen, X., Mishra, S., Zheng, H. S., Yu, A. W., Song, X., &amp; Zhou, D. (2023/2024). <em>Large Language Models Cannot Self-Correct Reasoning Yet</em>. <a href="https://arxiv.org/abs/2310.01798" target="_blank" rel="noopener noreferrer">arXiv:2310.01798</a>.</li>
+            <li>Cemri, M., Pan, M. Z., Yang, S., Agrawal, L. A., Chopra, B., Tiwari, R., Keutzer, K., Parameswaran, A., Klein, D., Ramchandran, K., Zaharia, M., Gonzalez, J. E., &amp; Stoica, I. (2025). <em>Why Do Multi-Agent LLM Systems Fail? (MAST)</em>. <a href="https://arxiv.org/abs/2503.13657" target="_blank" rel="noopener noreferrer">arXiv:2503.13657</a>.</li>
+            <li>Yue, Y., et al. (2025). <em>MasRouter: Learning to Route LLMs for Multi-Agent Systems</em>. <a href="https://arxiv.org/abs/2502.11133" target="_blank" rel="noopener noreferrer">arXiv:2502.11133</a>.</li>
+            <li>Dang, Y., et al. (2025). <em>Multi-Agent Collaboration via Evolving Orchestration (Puppeteer)</em>. <a href="https://arxiv.org/abs/2505.19591" target="_blank" rel="noopener noreferrer">arXiv:2505.19591</a>.</li>
+            <li>JetBrains Research (2025). <em>Diff-XYZ: A Benchmark for Evaluating Diff Understanding</em>. <a href="https://arxiv.org/abs/2510.12487" target="_blank" rel="noopener noreferrer">arXiv:2510.12487</a>.</li>
+            <li><em>Towards a Science of Scaling Agent Systems</em> (2025). <a href="https://arxiv.org/abs/2512.08296" target="_blank" rel="noopener noreferrer">arXiv:2512.08296</a>.</li>
+            <li><em>TDD-Bench Verified: Can LLMs Generate Tests for Issues Before They Get Resolved?</em> (2024). <a href="https://arxiv.org/abs/2412.02883" target="_blank" rel="noopener noreferrer">arXiv:2412.02883</a>.</li>
+          </ol>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="/en/projects/cockpit/">View Cockpit case study ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

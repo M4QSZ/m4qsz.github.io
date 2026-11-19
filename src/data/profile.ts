@@ -296,6 +296,16 @@ export const projects: ProjectItem[] = [
     accent: 'purple',
     variant: 'ai-bevy',
   },
+  {
+    number: '18',
+    title: 'Cockpit: Orquestador Multi-CLI',
+    type: 'Escritorio Rust + GPUI · MCP · Technical Report',
+    description: 'Orquestador nativo en Rust que unifica Claude Code, Codex CLI, Antigravity y OpenCode con servidor MCP concurrente, skeletons 94.13% más compactos, cuotas en vivo y worktrees.',
+    stack: ['Rust', 'GPUI', 'MCP', 'LLMs'],
+    href: '/proyectos/cockpit/',
+    accent: 'orange',
+    variant: 'rust-suite',
+  },
 ];
 
 export const capabilities = [

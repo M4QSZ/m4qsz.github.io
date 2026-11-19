@@ -24,8 +24,8 @@ const lab = isEnglish ? '/en/lab/' : '/laboratorio/';
 const cvPath = isEnglish ? '/en/cv/' : '/cv/';
 const pathname = Astro.url.pathname;
 const counterpart = isEnglish
-  ? pathname === '/en/' ? '/' : pathname === '/en/cv/' ? '/cv/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.startsWith('/en/samples/') ? pathname.replace('/en/samples/', '/muestras/') : pathname.replace('/en/projects/', '/proyectos/')
-  : pathname === '/' ? '/en/' : pathname === '/cv/' ? '/en/cv/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.startsWith('/muestras/') ? pathname.replace('/muestras/', '/en/samples/') : pathname.replace('/proyectos/', '/en/projects/');
+  ? pathname === '/en/' ? '/' : pathname === '/en/cv/' ? '/cv/' : pathname === '/en/lab/' ? '/laboratorio/' : pathname.startsWith('/en/lab/') ? pathname.replace('/en/lab/', '/laboratorio/') : pathname === '/en/samples/local-sync/' ? '/muestras/sync-local/' : pathname.startsWith('/en/samples/') ? pathname.replace('/en/samples/', '/muestras/') : pathname.replace('/en/projects/', '/proyectos/')
+  : pathname === '/' ? '/en/' : pathname === '/cv/' ? '/en/cv/' : pathname === '/laboratorio/' ? '/en/lab/' : pathname.startsWith('/laboratorio/') ? pathname.replace('/laboratorio/', '/en/lab/') : pathname === '/muestras/sync-local/' ? '/en/samples/local-sync/' : pathname.startsWith('/muestras/') ? pathname.replace('/muestras/', '/en/samples/') : pathname.replace('/proyectos/', '/en/projects/');
 
 const siteOrigin = Astro.site ?? new URL('https://m4qsz.github.io');
 const canonicalUrl = new URL(pathname, siteOrigin).toString();

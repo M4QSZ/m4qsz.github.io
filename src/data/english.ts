@@ -12,6 +12,8 @@ export interface EnglishProject {
   status?: string;
   liveUrl?: string;
   repoUrl?: string;
+  paperUrl?: string;
+  pdfUrl?: string;
   images?: { src: string; alt: string; caption: string }[];
   sections: [string, string][];
 }
@@ -287,6 +289,22 @@ export const englishProjects: EnglishProject[] = [
       ['Meson IA & applied LLMs', 'Independent development and integration of LLM-assisted workflows, prompt pipelines and practical AI tooling built outside public repositories.'],
       ['Rust Bevy prototype', 'Experimental 2D game prototype using Rust (2024 edition) and Bevy 0.14.0 to explore ECS architecture outside Flutter and Unity.'],
       ['Breadth & boundaries', 'Combined with Godot familiarity and prior course/pre-Git work in C, C++, Java, PHP/Laravel, Django and relational/NoSQL databases (MySQL, SQLite, Cloud Firestore, PostgreSQL).'],
+    ],
+  },
+  {
+    slug: 'cockpit', number: '18', title: 'Cockpit: Multi-CLI Orchestrator', type: 'Native Rust + GPUI desktop · MCP · Technical Report',
+    status: 'Private source · Public Technical Report',
+    accent: 'orange',
+    variant: 'rust-suite',
+    paperUrl: '/en/lab/cockpit-paper/',
+    pdfUrl: '/papers/cockpit-orchestrator-paper.pdf',
+    description: 'Native Rust + GPUI desktop orchestrator and concurrent stdio MCP server unifying Claude Code, Codex CLI, Antigravity and OpenCode under live 5h/7d quota telemetry and deterministic token-efficiency mechanisms.',
+    stack: ['Rust', 'GPUI', 'MCP', 'Git Worktrees'],
+    sections: [
+      ['Unified multi-CLI runtime', 'Built as a three-crate Rust workspace (orchestrator-core, orchestrator-runtime, orchestrator-ui) supervising Claude Code, Codex CLI, Antigravity and OpenCode with normalized NDJSON streaming, hidden Windows processes and 90-second live quota probing.'],
+      ['Deterministic token-efficiency harness', 'Measured directly on production Rust files via a reproducible offline harness: pure-Rust fs_skeleton achieves 94.13% average token reduction (97.07% on app.rs in 38.0 ms), cli_filter cuts verbose test/stacktrace output by 84.94% (96.83% on 123-test cargo test), and compact_context compresses an 18-turn session by 88.34% (Capsule) and 97.31% (5-line handoff) while preserving KV-cache prefix stability.'],
+      ['Concurrent MCP, hashline patching & LoopGuard', 'Long-running MCP tools run on worker threads synchronized over Arc<Mutex<Stdout>> so parallel delegations never stall fast fs_* reads/patches. fs_patch supports hash-anchored line ranges, per-file TTL leases and inline compiler verification; LoopGuard catches 3/3 repeat/error/ping-pong loops with 0 false positives in <1 µs.'],
+      ['Human-in-the-loop review & verification', 'Includes an adaptive timeline, Unified & Side-by-Side diff viewer with inline agent comments, per-chat Git worktree isolation and automatic pre-merge quality gates (cargo check / tsc / pytest). Verified by 139 passing Rust unit tests (16 core + 123 runtime) and documented in a public Technical Report + PDF.'],
     ],
   },
 ];
