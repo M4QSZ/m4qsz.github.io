@@ -29,25 +29,40 @@ import Base from '../../../layouts/Base.astro';
       <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Architecture case study ↗</a>
     </div>
 
-    <div class="paper-kpis" aria-label="Measured deterministic benchmark results">
-      <div class="paper-kpi"><strong>94.13%</strong><span>Avg token reduction in <code>fs_skeleton</code> (up to 97.07% in 38.0 ms)</span></div>
-      <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests)</span></div>
-      <div class="paper-kpi"><strong>88.3–97.3%</strong><span>18-turn session compaction (Capsule / 5-line structured handoff)</span></div>
-      <div class="paper-kpi"><strong>3/3 · 0 FP</strong><span><code>LoopGuard</code> true positives &amp; 8/8 (100%) prompt routing in &lt;20 µs</span></div>
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Measured deterministic benchmark results">
+        <div class="paper-kpi"><strong>94.13%</strong><span>Avg token reduction in <code>fs_skeleton</code> (up to 97.07% in 38.0 ms)</span></div>
+        <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests)</span></div>
+        <div class="paper-kpi"><strong>88.3–97.3%</strong><span>18-turn session compaction (Capsule / 5-line structured handoff)</span></div>
+        <div class="paper-kpi"><strong>3/3 · 0 FP</strong><span><code>LoopGuard</code> true positives &amp; 8/8 (100%) routing in &lt;20 µs</span></div>
+      </div>
     </div>
 
+    <details class="paper-toc">
+      <summary>Jump to section (7 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#abstract">Abstract</a>
+        <a href="#intro-related">1. Introduction &amp; 2. Related Work</a>
+        <a href="#architecture">3. System Architecture</a>
+        <a href="#ablation">4. Setup &amp; 5.1 Token Ablation</a>
+        <a href="#reliability">5.2 LoopGuard &amp; 5.3 Telemetry</a>
+        <a href="#validity">6. Threats to Validity &amp; 7. Conclusion</a>
+        <a href="#references">References (12 arXiv)</a>
+      </nav>
+    </details>
+
     <div class="case-layout">
-      <aside>
-        <span>Abstract</span>
-        <span>Introduction &amp; Related Work</span>
-        <span>System Architecture</span>
-        <span>Ablation Results</span>
-        <span>LoopGuard &amp; Telemetry</span>
-        <span>Threats to Validity</span>
-        <span>References (12 arXiv)</span>
+      <aside aria-label="Report navigation">
+        <a href="#abstract">Abstract</a>
+        <a href="#intro-related">Introduction &amp; Related Work</a>
+        <a href="#architecture">System Architecture</a>
+        <a href="#ablation">Ablation Results</a>
+        <a href="#reliability">LoopGuard &amp; Telemetry</a>
+        <a href="#validity">Threats to Validity</a>
+        <a href="#references">References (12 arXiv)</a>
       </aside>
       <div class="case-content">
-        <section>
+        <section id="abstract">
           <h2>Abstract</h2>
           <p>
             Local agentic coding workflows increasingly span heterogeneous CLI agents—each backed by distinct model families, billing structures, and rolling subscription quotas (e.g., 5-hour and 7-day rate-limit windows). Running these tools independently forces developers to manually switch terminals, loses cross-session context, wastes substantial context tokens on raw file reads and verbose CLI output, and lacks deterministic safeguards against tool-call loops.
@@ -57,7 +72,7 @@ import Base from '../../../layouts/Base.astro';
           </p>
         </section>
 
-        <section>
+        <section id="intro-related">
           <h2>1. Introduction &amp; 2. Related Work</h2>
           <p>
             Operating heterogeneous CLIs concurrently exposes four systemic bottlenecks that model scaling alone does not solve: context bloat from raw reads and logs, search-and-replace edit fragility, silent tool-call loops, and fragmented 5h/7d quota visibility across providers. Cockpit addresses these bottlenecks at the local systems layer, building on empirical findings from:
@@ -69,79 +84,223 @@ import Base from '../../../layouts/Base.astro';
           </ul>
         </section>
 
-        <section>
+        <section id="architecture">
           <h2>3. System Architecture</h2>
-          <pre class="sample-code">┌─────────────────────────────────────────────────────────────────────────┐
-│  orchestrator-ui (GPUI CE 0.3.0 Native Desktop UI)                      │
-│  • Multi-project chat &amp; adaptive left timeline (sparse / prop / dense)  │
-│  • Unified &amp; Side-by-Side diff review + inline agent line comments      │
-│  • Live 90s quota telemetry &amp; per-model visual hover cards              │
-│  • Floating planning drawer (&gt;5 tasks) &amp; Worktree Diff/Gate/Merge UI    │
-└───────────────────────────────────┬─────────────────────────────────────┘
-                                    │ tokio channels &amp; atomic state
-┌───────────────────────────────────▼─────────────────────────────────────┐
-│  orchestrator-runtime (Supervision, Routing, Concurrent MCP &amp; Safety)   │
-│  • agent_runner.rs   : Headless CLI spawner (hidden Windows processes)  │
-│  • mcp_server.rs     : Concurrent stdio MCP (fs_*, batch, delegate)     │
-│  • code_intel.rs     : Pure-Rust fs_skeleton, repomap, blast_radius     │
-│  • cli_filter.rs     : Output compression, stacktrace &amp; log folding     │
-│  • compact_context.rs: KV-cache-safe capsules, 5-line handoffs, masking │
-│  • loop_guard.rs     : Sliding-window repeat/error/oscillation guard    │
-│  • router.rs         : Quota-aware model/subagent routing + benchmarks  │
-│  • worktree.rs       : Git worktree isolation, quality gates, PR/merge  │
-│  • accounts.rs       : Multi-engine 5h/7d quota &amp; telemetry probing     │
-└───────────────────────────────────┬─────────────────────────────────────┘
-                                    │ NDJSON streaming
-┌───────────────────────────────────▼─────────────────────────────────────┐
-│  orchestrator-core (Unified Event Schema &amp; NDJSON Parsers)              │
-│  • Claude Code | Codex CLI | Antigravity (agy) | OpenCode v2.3          │
-└─────────────────────────────────────────────────────────────────────────┘</pre>
+          <div class="arch-stack" role="img" aria-label="Three-layer Cockpit Rust workspace architecture: orchestrator-ui, orchestrator-runtime, and orchestrator-core">
+            <div class="arch-layer">
+              <div class="arch-layer-head">
+                <strong>orchestrator-ui</strong>
+                <span>GPUI CE 0.3.0 · Native Desktop UI</span>
+              </div>
+              <ul class="arch-layer-grid">
+                <li>Multi-project chat &amp; adaptive left timeline (sparse / prop / dense)</li>
+                <li>Unified &amp; Side-by-Side diff review + inline agent line comments</li>
+                <li>Live 90s quota telemetry &amp; per-model visual hover cards</li>
+                <li>Floating planning drawer (&gt;5 tasks) &amp; Worktree Diff / Gate / Merge UI</li>
+              </ul>
+            </div>
+
+            <div class="arch-flow" aria-hidden="true">↓ tokio channels &amp; atomic state</div>
+
+            <div class="arch-layer arch-layer--runtime">
+              <div class="arch-layer-head">
+                <strong>orchestrator-runtime</strong>
+                <span>Supervision, Routing, Concurrent MCP &amp; Safety</span>
+              </div>
+              <ul class="arch-layer-grid">
+                <li><code>agent_runner.rs</code> · Headless CLI spawner (hidden Windows processes)</li>
+                <li><code>mcp_server.rs</code> · Concurrent stdio MCP (<code>fs_*</code>, batch, delegate)</li>
+                <li><code>code_intel.rs</code> · Pure-Rust <code>fs_skeleton</code>, repomap, <code>blast_radius</code></li>
+                <li><code>cli_filter.rs</code> · Output compression, stacktrace &amp; log folding</li>
+                <li><code>compact_context.rs</code> · KV-cache-safe capsules, 5-line handoffs, masking</li>
+                <li><code>loop_guard.rs</code> · Sliding-window repeat/error/oscillation guard</li>
+                <li><code>router.rs</code> · Quota-aware model/subagent routing + benchmarks</li>
+                <li><code>worktree.rs</code> + <code>accounts.rs</code> · Git worktrees, quality gates, 5h/7d quotas</li>
+              </ul>
+            </div>
+
+            <div class="arch-flow" aria-hidden="true">↓ NDJSON streaming</div>
+
+            <div class="arch-layer">
+              <div class="arch-layer-head">
+                <strong>orchestrator-core</strong>
+                <span>Unified Event Schema &amp; NDJSON Parsers</span>
+              </div>
+              <ul class="arch-layer-grid">
+                <li>Unified engines: Claude Code · Codex CLI · Antigravity (<code>agy</code>) · OpenCode v2.3</li>
+                <li>Normalized events: <code>ThinkingDelta</code> · <code>ToolActivity</code> · <code>FileTouched</code> · <code>Usage</code></li>
+              </ul>
+            </div>
+          </div>
           <p>
             Long-running MCP tools (<code>cockpit_delegate_agent</code>, <code>cockpit_benchmark_models</code>, <code>cockpit_self_rebuild</code>) run on dedicated worker threads synchronized over <code>Arc&lt;Mutex&lt;Stdout&gt;&gt;</code> so parallel delegations never stall fast <code>fs_*</code> calls. Exclusive per-file TTL leases guard concurrent writes, while <code>compact_context.rs</code> preserves a byte-identical <code>static_prefix</code> for KV-cache reuse.
           </p>
         </section>
 
-        <section>
+        <section id="ablation">
           <h2>4. Setup &amp; 5.1 Token Reduction Ablation</h2>
           <p>
             Collected directly on Cockpit's production Rust workspace via <code>cargo run -p orchestrator-runtime --example paper_benchmark</code> using the deterministic BPE proxy <code>ceil(chars / 4)</code> alongside exact byte counts and latencies.
           </p>
-          <div class="paper-table-wrap">
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-ablation-cap">
             <table class="paper-table">
+              <caption id="en-ablation-cap">Table 1 · Deterministic Token &amp; Context Reduction Ablation</caption>
               <thead>
-                <tr><th>Module / Mechanism</th><th>Test Case</th><th class="num">Baseline (Tok)</th><th class="num">Optimized (Tok)</th><th class="num">Reduction</th><th class="num">Latency</th></tr>
+                <tr>
+                  <th scope="col">Module / Mechanism</th>
+                  <th scope="col">Test Case</th>
+                  <th scope="col" class="num">Baseline (Tok)</th>
+                  <th scope="col" class="num">Optimized (Tok)</th>
+                  <th scope="col" class="num">Reduction</th>
+                  <th scope="col" class="num">Latency</th>
+                </tr>
               </thead>
               <tbody>
-                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/ui/src/app.rs</code> (20,422 L)</td><td class="num">254,608</td><td class="num">7,459</td><td class="num"><strong>97.07%</strong></td><td class="num">38.0 ms</td></tr>
-                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/runtime/src/mcp_server.rs</code> (3,662 L)</td><td class="num">39,386</td><td class="num">2,062</td><td class="num"><strong>94.76%</strong></td><td class="num">6.4 ms</td></tr>
-                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/core/src/agent.rs</code> (2,356 L)</td><td class="num">23,824</td><td class="num">1,475</td><td class="num"><strong>93.81%</strong></td><td class="num">3.9 ms</td></tr>
-                <tr><td><code>code_intel::extract_skeleton</code></td><td><code>crates/runtime/src/router.rs</code> (2,221 L)</td><td class="num">22,040</td><td class="num">2,014</td><td class="num"><strong>90.86%</strong></td><td class="num">3.7 ms</td></tr>
-                <tr class="paper-summary"><td colspan="4">Skeleton Extraction Average (4 production Rust files)</td><td class="num">94.13%</td><td class="num">—</td></tr>
-                <tr><td><code>cli_filter::filter_cli_output</code></td><td><code>cargo test</code> (123 passing tests)</td><td class="num">2,206</td><td class="num">70</td><td class="num"><strong>96.83%</strong></td><td class="num">0.69 ms</td></tr>
-                <tr><td><code>cli_filter::filter_cli_output</code></td><td>45-frame Rust panic stacktrace</td><td class="num">1,778</td><td class="num">606</td><td class="num"><strong>65.92%</strong></td><td class="num">7.80 ms</td></tr>
-                <tr><td><code>cli_filter::filter_cli_output</code></td><td>80 repetitive INFO logs + 1 ERROR</td><td class="num">2,142</td><td class="num">83</td><td class="num"><strong>96.13%</strong></td><td class="num">1.84 ms</td></tr>
-                <tr class="paper-summary"><td colspan="4">CLI Output Filter Average (3 trace categories)</td><td class="num">84.94%</td><td class="num">—</td></tr>
-                <tr><td><code>compact_context::build</code></td><td>18-turn multi-file session → Capsule</td><td class="num">3,268</td><td class="num">381</td><td class="num"><strong>88.34%</strong></td><td class="num">0.15 ms</td></tr>
-                <tr><td><code>compact_context::build_handoff_5_lines</code></td><td>18-turn session → 5-line Handoff</td><td class="num">3,268</td><td class="num">88</td><td class="num"><strong>97.31%</strong></td><td class="num">0.01 ms</td></tr>
-                <tr><td><code>compact_context::mask_observations</code></td><td>12 tool reads (active file protected)</td><td class="num">4,018</td><td class="num">1,225</td><td class="num"><strong>69.51%</strong></td><td class="num">0.01 ms</td></tr>
+                <tr>
+                  <th scope="row"><code>code_intel::extract_skeleton</code></th>
+                  <td data-label="Test Case"><code>crates/ui/src/app.rs</code> (20,422 L)</td>
+                  <td data-label="Baseline (Tok)" class="num">254,608</td>
+                  <td data-label="Optimized (Tok)" class="num">7,459</td>
+                  <td data-label="Reduction" class="num"><strong>97.07%</strong></td>
+                  <td data-label="Latency" class="num">38.0 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>code_intel::extract_skeleton</code></th>
+                  <td data-label="Test Case"><code>crates/runtime/src/mcp_server.rs</code> (3,662 L)</td>
+                  <td data-label="Baseline (Tok)" class="num">39,386</td>
+                  <td data-label="Optimized (Tok)" class="num">2,062</td>
+                  <td data-label="Reduction" class="num"><strong>94.76%</strong></td>
+                  <td data-label="Latency" class="num">6.4 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>code_intel::extract_skeleton</code></th>
+                  <td data-label="Test Case"><code>crates/core/src/agent.rs</code> (2,356 L)</td>
+                  <td data-label="Baseline (Tok)" class="num">23,824</td>
+                  <td data-label="Optimized (Tok)" class="num">1,475</td>
+                  <td data-label="Reduction" class="num"><strong>93.81%</strong></td>
+                  <td data-label="Latency" class="num">3.9 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>code_intel::extract_skeleton</code></th>
+                  <td data-label="Test Case"><code>crates/runtime/src/router.rs</code> (2,221 L)</td>
+                  <td data-label="Baseline (Tok)" class="num">22,040</td>
+                  <td data-label="Optimized (Tok)" class="num">2,014</td>
+                  <td data-label="Reduction" class="num"><strong>90.86%</strong></td>
+                  <td data-label="Latency" class="num">3.7 ms</td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row" colspan="4">Skeleton Extraction Average (4 production Rust files)</th>
+                  <td data-label="Average Reduction" class="num">94.13%</td>
+                  <td data-label="Latency" class="num">—</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>cli_filter::filter_cli_output</code></th>
+                  <td data-label="Test Case"><code>cargo test</code> (123 passing tests)</td>
+                  <td data-label="Baseline (Tok)" class="num">2,206</td>
+                  <td data-label="Optimized (Tok)" class="num">70</td>
+                  <td data-label="Reduction" class="num"><strong>96.83%</strong></td>
+                  <td data-label="Latency" class="num">0.69 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>cli_filter::filter_cli_output</code></th>
+                  <td data-label="Test Case">45-frame Rust panic stacktrace</td>
+                  <td data-label="Baseline (Tok)" class="num">1,778</td>
+                  <td data-label="Optimized (Tok)" class="num">606</td>
+                  <td data-label="Reduction" class="num"><strong>65.92%</strong></td>
+                  <td data-label="Latency" class="num">7.80 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>cli_filter::filter_cli_output</code></th>
+                  <td data-label="Test Case">80 repetitive INFO logs + 1 ERROR</td>
+                  <td data-label="Baseline (Tok)" class="num">2,142</td>
+                  <td data-label="Optimized (Tok)" class="num">83</td>
+                  <td data-label="Reduction" class="num"><strong>96.13%</strong></td>
+                  <td data-label="Latency" class="num">1.84 ms</td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row" colspan="4">CLI Output Filter Average (3 trace categories)</th>
+                  <td data-label="Average Reduction" class="num">84.94%</td>
+                  <td data-label="Latency" class="num">—</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>compact_context::build</code></th>
+                  <td data-label="Test Case">18-turn multi-file session → Capsule</td>
+                  <td data-label="Baseline (Tok)" class="num">3,268</td>
+                  <td data-label="Optimized (Tok)" class="num">381</td>
+                  <td data-label="Reduction" class="num"><strong>88.34%</strong></td>
+                  <td data-label="Latency" class="num">0.15 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>compact_context::build_handoff_5_lines</code></th>
+                  <td data-label="Test Case">18-turn session → 5-line Handoff</td>
+                  <td data-label="Baseline (Tok)" class="num">3,268</td>
+                  <td data-label="Optimized (Tok)" class="num">88</td>
+                  <td data-label="Reduction" class="num"><strong>97.31%</strong></td>
+                  <td data-label="Latency" class="num">0.01 ms</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>compact_context::mask_observations</code></th>
+                  <td data-label="Test Case">12 tool reads (active file protected)</td>
+                  <td data-label="Baseline (Tok)" class="num">4,018</td>
+                  <td data-label="Optimized (Tok)" class="num">1,225</td>
+                  <td data-label="Reduction" class="num"><strong>69.51%</strong></td>
+                  <td data-label="Latency" class="num">0.01 ms</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </section>
 
-        <section>
+        <section id="reliability">
           <h2>5.2 Loop Detection, Routing &amp; 5.3 Observed Telemetry</h2>
-          <div class="paper-table-wrap">
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-guard-cap">
             <table class="paper-table">
+              <caption id="en-guard-cap">Table 2 · LoopGuard &amp; Deterministic Prompt Routing Reliability</caption>
               <thead>
-                <tr><th>Subsystem</th><th>Scenario / Metric</th><th>Expected</th><th>Observed</th><th class="num">Latency</th></tr>
+                <tr>
+                  <th scope="col">Subsystem</th>
+                  <th scope="col">Scenario / Metric</th>
+                  <th scope="col">Expected</th>
+                  <th scope="col">Observed</th>
+                  <th scope="col" class="num">Latency</th>
+                </tr>
               </thead>
               <tbody>
-                <tr><td><code>LoopGuard</code></td><td>Repeated identical <code>fs_read_range</code> (10 steps)</td><td>Trigger</td><td><strong>Degraded @ step 3</strong></td><td class="num">&lt; 1 µs</td></tr>
-                <tr><td><code>LoopGuard</code></td><td>Repeated failing <code>fs_patch</code> (same error, 10 steps)</td><td>Trigger</td><td><strong>Tripped @ step 3</strong></td><td class="num">&lt; 1 µs</td></tr>
-                <tr><td><code>LoopGuard</code></td><td>Ping-pong <code>A-B-A-B</code> oscillation (12 steps)</td><td>Trigger</td><td><strong>Tripped @ step 4</strong></td><td class="num">&lt; 1 µs</td></tr>
-                <tr><td><code>LoopGuard</code></td><td>Normal diverse 7-step edit workflow</td><td>No trigger</td><td><strong>Ok (0 false positives)</strong></td><td class="num">&lt; 1 µs</td></tr>
-                <tr><td><code>router::classify_prompt</code></td><td>8-prompt labeled suite (Simple / Coding / Deep / Vision)</td><td>8/8</td><td><strong>8/8 (100.0%)</strong></td><td class="num">0–19 µs</td></tr>
+                <tr>
+                  <th scope="row"><code>LoopGuard</code></th>
+                  <td data-label="Scenario">Repeated identical <code>fs_read_range</code> (10 steps)</td>
+                  <td data-label="Expected">Trigger</td>
+                  <td data-label="Observed"><strong>Degraded @ step 3</strong></td>
+                  <td data-label="Latency" class="num">&lt; 1 µs</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>LoopGuard</code></th>
+                  <td data-label="Scenario">Repeated failing <code>fs_patch</code> (same error, 10 steps)</td>
+                  <td data-label="Expected">Trigger</td>
+                  <td data-label="Observed"><strong>Tripped @ step 3</strong></td>
+                  <td data-label="Latency" class="num">&lt; 1 µs</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>LoopGuard</code></th>
+                  <td data-label="Scenario">Ping-pong <code>A-B-A-B</code> oscillation (12 steps)</td>
+                  <td data-label="Expected">Trigger</td>
+                  <td data-label="Observed"><strong>Tripped @ step 4</strong></td>
+                  <td data-label="Latency" class="num">&lt; 1 µs</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>LoopGuard</code></th>
+                  <td data-label="Scenario">Normal diverse 7-step edit workflow</td>
+                  <td data-label="Expected">No trigger</td>
+                  <td data-label="Observed"><strong>Ok (0 false positives)</strong></td>
+                  <td data-label="Latency" class="num">&lt; 1 µs</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>router::classify_prompt</code></th>
+                  <td data-label="Scenario">8-prompt labeled suite (Simple / Coding / Deep / Vision)</td>
+                  <td data-label="Expected">8/8</td>
+                  <td data-label="Observed"><strong>8/8 (100.0%)</strong></td>
+                  <td data-label="Latency" class="num">0–19 µs</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -150,7 +309,7 @@ import Base from '../../../layouts/Base.astro';
           </p>
         </section>
 
-        <section>
+        <section id="validity">
           <h2>6. Threats to Validity &amp; 7. Conclusion</h2>
           <ul>
             <li><strong>Offline Token Proxy vs. Vendor Tokenizers:</strong> <code>ceil(chars / 4)</code> may differ by ±5–10% from provider-specific BPE tokenizers, while 69%–97% compression ratios remain structurally stable because byte volume drops equivalently.</li>
@@ -159,7 +318,7 @@ import Base from '../../../layouts/Base.astro';
           </ul>
         </section>
 
-        <section>
+        <section id="references">
           <h2>References</h2>
           <ol class="paper-refs">
             <li>Xia, C. S., Deng, Y., Dunn, S., &amp; Zhang, L. (2024). <em>Agentless: Demystifying LLM-based Software Engineering Agents</em>. <a href="https://arxiv.org/abs/2407.01489" target="_blank" rel="noopener noreferrer">arXiv:2407.01489</a>.</li>
