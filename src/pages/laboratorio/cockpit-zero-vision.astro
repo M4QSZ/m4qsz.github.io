@@ -1,0 +1,168 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper Técnico: Automatización Zero-Vision (PC, 3D y Video) | Miguel Quevedo"
+  description="Technical Report v1.0 — Zero-Vision-Token Desktop, 3D & Video Automation via Deterministic MCP Harnesses: Win32 UIA-first, Screenshot Diffing, Blender CPU bpy, Roblox Rojo+Lune y FFmpeg."
+  pageLabel="Paper · Zero-Vision MCP"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Automatización de Escritorio, 3D y Video con Cero Tokens de Visión vía Harnesses MCP Deterministas</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Cómo sustituir ciclos ciegos de capturas de pantalla por árboles Win32 UIA, <em>screenshot diffing</em>, pipelines CPU de Blender/Roblox y listas de corte FFmpeg no destructivas.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>pc_control.rs</code> · <code>blender_audit.rs</code> · <code>roblox_loop.rs</code> · <code>video_frames.rs</code> · <code>video_edit.rs</code></strong></div>
+      <div><span>Tipo de reporte</span><strong>Arquitectura implementada + invariantes deterministas (Rust + Python)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-zero-vision/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-distributed/">Paper 3: Orquestación Multi-Dispositivo ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes deterministas del harness zero-vision">
+        <div class="paper-kpi"><strong>0 tok visión</strong><span>Inspección y acción Win32 vía <code>pc_ui_tree</code> + <code>pc_act</code> (UIA-first)</span></div>
+        <div class="paper-kpi"><strong>&lt;0.15% / &lt;65%</strong><span>Umbrales de <code>ScreenDiffCapture</code> (Unchanged / bbox crop)</span></div>
+        <div class="paper-kpi"><strong>1/6 frames</strong><span>Contact Sheet 2×3 en Blender CPU <code>bpy</code> (0 GPU)</span></div>
+        <div class="paper-kpi"><strong>10 reglas</strong><span>Auditor estático Luau (leaks, <code>RemoteEvent</code>, <code>DataStore</code>) + BFS</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Resumen y motivación</a>
+        <a href="#escritorio">2. Control de escritorio Win32 UIA-first y Screenshot Diffing</a>
+        <a href="#blender">3. Pipeline 3D CPU en Blender (<code>bpy</code>)</a>
+        <a href="#roblox">4. Ciclo cerrado Roblox (Rojo, Lune y auditor 10 reglas)</a>
+        <a href="#video">5. Keyframes FFmpeg y edición no destructiva</a>
+        <a href="#validez">6. Amenazas a la validez y trabajo futuro</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">Resumen</a>
+        <a href="#escritorio">Escritorio Win32 UIA</a>
+        <a href="#blender">Blender 3D CPU</a>
+        <a href="#roblox">Roblox Closed-Loop</a>
+        <a href="#video">Video FFmpeg</a>
+        <a href="#validez">Amenazas a la validez</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Resumen y motivación</h2>
+          <p>
+            Los agentes multimodales que automatizan escritorios, escenas 3D o edición de video suelen operar mediante un bucle <em>screenshot → VLM → click</em>. Este enfoque consume miles de tokens de visión por paso, sufre errores de coordenadas con escalado DPI y degrada rápidamente las cuotas de modelos de frontera.
+          </p>
+          <p>
+            En <strong>Cockpit v2.0</strong>, desplazamos la percepción y validación hacia <strong>harnesses MCP deterministas en Rust y Python (~2.9k LOC en pipelines 3D/video)</strong> que corren en CPU a costo <strong>$0</strong> y solo recurren a imágenes compactas cuando el árbol estructurado no basta.
+          </p>
+        </section>
+
+        <section id="escritorio">
+          <h2>2. Control de escritorio Win32 UIA-first y Screenshot Diffing</h2>
+          <p>
+            El módulo <code>crates/runtime/src/pc_control.rs</code> implementa control nativo de Windows (<code>BitBlt</code>, <code>EnumWindows</code>, <code>SendInput</code> Unicode/hotkeys y escalado de coordenadas DPI) bajo una jerarquía estricta de menor a mayor costo visual:
+          </p>
+          <ul>
+            <li><strong>Capa 0 — Árbol UIA estructurado (<code>pc_ui_tree</code> + <code>pc_act</code>):</strong> extrae nodos <code>UiControlNode</code> (<code>id</code>, <code>control_type</code>, <code>name</code>, <code>automation_id</code> y centroide <code>cx, cy</code>) permitiendo inspeccionar ventanas y pulsar controles por nombre con <strong>0 tokens de visión</strong>.</li>
+            <li><strong>Capa 1 — Screenshot Diffing determinista (<code>compute_rgb_diff_bbox</code>):</strong> compara el frame actual contra <code>PrevFrameState</code> muestreando 1 de cada 2 píxeles por eje (~2 ms en 1080p) con un padding de 16 px alrededor del cambio:
+              <ul>
+                <li>Si <code>changed_pct &lt; 0.15%</code>, retorna <code>ScreenDiffCapture::Unchanged</code> (<strong>0 tokens de visión</strong> enviados al modelo).</li>
+                <li>Si el <em>bounding box</em> modificado ocupa <code>&lt; 65%</code> del área total (y ≥ 32×32 px), recorta únicamente la región alterada (<code>cropped_diff: true</code>) mapeando sus coordenadas físicas mediante <code>map_image_to_screen</code>.</li>
+                <li>Solo si el cambio supera el 65% del área se codifica el frame completo.</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section id="blender">
+          <h2>3. Pipeline 3D CPU en Blender (<code>blender_audit.rs</code> + <code>bpy</code>)</h2>
+          <p>
+            <code>crates/runtime/src/blender_audit.rs</code> coordina scripts headless de Blender (<code>blender --background</code>, 0 GPU) para producir activos listos para Roblox dentro del límite estricto de 10,000 triángulos por <code>MeshPart</code>:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-blender-cap">
+            <table class="paper-table">
+              <caption id="es-blender-cap">Tabla 1 · Capacidades deterministas del harness 3D en <code>blender_audit.rs</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Etapa / Modo</th>
+                  <th scope="col">Mecanismo implementado</th>
+                  <th scope="col">Ahorro / Invariante</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>art_style</code> &amp; <code>plan_3d</code></th>
+                  <td data-label="Mecanismo">Style Card persistente (<code>.cockpit/art_style.json</code>), prompt ortográfico 4-vistas flat-lit y router híbrido (<code>HardSurfaceProcedural</code> vs <code>OrganicNeuralThenPolish</code>)</td>
+                  <td data-label="Invariante">Paleta, silueta y presupuesto <code>max_tris_per_part</code> consistentes</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>polish</code> &amp; <code>cage_atlas</code></th>
+                  <td data-label="Mecanismo">Retopología CPU Quadriflow (<code>retopo_quads</code>), separación de piezas (<code>loose</code>/<code>material</code>), shaders procedurales, <em>delighting</em> de albedo y bake PBR (Albedo, Normal OpenGL Y+, Roughness, AO)</td>
+                  <td data-label="Invariante">Topología limpia + 1 <code>SurfaceAppearance</code> listo para motor</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>rig_r15</code>, <code>setup_ik</code>, <code>retarget_r15</code></th>
+                  <td data-label="Mecanismo">Armadura estándar Roblox R15 ajustada al bounding box con pesos automáticos CPU, cadenas IK, retargeting y articulación mecánica (<code>articulate</code>)</td>
+                  <td data-label="Invariante">Rigging reproducible sin intervención manual en viewport</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>contact_sheet</code> &amp; <code>quad_view</code></th>
+                  <td data-label="Mecanismo">Composición de 6 ángulos en una sola grilla 2×3 (<code>contact_sheet</code>), 2×2 wireframe (<code>quad_view</code>), rayos-X de malla (<code>topology_xray</code>) y mediciones JSON (<code>scene_measure</code>)</td>
+                  <td data-label="Invariante"><strong>1/6</strong> de llamadas de imagen frente a 6 capturas sueltas</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="roblox">
+          <h2>4. Ciclo cerrado Roblox (<code>roblox_loop.rs</code>)</h2>
+          <p>
+            Al abrir cualquier repositorio con archivos <code>*.project.json</code>, <code>.rbxl</code>/<code>.rbxlx</code>, <code>wally.toml</code> o scripts <code>.luau</code>, Cockpit inyecta automáticamente un contexto compacto y expone herramientas deterministas a 0 tokens LLM:
+          </p>
+          <ul>
+            <li><strong>Auditor estático Luau de 10 reglas (<code>audit_luau_source</code>):</strong> escanea hasta 2,500 scripts detectando fugas de conexiones (<code>RenderStepped</code>/<code>Heartbeat</code>/<code>Stepped</code>/<code>Touched</code> sin <code>:Disconnect()</code> ni <code>Trove</code>/<code>Maid</code>/<code>Janitor</code>), <code>:WaitForChild()</code> sin timeout, vulnerabilidades de <code>RemoteEvent</code> sin validación en servidor, llamadas a <code>DataStore</code> sin <code>pcall</code>, cruces indebidos cliente↔servidor y APIs heredadas (<code>BodyMover</code>).</li>
+            <li><strong>Rojo + Lune headless:</strong> detección de proyectos Rojo y ejecución de pruebas Luau fuera de Studio mediante <code>lune</code>.</li>
+            <li><strong>Generador de niveles solubles (<code>level_gen</code>):</strong> generador WFC-lite con verificación determinista por <strong>BFS</strong> que garantiza camino mínimo entre inicio y meta y exporta el constructor en Luau, junto a utilidades de producción (<code>vfx_flipbook</code> RGBA, <code>sfx_variants</code> y <code>pack_sprites</code>).</li>
+          </ul>
+        </section>
+
+        <section id="video">
+          <h2>5. Extracción de Keyframes y Edición No Destructiva (<code>video_frames.rs</code> + <code>video_edit.rs</code>)</h2>
+          <ul>
+            <li><strong>Compresión Chain-of-Frames (<code>video_frames.rs</code>):</strong> combina <code>ffprobe</code> + detección de cambio de escena en <code>ffmpeg</code> (<code>select='gt(scene,T)'</code>) con respaldo a intervalo uniforme, alineando cada keyframe con subtítulos sidecar (<code>.srt</code>, <code>.vtt</code>, <code>.ass</code>) para reemplazar video bruto por fotogramas clave con timestamp exacto.</li>
+            <li><strong>Lista de cortes no destructiva (<code>video_edit.rs</code>):</strong> modela la edición como un JSON atómico (<code>VideoCutList</code> con <code>CutSegment</code>: <code>start_secs</code>, <code>end_secs</code>, <code>speed</code> en <code>0.25–4.0×</code>, <code>mute</code>, <code>caption</code>) compilado a un solo pase determinista <code>ffmpeg -filter_complex</code> (encadenando filtros <code>atempo</code> para preservar tono/sincronía) sin modificar el archivo fuente.</li>
+            <li><strong>Anotación visual en Rust puro:</strong> dibuja cajas, círculos y flechas de alto contraste sobre cualquier JPEG/PNG (keyframes, renders Blender o capturas UI) mediante el crate <code>image</code> para feedback visual exacto.</li>
+          </ul>
+        </section>
+
+        <section id="validez">
+          <h2>6. Amenazas a la validez y alcance honesto</h2>
+          <ul>
+            <li><strong>Reporte arquitectónico e invariantes (no benchmark E2E de VLM):</strong> este documento describe subsistemas implementados y verificados mediante tests unitarios deterministas (cálculo de diff RGB, parser de subtítulos, generación de <code>filter_complex</code>, reglas Luau y verificación BFS). Un benchmark E2E controlado midiendo el ahorro exacto de tokens de visión frente a agentes basados exclusivamente en capturas completas queda planificado como trabajo futuro.</li>
+            <li><strong>Dependencias de entorno local:</strong> <code>pc_control.rs</code> aprovecha APIs Win32/UIA específicas de Windows; los pipelines de Blender, Roblox y Video dependen de ejecutables locales opcionales (<code>blender</code>, <code>ffmpeg</code>/<code>ffprobe</code>, <code>lune</code>) invocados de forma oculta sin ventanas cmd.</li>
+            <li><strong>Límites de UIA en aplicaciones personalizadas:</strong> aplicaciones basadas en lienzos propietarios (juegos o motores sin árbol de accesibilidad) requieren caer automáticamente a la Capa 1 (<code>ScreenDiffCapture</code>).</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-zero-vision/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-distributed/">Paper 3: Multi-Device P2P ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

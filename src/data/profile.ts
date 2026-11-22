@@ -298,10 +298,10 @@ export const projects: ProjectItem[] = [
   },
   {
     number: '18',
-    title: 'Cockpit: Orquestador Multi-CLI',
-    type: 'Escritorio Rust + GPUI · MCP · Technical Report',
-    description: 'Orquestador nativo en Rust que unifica Claude Code, Codex CLI, Antigravity y OpenCode con servidor MCP concurrente, skeletons 94.13% más compactos, cuotas en vivo y worktrees.',
-    stack: ['Rust', 'GPUI', 'MCP', 'LLMs'],
+    title: 'Cockpit v2.0: Orquestador Multi-CLI',
+    type: 'Escritorio Rust + GPUI · MCP · 3 Technical Reports',
+    description: 'Orquestador nativo Rust (~68k LOC, 52 módulos runtime, 216 tests) que unifica Claude Code, Codex CLI, Antigravity y OpenCode con MCP-Zero, skeletons 94.13% más compactos, harnesses zero-vision (Win32/Blender/Roblox/FFmpeg) y red P2P (Iroh QUIC, wgproxyrs, Android Kotlin).',
+    stack: ['Rust', 'GPUI', 'MCP', 'Iroh QUIC'],
     href: '/proyectos/cockpit/',
     accent: 'orange',
     variant: 'rust-suite',
@@ -311,13 +311,13 @@ export const projects: ProjectItem[] = [
 export const capabilities = [
   {
     label: 'Apps multiplataforma y sistemas',
-    detail: 'PC (Windows), móvil y web con código modular, motores Skia/Impeller, FFI nativo y control de versiones.',
-    skills: ['Dart', 'Flutter (Deferred Components)', 'Skia / Impeller', 'Rust (50k+ LOC)', 'C-ABI / FRB FFI', 'Kotlin', 'Isar / WAL', 'HLC / CRDT / AES-GCM', 'Win32 Interop', 'RS-232 / ESC-POS', 'Git', 'Git LFS'],
+    detail: 'PC (Windows), móvil y web con código modular, motores Skia/Impeller/GPUI, FFI nativo y control de versiones.',
+    skills: ['Dart', 'Flutter (Deferred Components)', 'Skia / Impeller', 'Rust (68k+ LOC)', 'GPUI', 'C-ABI / FRB FFI', 'Kotlin', 'Isar / WAL', 'HLC / CRDT / AES-GCM', 'Win32 Interop', 'RS-232 / ESC-POS', 'Git', 'Git LFS'],
   },
   {
     label: 'Web, bases de datos e IA',
-    detail: 'Aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, Whisper offline y RAG local.',
-    skills: ['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'WebRTC', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite RAG', 'Cloud Firestore', 'Firebase', 'Whisper STT / Local AI', 'qbsdiff'],
+    detail: 'Sistemas agénticos MCP, aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, Whisper offline y RAG local.',
+    skills: ['MCP / AI Systems', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'WebRTC', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite RAG', 'Cloud Firestore', 'Firebase', 'Whisper STT / Local AI', 'qbsdiff'],
   },
   {
     label: 'Videojuegos, producto y equipo',

@@ -1,0 +1,130 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Technical Note: Algebraic Context Compression & KV-Cache Epoch Laws | Miguel Quevedo"
+  description="Theoretical Note v0.9 — Analytical derivations of multi-turn quadratic token cost, KV-Cache Epoch Step-Function Law (H* = 87), speculative turn elimination, BPE geometry, program slicing, and absorbing Markov chains."
+  pageLabel="Paper · Algebraic Compression"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Algebraic Context Compression &amp; KV-Cache Epoch Laws for Multi-Turn Coding Agents</h1>
+      <p class="detail-lede">
+        Theoretical &amp; Analytical Note v0.9 (November 2026) — Formal derivations proving why naive sliding-window pruning breaks Prompt Caching (<code>H* = 87</code> turns) and defining zero-GPU algebraic compression primitives in pure Rust.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.9)</strong></div>
+      <div><span>Epistemic status</span><strong>Formal analytical derivations · Real-trace BPE A/B benchmark planned</strong></div>
+      <div><span>System target</span><strong>Mathematical design basis for Cockpit MCP (<code>compact_context.rs</code> · <code>code_intel.rs</code> · <code>loop_guard.rs</code>)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/cockpit-algebraic-compression/">Leer nota en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-zero-vision/">Paper 2: Zero-Vision MCP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-distributed/">Paper 3: Multi-Device ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Key analytical results">
+        <div class="paper-kpi"><strong>H* = 87 turns</strong><span>Break-even horizon to amortize retroactive cache invalidation (<code>c = 0.10</code>)</span></div>
+        <div class="paper-kpi"><strong>τ* = 0.71%</strong><span>Optimal inline prefetch threshold to eliminate 1 round-trip (<code>ΔT = -1</code>)</span></div>
+        <div class="paper-kpi"><strong>P = 0.46875</strong><span>Regex BPE split probability in uniform hex strings (UUID/SHA-1)</span></div>
+        <div class="paper-kpi"><strong>O(d log N/d)</strong><span>Adaptive Group Testing upper bound for fault localization</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Table of contents (6 sections)</summary>
+      <nav aria-label="Note sections">
+        <a href="#kv-epoch">1. Quadratic multi-turn cost &amp; KV-Cache Epoch Law</a>
+        <a href="#speculative">2. Speculative turn elimination (ΔT = -1)</a>
+        <a href="#bpe">3. BPE geometry: bijective aliasing &amp; strided line anchors</a>
+        <a href="#algebra">4. Program slicing, diagnostic δ-CRDT &amp; Patricia-Trie</a>
+        <a href="#stochastic">5. Absorbing Markov chains &amp; Adaptive Group Testing</a>
+        <a href="#epistemic">6. Epistemic status &amp; A/B validation protocol</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Note navigation">
+        <a href="#kv-epoch">KV-Cache Law</a>
+        <a href="#speculative">Speculative turns</a>
+        <a href="#bpe">BPE geometry</a>
+        <a href="#algebra">Slicing &amp; δ-CRDT</a>
+        <a href="#stochastic">Markov &amp; Group Testing</a>
+        <a href="#epistemic">Epistemic status</a>
+      </aside>
+      <div class="case-content">
+        <section id="kv-epoch">
+          <h2>1. Quadratic multi-turn cost &amp; KV-Cache Epoch Step-Function Law</h2>
+          <p>
+            In an autoregressive agent session with static system/tool prefix <code>S₀</code> and per-turn tool observations <code>oₜ</code> over <code>T</code> turns, cumulative input token volume scales quadratically:
+          </p>
+          <pre><code>C_input(T) = T · S₀ + Σ(t=1..T) (T - t + 1) · oₜ</code></pre>
+          <p>
+            A widespread anti-pattern is retroactive sliding-window pruning—mutating a past observation <code>B</code> at turn <code>k &lt; t</code> down to <code>αB</code>. Because causal Transformer KV-caches are prefix-hashed, altering a single byte at <code>k</code> invalidates the entire subsequent suffix <code>P_after(k)</code>. With cached-token price ratio <code>c ∈ (0, 1)</code> (e.g. <code>c = 0.10</code> for 90% cache discount), retroactive pruning yields positive net savings only if the remaining conversation horizon exceeds:
+          </p>
+          <pre><code>H* = ceil( ((1 - c) · (P_after(k) + αB)) / (c · (1 - α) · B) )</code></pre>
+          <p>
+            <strong>Numerical proof:</strong> for <code>c = 0.10</code>, <code>α = 0.20</code>, <code>B = 2,000</code> tokens, and <code>P_after(k) = 15,000</code> tokens, <strong><code>H* = ceil(13,860 / 160) = 87 turns</code></strong>. Compressing an observation 3 turns back loses money for the next 86 turns. This justifies Cockpit's strictly append-only native session rule in <code>compact_context.rs</code>, deferring compaction to full epoch rebases.
+          </p>
+        </section>
+
+        <section id="speculative">
+          <h2>2. Speculative turn elimination (<code>ΔT = -1</code>)</h2>
+          <p>
+            When the MCP server speculatively inlines ≤ 24 lines of an exact symbol definition (cost <code>B_inline</code>) on a narrow <code>fs_search</code> hit, eliminating the follow-up <code>fs_read_range</code> round-trip saves net tokens whenever the transition probability <code>p = P(Read | Search)</code> satisfies:
+          </p>
+          <pre><code>p &gt; τ* = B_inline / (C_ctx(t) + T_out + B_inline)</code></pre>
+          <p>
+            At <code>C_ctx(t) = 25,000</code> and <code>B_inline = 180</code> tokens, <strong><code>τ* = 0.71%</code></strong>—meaning eliminating a single round-trip yields orders of magnitude more savings than compressing an individual message.
+          </p>
+        </section>
+
+        <section id="bpe">
+          <h2>3. BPE geometry: bijective aliasing &amp; strided line anchors</h2>
+          <ul>
+            <li><strong>Hexadecimal fragmentation in regex pre-tokenizers:</strong> splitting digits (<code>\p{'{N}'}{'{1,3}'}</code>) from letters (<code>\p{'{L}'}+</code>) induces a per-step split probability of <code>P_split = 2 · (10/16) · (6/16) = 0.46875</code> on uniform hex strings (~19.5 tokens per UUID/SHA-1).</li>
+            <li><strong>Reversible MCP channel aliasing (<code>Φ / Φ⁻¹</code>):</strong> replacing repeated entities (<code>k ≥ 2</code>) with short tokens (<code>$U1</code>, <code>$H1</code>, <code>$P1</code>) in tool outputs and expanding <code>Φ⁻¹</code> on incoming tool arguments saves <code>(k - 1)·τ(e) - 2k - 3</code> tokens losslessly.</li>
+            <li><strong>Strided line-number quantization:</strong> emitting line numbers every <code>S = 10</code> lines and on declaration headers cuts line-prefix token overhead by <code>1 - 1/S = 90.0%</code>.</li>
+          </ul>
+        </section>
+
+        <section id="algebra">
+          <h2>4. Program slicing, diagnostic <code>δ-CRDT</code> &amp; Patricia-Trie</h2>
+          <ul>
+            <li><strong>Weiser intra-procedural slicing (Knaster-Tarski fixed point):</strong> iteratively computing backward data/control dependencies over <code>DEF(s)</code>, <code>USE(s)</code>, and <code>CTRL(s)</code> converges in ≤ 6 passes in pure Rust to isolate causal statements for a target variable.</li>
+            <li><strong>Line-shift-invariant diagnostic diffing (<code>δ-CRDT</code>):</strong> projecting compiler diagnostics to <code>(kind, code, file, FNV1a64(stripped_msg))</code> lets subsequent build checks emit only <code>(Δ⁻ resolved, Δ⁺ new, |Dₜ ∩ Dₜ₋₁|)</code>.</li>
+            <li><strong>Patricia-Trie path factorization:</strong> factoring shared directory prefixes and extensions (<code>dir/{'{a,b,c}'}.rs</code>) compresses repository trees losslessly.</li>
+          </ul>
+        </section>
+
+        <section id="stochastic">
+          <h2>5. Absorbing Markov chains &amp; Adaptive Group Testing</h2>
+          <ul>
+            <li><strong>Trajectory cost forecasting &amp; early abort:</strong> modeling agent tool loops as an absorbing Markov chain with transient states <code>{'{Search, Skeleton, Read, Patch, Check}'}</code> and absorbing states <code>{'{Success, Fail}'}</code> yields the 5×5 fundamental matrix <code>N = (I - Q)⁻¹</code> (microsecond Gauss-Jordan), giving expected remaining token cost <code>(N·c)ᵢ</code> and success probability <code>B = N·R</code>.</li>
+            <li><strong>Adaptive Group Testing (Dorfman / binary splitting):</strong> locating <code>d</code> faulty tests among <code>N</code> independent tests with monotone OR-group runs requires at most <code>d·ceil(log₂(N/d)) + d - 1</code> runs (7 runs for 1 failure in 128 tests) vs. <code>N</code> linear runs.</li>
+          </ul>
+        </section>
+
+        <section id="epistemic">
+          <h2>6. Epistemic status &amp; A/B validation protocol</h2>
+          <p>
+            <strong>Explicit methodological disclosure:</strong> unlike <a href="/en/lab/cockpit-paper/">Paper 1 (Cockpit v2.0)</a>—whose ablation tables are measured deterministically on production Rust files—this note presents <strong>formal analytical derivations and design theory</strong>. The equations are exact under their stated assumptions (cache discount <code>c</code>, test monotonicity, Markov approximation), while empirical production validation requires:
+          </p>
+          <ol>
+            <li>Measuring real anonymized session traces with reference BPE tokenizers (<code>o200k_base</code> / <code>cl100k_base</code>).</li>
+            <li>Controlled A/B experiments with feature-flagged mechanisms (≥ 30 tasks per arm, fixed model, bootstrap confidence intervals) tracking billed tokens, pass rate, and p50/p95 latency.</li>
+            <li>Foundational references: Weiser (1981, Program Slicing), Myers (1986, O(ND) Difference Algorithm), Wald (1945, SPRT), Dorfman (1943, Group Testing), and the 12 verified arXiv citations in Paper 1.</li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </main>
+</Base>

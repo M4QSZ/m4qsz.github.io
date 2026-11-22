@@ -1,0 +1,149 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper Técnico: Orquestación Multi-Dispositivo Local-First | Miguel Quevedo"
+  description="Technical Report v1.0 — Local-First Multi-Device Agent Orchestration: Iroh QUIC, Tailscale, WireGuard Userspace (wgproxyrs), Hyper HMAC API, Resource Guard FIFO y Android Kotlin."
+  pageLabel="Paper · Multi-Device P2P"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Orquestación de Agentes Multi-Dispositivo Local-First: Iroh QUIC, Tailscale, WireGuard Userspace y Control Móvil HMAC</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Arquitectura de red y seguridad para coordinar agentes entre PC Windows, laptop Linux y Android sin exponer puertos públicos ni alterar el enrutamiento global del sistema.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>p2p_iroh.rs</code> · <code>remote_server.rs</code> · <code>remote_client.rs</code> · <code>proton_vpn.rs</code> · <code>offload.rs</code> · <code>resource_guard.rs</code> · <code>CockpitActivity.kt</code></strong></div>
+      <div><span>Tipo de reporte</span><strong>Arquitectura implementada + invariantes de protocolo y seguridad</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-distributed/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-zero-vision/">Paper 2: Zero-Vision Automation ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes de transporte y seguridad multi-dispositivo">
+        <div class="paper-kpi"><strong>HMAC-SHA256</strong><span>API Hyper <code>/v1/*</code> en <code>:47823</code> + OTP QR + <code>ct_eq</code></span></div>
+        <div class="paper-kpi"><strong>Iroh QUIC</strong><span>ALPN <code>cockpit/p2p/1</code> atravesando NAT/CGNAT sin Tailscale</span></div>
+        <div class="paper-kpi"><strong>wgproxyrs</strong><span>WireGuard userspace (<code>:18080</code>/<code>:18081</code>) aislado por app</span></div>
+        <div class="paper-kpi"><strong>FIFO Lock</strong><span><code>sysinfo</code> + bloqueo de archivo OS (RAM 90% / CPU 92%)</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Resumen y modelo de amenazas</a>
+        <a href="#transporte">2. API Hyper HMAC, Descubrimiento LAN y Emparejamiento QR</a>
+        <a href="#tuneles">3. Iroh QUIC, Tailscale Serve y WireGuard Userspace</a>
+        <a href="#offload">4. Offload PC↔Linux, Resource Guard FIFO y Git Sync</a>
+        <a href="#android">5. Cliente nativo Android (Kotlin 2.2.20 + ML Kit)</a>
+        <a href="#validez">6. Amenazas a la validez y trabajo futuro</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">Resumen</a>
+        <a href="#transporte">Hyper HMAC &amp; LAN</a>
+        <a href="#tuneles">Iroh QUIC &amp; wgproxyrs</a>
+        <a href="#offload">Offload &amp; FIFO Guard</a>
+        <a href="#android">Cliente Android</a>
+        <a href="#validez">Amenazas a la validez</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Resumen y modelo de amenazas</h2>
+          <p>
+            Ejecutar agentes de código pesados (compilaciones Rust, suites de pruebas o pipelines 3D) en un único equipo satura CPU/RAM y bloquea el flujo interactivo, mientras que abrir puertos HTTP hacia Internet introduce riesgos graves de ejecución remota.
+          </p>
+          <p>
+            <strong>Cockpit v2.0</strong> resuelve este problema con una arquitectura <strong>local-first multi-dispositivo</strong>: una API Hyper en loopback/LAN protegida por HMAC-SHA256, túneles cifrados opcionales (Iroh QUIC y Tailscale Serve), aislamiento VPN por proceso en espacio de usuario (<code>wgproxyrs</code>), balanceo de carga <code>/offload</code> con bloqueo FIFO por máquina y una aplicación nativa en Android.
+          </p>
+        </section>
+
+        <section id="transporte">
+          <h2>2. API Hyper HMAC, Descubrimiento LAN y Emparejamiento QR</h2>
+          <p>
+            <code>crates/runtime/src/remote_server.rs</code> expone la API <code>/v1/*</code> en el puerto <code>47823</code> junto a descubrimiento cero-configuración por broadcast UDP (<code>COCKPIT_DISCOVER</code> en puerto <code>47824</code>, implementado en <code>remote_client.rs</code>):
+          </p>
+          <ul>
+            <li><strong>Filtro estricto de IPs (<code>is_allowed_remote_ip</code>):</strong> admite únicamente loopback, rangos RFC1918 LAN, CGNAT de Tailscale (<code>100.64.0.0/10</code>) y ULA/link-local IPv6, bloqueando IPs públicas incluso ante reenvíos accidentales de router.</li>
+            <li><strong>Autenticación HMAC-SHA256 + OTP en tiempo constante:</strong> el emparejamiento usa códigos OTP con expiración y comparación en tiempo constante (<code>ct_eq</code>) contra ataques de temporización, además de protección estricta anti-CSRF (<code>is_allowed_browser_origin</code>) para clientes web embebidos.</li>
+            <li><strong>Privilegios mínimos por tipo de cliente:</strong> los clientes móviles ejecutan por defecto bajo perfil <code>SafeReadOnly</code>; un par de escritorio (<code>client: "desktop"</code>) solo puede solicitar perfiles elevados si el host marcó explícitamente el código de emparejamiento como <em>trusted</em>. Los tokens en <code>remote_client.rs</code> se pasan a <code>curl</code> vía <code>stdin</code> y nunca en argumentos de línea de comandos.</li>
+          </ul>
+        </section>
+
+        <section id="tuneles">
+          <h2>3. Iroh QUIC, Tailscale Serve y WireGuard Userspace (<code>wgproxyrs</code>)</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-net-cap">
+            <table class="paper-table">
+              <caption id="es-net-cap">Tabla 1 · Capas de transporte y aislamiento implementadas en <code>orchestrator-runtime</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Módulo</th>
+                  <th scope="col">Tecnología</th>
+                  <th scope="col">Rol en la arquitectura</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>p2p_iroh.rs</code></th>
+                  <td data-label="Tecnología"><code>iroh::Endpoint</code> QUIC (ALPN <code>cockpit/p2p/1</code>)</td>
+                  <td data-label="Rol">Identidad persistente de 32 bytes (<code>ckpt-...</code> en <code>p2p_identity.json</code>) que reenvía streams QUIC cifrados directo a <code>127.0.0.1:47823</code> atravesando NAT/CGNAT sin apps externas.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>tailscale.rs</code></th>
+                  <td data-label="Tecnología">Tailscale Serve HTTPS</td>
+                  <td data-label="Rol">Terminación TLS opcional para pares remotos bajo <code>https://&lt;host&gt;.&lt;tailnet&gt;.ts.net</code> sobre el listener loopback.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>proton_vpn.rs</code></th>
+                  <td data-label="Tecnología"><code>wgproxyrs 0.3.0</code> (<code>boringtun</code> + <code>smoltcp</code>)</td>
+                  <td data-label="Rol">Túnel WireGuard 100% userspace en proceso que expone proxies fail-closed HTTP <code>CONNECT</code> (<code>127.0.0.1:18080</code>) y SOCKS5 (<code>127.0.0.1:18081</code>) inyectados solo a los CLIs agénticos, sin privilegios de administrador ni cambios en los adaptadores de red de Windows.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="offload">
+          <h2>4. Offload PC↔Linux, Resource Guard FIFO y Git Sync</h2>
+          <ul>
+            <li><strong>Enrutamiento <code>/offload</code> y Modo Juego (<code>offload.rs</code>):</strong> sondea <code>/v1/state</code> de los equipos emparejados (porcentaje de RAM libre, hilos activos y en cola), detecta <code>sccache</code> automáticamente y persiste el interruptor <code>game_mode.json</code> para derivar tareas pesadas a una laptop Linux en la misma red.</li>
+            <li><strong>Resource Guard FIFO (<code>resource_guard.rs</code>):</strong> utiliza un bloqueo de archivo del sistema operativo para admitir solo una operación pesada simultánea por máquina y muestrea CPU/RAM/disco vía <code>sysinfo</code> sin invocar shells externos (umbrales por defecto: <code>RAM ≥ 90%</code>, <code>CPU ≥ 92%</code>, <code>disco &lt; 2 GB</code>).</li>
+            <li><strong>Sincronización Git cross-platform (<code>skills_sync.rs</code>):</strong> sincroniza atómicamente <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.cockpit/rules</code>, <code>.cockpit/skills</code> y <code>.cockpit/compiled_flows.json</code> entre Windows y Linux con <code>GIT_TERMINAL_PROMPT=0</code> y sin ventanas cmd visibles.</li>
+          </ul>
+        </section>
+
+        <section id="android">
+          <h2>5. Cliente nativo Android (<code>CockpitActivity.kt</code>)</h2>
+          <p>
+            El cliente móvil (<code>android/</code>, ~2.2k LOC en <strong>Kotlin 2.2.20</strong> / AGP <code>8.13.1</code>) replica la paleta oscura grafito del escritorio GPUI e integra escaneo QR nativo con <strong>Google ML Kit</strong> (<code>play-services-code-scanner:16.1.0</code>), entrada por voz (<code>RecognizerIntent</code>), selector de modelo/esfuerzo/permisos, comandos de interrupción (<em>Stop</em> / <em>Steer</em>) y gestión de múltiples nodos guardados en <code>PrivateStore</code>.
+          </p>
+        </section>
+
+        <section id="validez">
+          <h2>6. Amenazas a la validez y alcance honesto</h2>
+          <ul>
+            <li><strong>Arquitectura verificada vs. benchmark WAN:</strong> las invariantes de identidad determinista (<code>p2p_iroh.rs</code>), filtrado de IPs, comparación en tiempo constante, parseo de recursos y generación de perfiles están cubiertas por los tests unitarios de <code>orchestrator-runtime</code>. Mediciones sistemáticas de latencia y throughput WAN sobre enlaces celulares 4G/5G con CGNAT quedan como trabajo futuro.</li>
+            <li><strong>Alcance del transporte P2P:</strong> la compilación del relay embebido Iroh está protegida detrás del feature flag <code>--features p2p-iroh</code> para mantener liviano el binario por defecto cuando solo se usa LAN o Tailscale.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-distributed/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

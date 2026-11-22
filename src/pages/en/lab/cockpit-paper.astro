@@ -3,29 +3,29 @@ import Base from '../../../layouts/Base.astro';
 ---
 <Base
   lang="en"
-  title="Technical Report: Cockpit Multi-CLI Orchestrator | Miguel Quevedo"
-  description="Technical Report (v1.0) on Cockpit (agent-orchestrator): native Rust + GPUI desktop orchestrator & concurrent stdio MCP harness with 94.13% skeleton reduction, 84.94% CLI filtering, and 88.34%–97.31% context compaction."
-  pageLabel="Paper · Cockpit"
+  title="Technical Report: Cockpit v2.0 Multi-CLI Orchestrator | Miguel Quevedo"
+  description="Technical Report (v2.0) on Cockpit (agent-orchestrator): native Rust + GPUI desktop orchestrator & concurrent stdio MCP harness with 94.13% skeleton reduction, 84.94% CLI filtering, 88.34%–97.31% compaction, 216 Rust tests, and v2.0 runtime expansion."
+  pageLabel="Paper · Cockpit v2.0"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/en/lab/">← Back to technical lab</a>
 
     <div class="detail-hero">
-      <h1 class="long-title">Cockpit: A Native Multi-CLI Orchestrator</h1>
+      <h1 class="long-title">Cockpit v2.0: A Native Multi-CLI Orchestrator</h1>
       <p class="detail-lede">
-        Technical Report v1.0 — Quota-constrained, token-efficient agentic software engineering via a native Rust + GPUI desktop harness and concurrent stdio MCP runtime.
+        Technical Report v2.0 — Quota-constrained, token-efficient agentic software engineering via a native Rust + GPUI desktop harness, concurrent stdio MCP runtime, and multi-device expansion.
       </p>
     </div>
 
     <div class="detail-meta">
-      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
-      <div><span>Evaluated system</span><strong>agent-orchestrator (Rust · GPUI · MCP · private)</strong></div>
-      <div><span>Verification</span><strong>Deterministic harness + 139 Rust tests</strong></div>
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v2.0)</strong></div>
+      <div><span>Evaluated system</span><strong>67 Rust files (~68k LOC) · 52 runtime modules · Android Kotlin (~2.2k LOC) · Python (~2.9k LOC)</strong></div>
+      <div><span>Verification</span><strong>v1.0 deterministic harness + 216 Rust unit tests</strong></div>
     </div>
 
     <div class="cv-actions">
-      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download Print-Ready PDF ↗</a>
-      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Leer resumen en Español ↗</a>
+      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download v1.0 Print-Ready PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Leer versión en Español ↗</a>
       <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Architecture case study ↗</a>
     </div>
 
@@ -34,19 +34,20 @@ import Base from '../../../layouts/Base.astro';
         <div class="paper-kpi"><strong>94.13%</strong><span>Avg token reduction in <code>fs_skeleton</code> (up to 97.07% in 38.0 ms)</span></div>
         <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests)</span></div>
         <div class="paper-kpi"><strong>88.3–97.3%</strong><span>18-turn session compaction (Capsule / 5-line structured handoff)</span></div>
-        <div class="paper-kpi"><strong>3/3 · 0 FP</strong><span><code>LoopGuard</code> true positives &amp; 8/8 (100%) routing in &lt;20 µs</span></div>
+        <div class="paper-kpi"><strong>216 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 52 runtime modules</span></div>
       </div>
     </div>
 
     <details class="paper-toc">
-      <summary>Jump to section (7 sections)</summary>
+      <summary>Jump to section (8 sections)</summary>
       <nav aria-label="Report sections">
         <a href="#abstract">Abstract</a>
         <a href="#intro-related">1. Introduction &amp; 2. Related Work</a>
         <a href="#architecture">3. System Architecture</a>
-        <a href="#ablation">4. Setup &amp; 5.1 Token Ablation</a>
+        <a href="#ablation">4. Setup &amp; 5.1 Token Ablation (Measured v1.0)</a>
         <a href="#reliability">5.2 LoopGuard &amp; 5.3 Telemetry</a>
-        <a href="#validity">6. Threats to Validity &amp; 7. Conclusion</a>
+        <a href="#v2-expansion">6. v2.0 Runtime Expansion (Implemented Subsystems)</a>
+        <a href="#validity">7. Threats to Validity &amp; 8. Conclusion</a>
         <a href="#references">References (12 arXiv)</a>
       </nav>
     </details>
@@ -56,8 +57,9 @@ import Base from '../../../layouts/Base.astro';
         <a href="#abstract">Abstract</a>
         <a href="#intro-related">Introduction &amp; Related Work</a>
         <a href="#architecture">System Architecture</a>
-        <a href="#ablation">Ablation Results</a>
+        <a href="#ablation">Ablation Results (v1.0)</a>
         <a href="#reliability">LoopGuard &amp; Telemetry</a>
+        <a href="#v2-expansion">v2.0 Runtime Expansion</a>
         <a href="#validity">Threats to Validity</a>
         <a href="#references">References (12 arXiv)</a>
       </aside>
@@ -68,7 +70,7 @@ import Base from '../../../layouts/Base.astro';
             Local agentic coding workflows increasingly span heterogeneous CLI agents—each backed by distinct model families, billing structures, and rolling subscription quotas (e.g., 5-hour and 7-day rate-limit windows). Running these tools independently forces developers to manually switch terminals, loses cross-session context, wastes substantial context tokens on raw file reads and verbose CLI output, and lacks deterministic safeguards against tool-call loops.
           </p>
           <p>
-            We present <strong>Cockpit (<code>agent-orchestrator</code>)</strong>, a native Rust + GPUI desktop orchestrator and concurrent stdio Model Context Protocol (MCP) server that unifies Claude Code, Codex CLI, Antigravity, and OpenCode behind a single workspace, live quota telemetry layer, and deterministic token-efficiency harness. Across an offline ablation suite run directly on Cockpit's own Rust codebase, structural skeletons cut tokens by <strong>94.13%</strong> on average (up to <strong>97.07%</strong> on <code>app.rs</code> in 38.0 ms), CLI filtering cuts verbose logs by <strong>84.94%</strong> (<strong>96.83%</strong> on 123-test <code>cargo test</code> output), context compaction reduces an 18-turn session by <strong>88.34%</strong> (Capsule) and <strong>97.31%</strong> (5-line handoff), observation masking cuts stale tool output by <strong>69.51%</strong>, <code>LoopGuard</code> catches <strong>3/3</strong> loops with <strong>0 false positives</strong>, and deterministic routing achieves <strong>100.0%</strong> accuracy in <code>&lt; 20 µs</code>. All invariants pass <strong>139 Rust unit tests</strong> (16 core + 123 runtime).
+            We present <strong>Cockpit v2.0 (<code>agent-orchestrator</code>)</strong>, a native Rust + GPUI desktop orchestrator and concurrent stdio Model Context Protocol (MCP) server unifying Claude Code, Codex CLI, Antigravity, and OpenCode. In v2.0, the workspace spans <strong>67 Rust files (~68,000 LOC)</strong> across <strong>52 runtime modules</strong>, paired with a native <strong>Kotlin Android app (~2.2k LOC)</strong> and <strong>Python 3D/Video pipelines (~2.9k LOC)</strong>, verified by <strong>216 passing Rust unit tests</strong>. Across our deterministic v1.0 ablation suite run directly on Cockpit's Rust codebase, structural skeletons cut tokens by <strong>94.13%</strong> on average (up to <strong>97.07%</strong> on <code>app.rs</code> in 38.0 ms), CLI filtering cuts verbose logs by <strong>84.94%</strong> (<strong>96.83%</strong> on 123-test <code>cargo test</code> output), context compaction reduces an 18-turn session by <strong>88.34%</strong> (Capsule) and <strong>97.31%</strong> (5-line handoff), observation masking cuts stale tool output by <strong>69.51%</strong>, <code>LoopGuard</code> catches <strong>3/3</strong> loops with <strong>0 false positives</strong>, and deterministic routing achieves <strong>100.0%</strong> accuracy in <code>&lt; 20 µs</code>. Section 6 documents the implemented v2.0 runtime subsystems separately from the v1.0 measured tables.
           </p>
         </section>
 
@@ -86,15 +88,15 @@ import Base from '../../../layouts/Base.astro';
 
         <section id="architecture">
           <h2>3. System Architecture</h2>
-          <div class="arch-stack" role="img" aria-label="Three-layer Cockpit Rust workspace architecture: orchestrator-ui, orchestrator-runtime, and orchestrator-core">
+          <div class="arch-stack" role="img" aria-label="Three-layer Cockpit v2.0 Rust workspace architecture: orchestrator-ui, orchestrator-runtime, and orchestrator-core">
             <div class="arch-layer">
               <div class="arch-layer-head">
                 <strong>orchestrator-ui</strong>
-                <span>GPUI CE 0.3.0 · Native Desktop UI</span>
+                <span>GPUI CE 0.3.0 · Native Desktop UI + Kotlin Android Companion (~2.2k LOC)</span>
               </div>
               <ul class="arch-layer-grid">
-                <li>Multi-project chat &amp; adaptive left timeline (sparse / prop / dense)</li>
-                <li>Unified &amp; Side-by-Side diff review + inline agent line comments</li>
+                <li>Multi-project chat, adaptive timeline &amp; EQUIPOS peer panel (PC↔PC)</li>
+                <li>Unified &amp; Side-by-Side diff review + inline comments + Diff Radar</li>
                 <li>Live 90s quota telemetry &amp; per-model visual hover cards</li>
                 <li>Floating planning drawer (&gt;5 tasks) &amp; Worktree Diff / Gate / Merge UI</li>
               </ul>
@@ -105,17 +107,17 @@ import Base from '../../../layouts/Base.astro';
             <div class="arch-layer arch-layer--runtime">
               <div class="arch-layer-head">
                 <strong>orchestrator-runtime</strong>
-                <span>Supervision, Routing, Concurrent MCP &amp; Safety</span>
+                <span>52 Rust Modules · Supervision, Routing, Concurrent MCP, Safety &amp; P2P</span>
               </div>
               <ul class="arch-layer-grid">
-                <li><code>agent_runner.rs</code> · Headless CLI spawner (hidden Windows processes)</li>
-                <li><code>mcp_server.rs</code> · Concurrent stdio MCP (<code>fs_*</code>, batch, delegate)</li>
-                <li><code>code_intel.rs</code> · Pure-Rust <code>fs_skeleton</code>, repomap, <code>blast_radius</code></li>
-                <li><code>cli_filter.rs</code> · Output compression, stacktrace &amp; log folding</li>
-                <li><code>compact_context.rs</code> · KV-cache-safe capsules, 5-line handoffs, masking</li>
-                <li><code>loop_guard.rs</code> · Sliding-window repeat/error/oscillation guard</li>
-                <li><code>router.rs</code> · Quota-aware model/subagent routing + benchmarks</li>
-                <li><code>worktree.rs</code> + <code>accounts.rs</code> · Git worktrees, quality gates, 5h/7d quotas</li>
+                <li><code>agent_runner.rs</code> · Headless CLI spawner + MidStreamGuard</li>
+                <li><code>mcp_server.rs</code> · MCP-Zero lazy schema, TOON, <code>cockpit_batch</code>, <code>fs_*</code></li>
+                <li><code>code_intel.rs</code> + <code>lsp_bridge.rs</code> · <code>fs_skeleton</code>, Cartridge &amp; LSP JSON-RPC</li>
+                <li><code>cli_filter.rs</code> + <code>compact_context.rs</code> · CLI compression &amp; KV-cache-safe capsules</li>
+                <li><code>loop_guard.rs</code> + <code>security_guard.rs</code> · Loops, MintMCP &amp; Termination Lag</li>
+                <li><code>router.rs</code> + <code>resource_guard.rs</code> · Quota-aware routing &amp; OS-locked FIFO guard</li>
+                <li><code>remote_server.rs</code> + <code>p2p_iroh.rs</code> + <code>proton_vpn.rs</code> · HMAC HTTP, Iroh QUIC, <code>wgproxyrs</code></li>
+                <li><code>pc_control.rs</code> + <code>blender_audit.rs</code> + <code>roblox_loop.rs</code> + <code>video_*.rs</code> · 0-vision harnesses</li>
               </ul>
             </div>
 
@@ -138,13 +140,13 @@ import Base from '../../../layouts/Base.astro';
         </section>
 
         <section id="ablation">
-          <h2>4. Setup &amp; 5.1 Token Reduction Ablation</h2>
+          <h2>4. Setup &amp; 5.1 Token Reduction Ablation (Measured v1.0)</h2>
           <p>
-            Collected directly on Cockpit's production Rust workspace via <code>cargo run -p orchestrator-runtime --example paper_benchmark</code> using the deterministic BPE proxy <code>ceil(chars / 4)</code> alongside exact byte counts and latencies.
+            Collected directly on Cockpit's production Rust workspace via <code>cargo run -p orchestrator-runtime --example paper_benchmark</code> using the deterministic BPE proxy <code>ceil(chars / 4)</code> alongside exact byte counts and latencies. Current workspace invariants pass <strong>216 Rust unit tests</strong> (0 failures).
           </p>
           <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-ablation-cap">
             <table class="paper-table">
-              <caption id="en-ablation-cap">Table 1 · Deterministic Token &amp; Context Reduction Ablation</caption>
+              <caption id="en-ablation-cap">Table 1 · Deterministic Token &amp; Context Reduction Ablation (v1.0 Measured Suite)</caption>
               <thead>
                 <tr>
                   <th scope="col">Module / Mechanism</th>
@@ -255,7 +257,7 @@ import Base from '../../../layouts/Base.astro';
           <h2>5.2 Loop Detection, Routing &amp; 5.3 Observed Telemetry</h2>
           <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-guard-cap">
             <table class="paper-table">
-              <caption id="en-guard-cap">Table 2 · LoopGuard &amp; Deterministic Prompt Routing Reliability</caption>
+              <caption id="en-guard-cap">Table 2 · LoopGuard &amp; Deterministic Prompt Routing Reliability (v1.0 Measured Suite)</caption>
               <thead>
                 <tr>
                   <th scope="col">Subsystem</th>
@@ -309,12 +311,27 @@ import Base from '../../../layouts/Base.astro';
           </p>
         </section>
 
-        <section id="validity">
-          <h2>6. Threats to Validity &amp; 7. Conclusion</h2>
+        <section id="v2-expansion">
+          <h2>6. v2.0 Runtime Expansion (Implemented Subsystems)</h2>
+          <p>
+            Beyond the measured v1.0 core, Cockpit v2.0 expands <code>orchestrator-runtime</code> to <strong>52 Rust modules</strong> (~68,000 LOC across 67 Rust files), backed by <strong>216 Rust unit tests</strong>. We report these subsystems as implemented architecture rather than claiming unmeasured end-to-end token savings:
+          </p>
           <ul>
+            <li><strong>Low-Overhead MCP Protocol:</strong> <em>MCP-Zero lazy schema</em> (<code>COCKPIT_MCP_MODE=full|lazy|code</code>) to avoid bloating tool declarations, compact tabular <strong>TOON</strong> outputs, and batched multi-call execution via <code>cockpit_batch</code>.</li>
+            <li><strong>Speculative Caching &amp; Persistent Context Maps:</strong> <strong>PASTE Speculative Cache</strong> for frequent read/query reuse and <strong>Text Cartridge</strong> (<code>.cockpit/cartridge.md</code>) for KV-cache-friendly compressed repository orientation.</li>
+            <li><strong>On-Demand Semantics &amp; Selective Execution:</strong> <strong>LSP JSON-RPC</strong> on-demand client (<code>rust-analyzer</code>, <code>luau-lsp</code>, <code>basedpyright</code>, <code>ts-ls</code>), <strong>RTS</strong> selective test execution scoped to touched modules, <strong>Compiled AI</strong> deterministic 0-token flows, and <code>docs_lookup</code> grounded directly in installed <code>Cargo.lock</code> / <code>node_modules</code> versions.</li>
+            <li><strong>Runtime Guards &amp; Review Prioritization:</strong> <strong>MintMCP Guard</strong> (risk scoring + anti-prompt-injection scanning), <strong>MidStreamGuard</strong> and <strong>Termination Lag Guard</strong> for anomalous stream/process abort, <strong>Diff Radar</strong> risk-ranked hunk prioritization, and cross-process <strong>Resource Guard FIFO</strong> (<code>sysinfo</code> + OS file lock).</li>
+            <li><strong>Zero-Vision Harnesses &amp; Distributed Control:</strong> Win32 UIA-first desktop automation, CPU Blender/Roblox/FFmpeg harnesses, and local-first multi-device orchestration (<strong>Iroh QUIC</strong>, <strong>Tailscale</strong>, userspace <strong><code>wgproxyrs</code></strong>, and <strong>Kotlin Android</strong>). Detailed in our two companion reports: <a href="/en/lab/cockpit-zero-vision/">Zero-Vision Automation ↗</a> and <a href="/en/lab/cockpit-distributed/">Multi-Device Orchestration ↗</a>.</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>7. Threats to Validity &amp; 8. Conclusion</h2>
+          <ul>
+            <li><strong>Measured vs. Implemented Scope:</strong> Tables 1–2 come from the deterministic v1.0 benchmark harness; Section 6 subsystems are implemented and covered by unit invariants across 216 Rust tests, with dedicated E2E ablations planned as future work.</li>
             <li><strong>Offline Token Proxy vs. Vendor Tokenizers:</strong> <code>ceil(chars / 4)</code> may differ by ±5–10% from provider-specific BPE tokenizers, while 69%–97% compression ratios remain structurally stable because byte volume drops equivalently.</li>
             <li><strong>Controlled E2E Solve-Rate Ablation:</strong> Deterministic ablations isolate compression, loop detection, and routing latency with zero variance; Section 5.3 reports observational telemetry rather than a randomized SWE-bench trial (planned future work).</li>
-            <li><strong>Platform &amp; Source Scope:</strong> Cockpit targets Windows desktop workflows and resides in a private repository (<code>agent-orchestrator</code>). Future work covers paired E2E evaluations, automatic per-subagent worktree isolation, and cross-model diff verification.</li>
+            <li><strong>Platform &amp; Source Scope:</strong> Cockpit targets Windows desktop workflows (with Linux runtime/peer support) and resides in a private repository (<code>agent-orchestrator</code>).</li>
           </ul>
         </section>
 
@@ -339,8 +356,8 @@ import Base from '../../../layouts/Base.astro';
     </div>
 
     <div class="detail-actions">
-      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
-      <a class="button button-outline" href="/en/projects/cockpit/">View Cockpit case study ↗</a>
+      <a class="button button-primary" href="/en/lab/cockpit-zero-vision/">Paper 2: Zero-Vision Automation ↗</a>
+      <a class="button button-outline" href="/en/lab/cockpit-distributed/">Paper 3: Multi-Device P2P ↗</a>
       <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
     </div>
   </main>

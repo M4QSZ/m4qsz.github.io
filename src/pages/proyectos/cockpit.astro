@@ -18,9 +18,9 @@ import ProjectPreview from '../../components/ProjectPreview.astro';
       </div>
     </div>
     <div class="detail-meta">
-      <div><span>Workspace</span><strong>3 crates Rust (core · runtime · ui)</strong></div>
+      <div><span>Escala v2.0</span><strong>67 archivos Rust (~68k LOC) · 52 módulos runtime · Android Kotlin (~2.2k LOC) · Python (~2.9k LOC)</strong></div>
       <div><span>Ahorro medido</span><strong>94.13% skeleton · 84.94% CLI · 88–97% ctx</strong></div>
-      <div><span>Evidencia pública</span><strong>Technical Report + PDF + 139 tests</strong></div>
+      <div><span>Evidencia pública</span><strong>3 Technical Reports bilingües + PDF + 216 tests Rust</strong></div>
     </div>
     <div class="detail-schematic-stage" aria-label="Esquema arquitectónico de Cockpit en Rust y MCP">
       <ProjectPreview number="18" title="Cockpit Multi-CLI" accent="orange" variant="rust-suite" isEnglish={false} />
@@ -52,16 +52,17 @@ import ProjectPreview from '../../components/ProjectPreview.astro';
           </p>
         </section>
         <section>
-          <h2>Git Worktrees, diff lado a lado y reporte técnico público</h2>
+          <h2>Expansión v2.0, Worktrees y 3 reportes técnicos públicos</h2>
           <p>
-            La interfaz incluye timeline adaptativo, visor de diff unificado y <strong>lado a lado (Split)</strong> con comentarios inline al agente, aislamiento por <strong>Git worktree</strong> y <em>quality gate</em> pre-merge (<code>cargo check</code> / <code>tsc</code> / <code>pytest</code>). El código fuente vive en un repositorio privado (<code>agent-orchestrator</code>), respaldado por <strong>139 tests Rust</strong> (16 core + 123 runtime) y el reporte técnico público con metodología, tablas de ablación y 12 citas verificadas de arXiv.
+            La interfaz incluye timeline adaptativo, visor de diff unificado y <strong>lado a lado (Split)</strong> con comentarios inline al agente, aislamiento por <strong>Git worktree</strong>, <em>quality gate</em> pre-merge y sección <strong>EQUIPOS</strong> para coordinar PC Windows, laptop Linux y Android (Iroh QUIC, Tailscale, <code>wgproxyrs</code> y <code>/offload</code>). El runtime v2.0 suma MCP-Zero, TOON, LSP JSON-RPC, RTS, MintMCP Guard, Diff Radar, Resource Guard FIFO y harnesses zero-vision (Win32 UIA, Blender CPU <code>bpy</code>, Roblox Rojo/Lune y FFmpeg). Respaldado por <strong>216 tests unitarios Rust</strong> y 3 reportes técnicos bilingües.
           </p>
         </section>
       </div>
     </div>
     <div class="detail-actions">
-      <a class="button button-primary" href="/laboratorio/cockpit-paper/">Leer Technical Report ↗</a>
-      <a class="button button-outline" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
+      <a class="button button-primary" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-zero-vision/">Paper 2: Zero-Vision ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-distributed/">Paper 3: Multi-Device P2P ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/">Ir al laboratorio técnico ↗</a>
     </div>
   </main>

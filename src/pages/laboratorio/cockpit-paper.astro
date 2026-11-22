@@ -2,28 +2,28 @@
 import Base from '../../layouts/Base.astro';
 ---
 <Base
-  title="Paper Técnico: Cockpit Multi-CLI Orchestrator | Miguel Quevedo"
-  description="Technical Report (v1.0) de Cockpit (agent-orchestrator): orquestador nativo Rust + GPUI y servidor MCP stdio con reducción medida de 94.13% en esqueletos, 84.94% en filtrado CLI y 88.34%–97.31% en compactación."
-  pageLabel="Paper · Cockpit"
+  title="Paper Técnico: Cockpit v2.0 Multi-CLI Orchestrator | Miguel Quevedo"
+  description="Technical Report (v2.0) de Cockpit (agent-orchestrator): orquestador nativo Rust + GPUI y servidor MCP stdio con reducción medida de 94.13% en esqueletos, 84.94% en filtrado CLI, 88.34%–97.31% en compactación, 216 tests Rust y expansión de runtime v2.0."
+  pageLabel="Paper · Cockpit v2.0"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
 
     <div class="detail-hero">
-      <h1 class="long-title">Cockpit: Orquestador Nativo Multi-CLI</h1>
+      <h1 class="long-title">Cockpit v2.0: Orquestador Nativo Multi-CLI</h1>
       <p class="detail-lede">
-        Reporte técnico v1.0 — Orquestación local en Rust + GPUI y servidor MCP stdio para ingeniería de software agéntica bajo restricciones de cuota y eficiencia de tokens.
+        Reporte técnico v2.0 — Orquestación local en Rust + GPUI y servidor MCP stdio para ingeniería de software agéntica bajo restricciones de cuota, eficiencia de tokens y expansión de runtime multi-dispositivo.
       </p>
     </div>
 
     <div class="detail-meta">
-      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
-      <div><span>Sistema evaluado</span><strong>agent-orchestrator (Rust · GPUI · MCP · privado)</strong></div>
-      <div><span>Verificación</span><strong>Harness determinista + 139 tests Rust</strong></div>
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v2.0)</strong></div>
+      <div><span>Escala del sistema</span><strong>67 archivos Rust (~68k LOC) · 52 módulos runtime · Android Kotlin (~2.2k LOC) · Python (~2.9k LOC)</strong></div>
+      <div><span>Verificación</span><strong>Harness determinista v1.0 + 216 tests unitarios Rust</strong></div>
     </div>
 
     <div class="cv-actions">
-      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN + Resumen ES) ↗</a>
+      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF v1.0 (EN + Resumen ES) ↗</a>
       <a class="button button-outline" href="/en/lab/cockpit-paper/">Read full paper in English ↗</a>
       <a class="text-link" style="margin-top:0" href="/proyectos/cockpit/">Ver caso de arquitectura ↗</a>
     </div>
@@ -33,19 +33,20 @@ import Base from '../../layouts/Base.astro';
         <div class="paper-kpi"><strong>94.13%</strong><span>Reducción promedio en <code>fs_skeleton</code> (hasta 97.07% en 38 ms)</span></div>
         <div class="paper-kpi"><strong>84.94%</strong><span>Reducción promedio en <code>cli_filter</code> (96.83% en 123 tests)</span></div>
         <div class="paper-kpi"><strong>88.3–97.3%</strong><span>Compactación de sesión de 18 turnos (Cápsula / Handoff 5L)</span></div>
-        <div class="paper-kpi"><strong>3/3 · 0 FP</strong><span><code>LoopGuard</code> y 8/8 (100%) clasificación en &lt;20 µs</span></div>
+        <div class="paper-kpi"><strong>216 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 52 módulos runtime</span></div>
       </div>
     </div>
 
     <details class="paper-toc">
-      <summary>Índice del reporte (6 secciones)</summary>
+      <summary>Índice del reporte (7 secciones)</summary>
       <nav aria-label="Secciones del reporte">
         <a href="#resumen">1. Resumen ejecutivo</a>
         <a href="#arquitectura">2. Arquitectura del sistema</a>
-        <a href="#ablacion">3. Ablación de tokens y contexto</a>
+        <a href="#ablacion">3. Ablación determinista v1.0 (Tokens y contexto)</a>
         <a href="#fiabilidad">4. Detección de bucles y telemetría</a>
-        <a href="#validez">5. Amenazas a la validez</a>
-        <a href="#referencias">6. Referencias verificadas (12 arXiv)</a>
+        <a href="#expansion-v2">5. Expansión del Runtime v2.0 (Subsistemas implementados)</a>
+        <a href="#validez">6. Amenazas a la validez</a>
+        <a href="#referencias">7. Referencias verificadas (12 arXiv)</a>
       </nav>
     </details>
 
@@ -53,8 +54,9 @@ import Base from '../../layouts/Base.astro';
       <aside aria-label="Navegación del reporte">
         <a href="#resumen">Resumen ejecutivo</a>
         <a href="#arquitectura">Arquitectura</a>
-        <a href="#ablacion">Ablación de tokens</a>
+        <a href="#ablacion">Ablación v1.0 (medida)</a>
         <a href="#fiabilidad">Fiabilidad y telemetría</a>
+        <a href="#expansion-v2">Expansión v2.0</a>
         <a href="#validez">Amenazas a la validez</a>
         <a href="#referencias">Referencias (12 arXiv)</a>
       </aside>
@@ -62,28 +64,31 @@ import Base from '../../layouts/Base.astro';
         <section id="resumen">
           <h2>Resumen ejecutivo</h2>
           <p>
-            <strong>Cockpit (<code>agent-orchestrator</code>)</strong> es un orquestador de escritorio nativo en Rust + GPUI y servidor MCP stdio que unifica cuatro motores CLI heterogéneos (<strong>Claude Code</strong>, <strong>Codex CLI</strong>, <strong>Antigravity</strong> y <strong>OpenCode</strong>) bajo cuotas reales con ventanas móviles (5 horas / 7 días). En lugar de depender únicamente de prompts o de re-entrenar modelos, Cockpit traslada la eficiencia de tokens y la confiabilidad al entorno de ejecución determinista en Rust:
+            <strong>Cockpit (<code>agent-orchestrator</code>)</strong> es un orquestador de escritorio nativo en Rust + GPUI y servidor MCP stdio que unifica cuatro motores CLI heterogéneos (<strong>Claude Code</strong>, <strong>Codex CLI</strong>, <strong>Antigravity</strong> y <strong>OpenCode</strong>) bajo cuotas reales con ventanas móviles (5 horas / 7 días). En su versión <strong>v2.0</strong>, el workspace crece a <strong>67 archivos Rust (~68,000 LOC)</strong> con <strong>52 módulos de runtime</strong>, acompañado por una app nativa Android en Kotlin (~2.2k LOC) y pipelines deterministas en Python para 3D/video (~2.9k LOC), verificados mediante <strong>216 tests unitarios Rust</strong>.
+          </p>
+          <p>
+            Este reporte distingue explícitamente entre las <strong>ablaciones deterministas medidas</strong> del núcleo v1.0 (Tablas 1 y 2) y los <strong>subsistemas de runtime implementados en v2.0</strong> (Sección 5), documentando el estado verificado del código sin extrapolar cifras no medidas:
           </p>
           <ul>
             <li><strong>Inteligencia de código sin AST externo (<code>code_intel.rs</code> + <code>mcp_server.rs</code>):</strong> extracción de esqueletos estructurales (<code>fs_skeleton</code>), lecturas compactas con deduplicación y anclaje por hash (<code>hashline</code>), y parches quirúrgicos (<code>fs_patch</code>) con <em>leases</em> TTL entre sesiones paralelas y verificación de compilador inline.</li>
             <li><strong>Filtrado de salida CLI y memoria de errores (<code>cli_filter.rs</code>):</strong> compresión de resultados de <code>cargo test</code>, plegado de <em>stacktraces</em> de 45 frames y deduplicación de logs repetitivos, preservando siempre los errores literales y registrando callejones sin salida por proyecto.</li>
             <li><strong>Compactación KV-cache safe y enmascaramiento (<code>compact_context.rs</code>):</strong> preserva un prefijo estático idéntico byte a byte, emite cápsulas acotadas (≤ 4.200 bytes) o traspasos de 5 líneas (<code>GOAL | DONE | FILES | ERROR | NEXT</code>) y enmascara observaciones antiguas protegiendo siempre el último error y los archivos editados recientemente.</li>
             <li><strong>Detección determinista de bucles (<code>loop_guard.rs</code>):</strong> detecta lecturas idénticas reiteradas, parches fallidos con el mismo error, oscilaciones <em>ping-pong</em> A–B–A–B y derivas tras tests en verde antes de quemar cuota.</li>
-            <li><strong>Despacho MCP concurrente, cuotas vivas y worktrees:</strong> hilos dedicados para herramientas largas (<code>cockpit_delegate_agent</code>, benchmarks) sobre <code>Arc&lt;Mutex&lt;Stdout&gt;&gt;</code>, telemetría periódica de cuotas cada 90 s, worktrees Git aislados con <em>quality gate</em> pre-merge y visor de diff unificado/lado a lado con comentarios inline.</li>
+            <li><strong>Expansión v2.0 (Sección 5 + 2 reportes complementarios):</strong> MCP-Zero lazy schema, formatos tabulares TOON, PASTE Speculative Cache, Text Cartridge, LSP JSON-RPC bajo demanda, RTS, Compiled AI, MintMCP Guard, Diff Radar, Resource Guard FIFO y red multi-dispositivo (Iroh QUIC, Tailscale, <code>wgproxyrs</code>, Android Kotlin).</li>
           </ul>
         </section>
 
         <section id="arquitectura">
-          <h2>Arquitectura del sistema (3 crates Rust)</h2>
-          <div class="arch-stack" role="img" aria-label="Diagrama de 3 capas del workspace Rust de Cockpit: orchestrator-ui, orchestrator-runtime y orchestrator-core">
+          <h2>Arquitectura del sistema (3 crates Rust + Android + Python)</h2>
+          <div class="arch-stack" role="img" aria-label="Diagrama de 3 capas del workspace Rust de Cockpit v2.0: orchestrator-ui, orchestrator-runtime y orchestrator-core">
             <div class="arch-layer">
               <div class="arch-layer-head">
                 <strong>orchestrator-ui</strong>
-                <span>GPUI CE 0.3.0 · Escritorio Nativo</span>
+                <span>GPUI CE 0.3.0 · Escritorio Nativo + App Android Kotlin (~2.2k LOC)</span>
               </div>
               <ul class="arch-layer-grid">
-                <li>Chat multi-proyecto y timeline adaptativo (sparse / prop / dense)</li>
-                <li>Visor Diff Unificado y Lado a Lado + comentarios inline al agente</li>
+                <li>Chat multi-proyecto, timeline adaptativo y sección EQUIPOS (PC↔PC)</li>
+                <li>Visor Diff Unificado / Lado a Lado + comentarios inline + Diff Radar</li>
                 <li>Telemetría de cuotas cada 90 s + tarjetas visuales por modelo</li>
                 <li>Planificación flotante (&gt;5 tareas) + Worktree Diff / Gate / Merge</li>
               </ul>
@@ -94,17 +99,17 @@ import Base from '../../layouts/Base.astro';
             <div class="arch-layer arch-layer--runtime">
               <div class="arch-layer-head">
                 <strong>orchestrator-runtime</strong>
-                <span>Supervisión, Routing, MCP Concurrente y Guardias</span>
+                <span>52 módulos Rust · Supervisión, Routing, MCP Concurrente, Guardias y P2P</span>
               </div>
               <ul class="arch-layer-grid">
-                <li><code>agent_runner.rs</code> · Procesos CLI ocultos en Windows (sin cmd)</li>
-                <li><code>mcp_server.rs</code> · Servidor MCP stdio concurrente (<code>fs_*</code>, delegate)</li>
-                <li><code>code_intel.rs</code> · <code>fs_skeleton</code>, repomap y <code>blast_radius</code> en Rust puro</li>
-                <li><code>cli_filter.rs</code> · Compresión CLI, stacktraces y logs repetitivos</li>
-                <li><code>compact_context.rs</code> · Cápsulas KV-cache safe, handoff 5L y masking</li>
-                <li><code>loop_guard.rs</code> · Guardián de ventana deslizante (FNV-1a64)</li>
-                <li><code>router.rs</code> · Routing por cuota real + comparativa empírica</li>
-                <li><code>worktree.rs</code> + <code>accounts.rs</code> · Git worktrees, quality gate y cuotas 5h/7d</li>
+                <li><code>agent_runner.rs</code> · Procesos CLI ocultos en Windows + MidStreamGuard</li>
+                <li><code>mcp_server.rs</code> · MCP-Zero lazy schema, TOON, <code>cockpit_batch</code>, <code>fs_*</code></li>
+                <li><code>code_intel.rs</code> + <code>lsp_bridge.rs</code> · <code>fs_skeleton</code>, Cartridge y LSP JSON-RPC</li>
+                <li><code>cli_filter.rs</code> + <code>compact_context.rs</code> · Compresión CLI y KV-cache safe</li>
+                <li><code>loop_guard.rs</code> + <code>security_guard.rs</code> · Bucles, MintMCP y Termination Lag</li>
+                <li><code>router.rs</code> + <code>resource_guard.rs</code> · Routing por cuota y FIFO de recursos</li>
+                <li><code>remote_server.rs</code> + <code>p2p_iroh.rs</code> + <code>proton_vpn.rs</code> · HTTP HMAC, Iroh QUIC, <code>wgproxyrs</code></li>
+                <li><code>pc_control.rs</code> + <code>blender_audit.rs</code> + <code>roblox_loop.rs</code> + <code>video_*.rs</code> · Harnesses 0-vision</li>
               </ul>
             </div>
 
@@ -124,13 +129,13 @@ import Base from '../../layouts/Base.astro';
         </section>
 
         <section id="ablacion">
-          <h2>Resultados de ablación determinista (Tokens y Contexto)</h2>
+          <h2>Resultados de ablación determinista v1.0 (Tokens y Contexto)</h2>
           <p>
-            Todas las mediciones se ejecutaron directamente sobre el propio repositorio de Cockpit mediante el harness reproducible <code>cargo run -p orchestrator-runtime --example paper_benchmark</code>, usando el proxy determinista <code>ceil(chars / 4)</code> junto con tamaños en bytes y latencias en milisegundos. Invariantes verificadas con <strong>139 tests unitarios Rust</strong> (16 core + 123 runtime, 0 fallos).
+            Todas las mediciones de la Tabla 1 corresponden al harness determinista reproducible v1.0 ejecutado directamente sobre el repositorio de Cockpit mediante <code>cargo run -p orchestrator-runtime --example paper_benchmark</code>, usando el proxy determinista <code>ceil(chars / 4)</code> junto con tamaños en bytes y latencias en milisegundos. Las invariantes actuales del workspace pasan <strong>216 tests unitarios Rust</strong> (0 fallos).
           </p>
           <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-ablation-cap">
             <table class="paper-table">
-              <caption id="es-ablation-cap">Tabla 1 · Ablación determinista de reducción de tokens y latencia</caption>
+              <caption id="es-ablation-cap">Tabla 1 · Ablación determinista de reducción de tokens y latencia (suite medida v1.0)</caption>
               <thead>
                 <tr>
                   <th scope="col">Módulo / Mecanismo</th>
@@ -241,7 +246,7 @@ import Base from '../../layouts/Base.astro';
           <h2>Detección de bucles, routing y telemetría agregada</h2>
           <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-guard-cap">
             <table class="paper-table">
-              <caption id="es-guard-cap">Tabla 2 · Fiabilidad de LoopGuard y clasificador de prompts</caption>
+              <caption id="es-guard-cap">Tabla 2 · Fiabilidad de LoopGuard y clasificador de prompts (suite medida v1.0)</caption>
               <thead>
                 <tr>
                   <th scope="col">Subsistema</th>
@@ -295,12 +300,27 @@ import Base from '../../layouts/Base.astro';
           </p>
         </section>
 
+        <section id="expansion-v2">
+          <h2>Expansión del Runtime v2.0 (Subsistemas implementados)</h2>
+          <p>
+            Tras las ablaciones v1.0, el runtime de Cockpit evolucionó a <strong>52 módulos en Rust</strong> (~68,000 LOC totales en 67 archivos) cubriendo cinco ejes adicionales. Estos subsistemas están implementados y verificados mediante los <strong>216 tests unitarios</strong> del workspace, aunque todavía no cuentan con un benchmark comparativo E2E separado:
+          </p>
+          <ul>
+            <li><strong>Protocolo MCP de bajo overhead:</strong> <em>MCP-Zero lazy schema</em> (<code>COCKPIT_MCP_MODE=full|lazy|code</code>) para exponer solo descripciones mínimas bajo demanda, salidas tabulares compactas estilo <strong>TOON</strong> y ejecución agrupada mediante <code>cockpit_batch</code>.</li>
+            <li><strong>Caché y mapas persistentes de contexto:</strong> <strong>PASTE Speculative Cache</strong> para reutilizar lecturas y consultas frecuentes, junto a <strong>Text Cartridge</strong> (<code>.cockpit/cartridge.md</code>) que materializa un mapa comprimido y KV-cache friendly del repositorio.</li>
+            <li><strong>Inteligencia semántica y pruebas selectivas:</strong> cliente <strong>LSP JSON-RPC bajo demanda</strong> (<code>rust-analyzer</code>, <code>luau-lsp</code>, <code>basedpyright</code>, <code>ts-ls</code>), <strong>RTS (Regression Test Selection)</strong> para ejecutar únicamente pruebas del módulo modificado, <strong>Compiled AI</strong> para flujos deterministas a 0 tokens y <code>docs_lookup</code> anclado a versiones reales en <code>Cargo.lock</code> y <code>node_modules</code>.</li>
+            <li><strong>Seguridad, guardias de stream y calidad de diff:</strong> <strong>MintMCP Guard</strong> (puntuación de riesgo y detección de <em>prompt injection</em> en entradas externas), <strong>MidStreamGuard</strong> y <strong>Termination Lag Guard</strong> para cortar generaciones anómalas o procesos colgados, <strong>Diff Radar</strong> para priorizar hunks de mayor riesgo y <strong>Resource Guard FIFO</strong> basado en <code>sysinfo</code> y bloqueo de archivo del SO.</li>
+            <li><strong>Automatización 0-vision y red distribuida:</strong> harnesses deterministas de escritorio Win32/Blender/Roblox/Video y orquestación local-first multi-dispositivo (<strong>Iroh QUIC</strong>, <strong>Tailscale</strong>, túnel userspace <strong><code>wgproxyrs</code></strong> y cliente nativo <strong>Android Kotlin</strong>). Estos dos ejes se documentan en detalle en los reportes complementarios: <a href="/laboratorio/cockpit-zero-vision/">Zero-Vision Automation ↗</a> y <a href="/laboratorio/cockpit-distributed/">Multi-Device Orchestration ↗</a>.</li>
+          </ul>
+        </section>
+
         <section id="validez">
           <h2>Amenazas a la validez y alcance honesto</h2>
           <ul>
+            <li><strong>Separación entre métricas medidas e implementadas:</strong> las Tablas 1 y 2 provienen del harness determinista v1.0; los subsistemas v2.0 de la Sección 5 están implementados y cubiertos por invariantes en 216 tests unitarios, pero sus ahorros agregados de tokens aún requieren ablaciones E2E controladas.</li>
             <li><strong>Proxy BPE offline vs. tokenizadores específicos:</strong> <code>ceil(chars / 4)</code> varía ±5–10% según tokenizador, pero las reducciones de 69%–97% se sostienen porque el volumen de bytes cae en la misma proporción.</li>
             <li><strong>Evaluación E2E controlada pendiente:</strong> el harness mide compresión, detección de bucles y latencia con varianza cero; la telemetría de 349 turnos es observacional, no un ensayo aleatorizado estilo SWE-bench (planeado como trabajo futuro).</li>
-            <li><strong>Plataforma y código privado:</strong> Cockpit está optimizado para escritorio Windows y su código fuente permanece en un repositorio privado (<code>agent-orchestrator</code>); este reporte técnico y su PDF exponen la arquitectura y resultados verificados sin filtrar credenciales ni rutas locales.</li>
+            <li><strong>Plataforma y código privado:</strong> Cockpit está optimizado para escritorio Windows (con soporte Linux en runtime/peers) y su código fuente permanece en un repositorio privado (<code>agent-orchestrator</code>); este reporte técnico expone la arquitectura y resultados verificados sin filtrar credenciales ni rutas locales.</li>
           </ul>
         </section>
 
@@ -325,8 +345,8 @@ import Base from '../../layouts/Base.astro';
     </div>
 
     <div class="detail-actions">
-      <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
-      <a class="button button-outline" href="/proyectos/cockpit/">Ver caso Cockpit ↗</a>
+      <a class="button button-primary" href="/laboratorio/cockpit-zero-vision/">Paper 2: Zero-Vision Automation ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-distributed/">Paper 3: Multi-Device P2P ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
     </div>
   </main>

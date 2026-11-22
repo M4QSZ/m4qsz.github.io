@@ -27,20 +27,50 @@ import { publicCrates } from '../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Investigación y Papers</h2>
-      <span>Reportes técnicos con benchmarks reproducibles y citas verificadas</span>
+      <h2>Investigación y Papers (4 reportes técnicos)</h2>
+      <span>Reportes técnicos bilingües con ablaciones reproducibles, arquitectura verificada y derivaciones formales</span>
     </div>
     <div class="lab-grid">
-      <article style="grid-column: 1 / -1;">
-        <span class="lab-card-label">Technical Report v1.0 · Noviembre 2026</span>
-        <h2>Cockpit: A Native Multi-CLI Orchestrator for Quota-Constrained, Token-Efficient Agentic Software Engineering</h2>
-        <p>Orquestador de escritorio nativo en Rust + GPUI y servidor MCP stdio concurrente que unifica Claude Code, Codex CLI, Antigravity y OpenCode. Ablación determinista medida sobre el código de producción: 94.13% de reducción en esqueletos estructurales, 84.94% en filtrado CLI, 88.34%–97.31% en compactación de contexto, 3/3 bucles detectados (0 FP) y 139 tests unitarios Rust.</p>
-        <p class="lab-stack-line">Rust · GPUI CE · MCP · Git Worktrees · 12 referencias arXiv verificadas · Repositorio privado con reporte público</p>
+      <article>
+        <span class="lab-card-label">Paper 1 · Technical Report v2.0 · Nov 2026</span>
+        <h2>Cockpit v2.0: Orquestador Nativo Multi-CLI</h2>
+        <p>Orquestador Rust + GPUI (~68k LOC, 52 módulos runtime, 216 tests) y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode. Ablación v1.0 medida: 94.13% en esqueletos, 84.94% en CLI filter, 88.34%–97.31% en compactación y 3/3 LoopGuard (0 FP), más expansión de runtime v2.0.</p>
+        <p class="lab-stack-line">Rust · GPUI CE · MCP-Zero · LSP · 216 tests · 12 citas arXiv</p>
         <div class="lab-links">
-          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-paper/">Leer paper web (ES) ↗</a>
-          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-paper/">Read full paper (EN) ↗</a>
-          <a class="text-link" style="margin-top:0" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
-          <a class="text-link" style="margin-top:0" href="/proyectos/cockpit/">Caso de arquitectura ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-paper/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-paper/">English ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF v1.0 ↗</a>
+          <a class="text-link" style="margin-top:0" href="/proyectos/cockpit/">Caso ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 2 · Technical Report v1.0 · Nov 2026</span>
+        <h2>Automatización Zero-Vision: PC, 3D y Video vía MCP</h2>
+        <p>Harnesses deterministas a 0 tokens de visión: Win32 UIA-first (<code>pc_ui_tree</code>/<code>pc_act</code>), Screenshot Diffing (&lt;0.15% unchanged / &lt;65% bbox crop), Blender CPU <code>bpy</code> (Quadriflow, PBR bake, R15 IK, Contact Sheet 2×3 = 1/6 frames), auditor Roblox Luau de 10 reglas + BFS y edición FFmpeg no destructiva.</p>
+        <p class="lab-stack-line">Win32 UIA · Blender bpy · Roblox Rojo/Lune · FFmpeg · Python (~2.9k LOC)</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-zero-vision/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-zero-vision/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 3 · Technical Report v1.0 · Nov 2026</span>
+        <h2>Orquestación Multi-Dispositivo Local-First</h2>
+        <p>Red local-first entre PC Windows, laptop Linux y Android: API Hyper <code>/v1/*</code> con HMAC-SHA256 + OTP QR, Iroh QUIC (<code>cockpit/p2p/1</code>), Tailscale Serve, WireGuard userspace <code>wgproxyrs</code> aislado por app, <code>/offload</code> con Resource Guard FIFO (<code>sysinfo</code>) y app nativa Kotlin 2.2.20 + ML Kit.</p>
+        <p class="lab-stack-line">Iroh QUIC · Tailscale · wgproxyrs · HMAC-SHA256 · Kotlin (~2.2k LOC)</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-distributed/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-distributed/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 4 · Theoretical Note v0.9 · Nov 2026</span>
+        <h2>Compresión Algebraica de Contexto y Leyes de KV-Cache</h2>
+        <p>Derivaciones formales del costo cuadrático multi-turno y la Ley de Épocas de KV-Cache (<code>H* = 87</code> turnos), eliminación especulativa de turnos (<code>τ* = 0.71%</code>), geometría BPE (<code>P_split = 0.46875</code>), Program Slicing (Knaster-Tarski), <code>δ-CRDT</code> de diagnósticos, cadenas de Markov absorbentes y Group Testing adaptativo.</p>
+        <p class="lab-stack-line">KV-Cache Math · BPE Aliasing · Knaster-Tarski · Markov N=(I-Q)⁻¹ · Nota teórica</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-algebraic-compression/">Leer nota (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-algebraic-compression/">English ↗</a>
         </div>
       </article>
     </div>

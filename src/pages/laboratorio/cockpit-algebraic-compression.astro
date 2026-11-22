@@ -1,0 +1,129 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper Técnico: Compresión Algebraica de Contexto y Leyes de KV-Cache | Miguel Quevedo"
+  description="Nota Técnica v0.9 — Derivaciones formales de costo cuadrático multi-turno, Ley de Épocas de KV-Cache (H* = 87), eliminación especulativa de turnos, cirugía BPE, program slicing y cadenas de Markov absorbentes."
+  pageLabel="Paper · Algebraic Compression"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Compresión Algebraica de Contexto y Leyes de Época de KV-Cache para Agentes Multi-Turno</h1>
+      <p class="detail-lede">
+        Nota Teórica y Marco Formal v0.9 (Noviembre 2026) — Derivaciones analíticas que explican por qué las ventanas deslizantes destruyen el Prompt Caching (<code>H* = 87</code> turnos) y formalizan compresión reversible sin GPU en Rust puro.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v0.9)</strong></div>
+      <div><span>Estado epistémico</span><strong>Derivaciones analíticas formales · Benchmark BPE A/B en curso</strong></div>
+      <div><span>Aplicación</span><strong>Diseño matemático del harness MCP de Cockpit (<code>compact_context.rs</code> · <code>code_intel.rs</code> · <code>loop_guard.rs</code>)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-algebraic-compression/">Read full note in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-zero-vision/">Paper 2: Zero-Vision MCP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-distributed/">Paper 3: Multi-Dispositivo ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Resultados analíticos principales">
+        <div class="paper-kpi"><strong>H* = 87 turnos</strong><span>Horizonte mínimo para amortizar mutar caché (<code>c = 0.10</code>)</span></div>
+        <div class="paper-kpi"><strong>τ* = 0.71%</strong><span>Umbral óptimo de prefetch inline para eliminar 1 turno (<code>ΔT = -1</code>)</span></div>
+        <div class="paper-kpi"><strong>P = 0.46875</strong><span>Probabilidad de corte regex BPE en strings hex (UUID/SHA-1)</span></div>
+        <div class="paper-kpi"><strong>O(d log N/d)</strong><span>Cota de Group Testing adaptativo para aislar fallos de tests</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice de la nota (6 secciones)</summary>
+      <nav aria-label="Secciones de la nota">
+        <a href="#kv-epoch">1. Costo cuadrático y Ley de Épocas de KV-Cache</a>
+        <a href="#especulativo">2. Eliminación especulativa de turnos (ΔT = -1)</a>
+        <a href="#bpe">3. Geometría BPE: aliasing biyectivo y cuantización decádica</a>
+        <a href="#algebra">4. Program Slicing, δ-CRDT de diagnósticos y Patricia-Trie</a>
+        <a href="#estocastico">5. Cadenas de Markov absorbentes y Group Testing adaptativo</a>
+        <a href="#epistemico">6. Estado epistémico y protocolo de validación A/B</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación de la nota">
+        <a href="#kv-epoch">Ley de KV-Cache</a>
+        <a href="#especulativo">Turnos especulativos</a>
+        <a href="#bpe">Geometría BPE</a>
+        <a href="#algebra">Slicing y δ-CRDT</a>
+        <a href="#estocastico">Markov y Group Testing</a>
+        <a href="#epistemico">Estado epistémico</a>
+      </aside>
+      <div class="case-content">
+        <section id="kv-epoch">
+          <h2>1. Costo cuadrático multi-turno y Ley de Épocas de KV-Cache</h2>
+          <p>
+            En una sesión de agente autoregresiva con prefijo estático <code>S₀</code> y observaciones de herramientas <code>oₜ</code> a lo largo de <code>T</code> turnos, el costo acumulado de tokens de entrada crece cuadráticamente:
+          </p>
+          <pre><code>C_input(T) = T · S₀ + Σ(t=1..T) (T - t + 1) · oₜ</code></pre>
+          <p>
+            Un error común en harnesses ingenuos es aplicar compresión retroactiva por ventana deslizante (p. ej. resumir o truncar una observación <code>B</code> en una posición pasada <code>k &lt; t</code> a tamaño <code>αB</code>). Como el KV-Cache de un Transformer causal se indexa por el hash del prefijo exacto, alterar 1 solo byte en <code>k</code> invalida todo el sufijo posterior <code>P_after(k)</code>. Si un token cacheado cuesta una fracción <code>c ∈ (0, 1)</code> de un token fresco (p. ej. <code>c = 0.10</code> con 90% de descuento), el horizonte mínimo <code>H*</code> de turnos restantes necesario para recuperar el costo de la invalidación es:
+          </p>
+          <pre><code>H* = ceil( ((1 - c) · (P_after(k) + αB)) / (c · (1 - α) · B) )</code></pre>
+          <p>
+            <strong>Consecuencia numérica:</strong> para <code>c = 0.10</code>, <code>α = 0.20</code>, <code>B = 2,000</code> tokens y <code>P_after(k) = 15,000</code> tokens, resulta <strong><code>H* = ceil(13,860 / 160) = 87 turnos</code></strong>. Podar una observación 3 turnos atrás hace perder dinero durante los siguientes 86 turnos. De aquí deriva la regla <em>append-only</em> de <code>compact_context.rs</code>: cero mutación retroactiva dentro de una sesión nativa hasta disparar un rebase completo por época.
+          </p>
+        </section>
+
+        <section id="especulativo">
+          <h2>2. Eliminación especulativa de turnos (<code>ΔT = -1</code>)</h2>
+          <p>
+            Si el servidor MCP anticipa en el turno <code>t</code> la observación que el agente pediría en <code>t+1</code> (p. ej. adjuntar inline ≤ 24 líneas de una definición exacta cuando <code>fs_search</code> halla 1–3 coincidencias de definición) pagando un costo <code>B_inline</code>, el ahorro esperado en tokens frente al contexto activo <code>C_ctx(t) + T_out</code> es positivo siempre que la probabilidad de transición <code>p = P(Read | Search)</code> supere:
+          </p>
+          <pre><code>p &gt; τ* = B_inline / (C_ctx(t) + T_out + B_inline)</code></pre>
+          <p>
+            Para <code>C_ctx(t) = 25,000</code> y <code>B_inline = 180</code> tokens, <strong><code>τ* = 0.71%</code></strong>. Eliminar un solo round-trip completo ahorra órdenes de magnitud más tokens que comprimir un mensaje individual.
+          </p>
+        </section>
+
+        <section id="bpe">
+          <h2>3. Geometría BPE: aliasing biyectivo y cuantización decádica</h2>
+          <ul>
+            <li><strong>Fragmentación hexadecimal en pre-tokenizadores regex:</strong> al separar dígitos (<code>\p{'{N}'}{'{1,3}'}</code>) de letras (<code>\p{'{L}'}+</code>), una cadena hexadecimal uniforme tiene probabilidad de corte por transición <code>P_split = 2 · (10/16) · (6/16) = 0.46875</code>, fragmentando un UUID/SHA-1 en ~19.5 tokens.</li>
+            <li><strong>Aliasing biyectivo en el canal MCP (<code>Φ / Φ⁻¹</code>):</strong> reemplazar entidades repetidas (<code>k ≥ 2</code>) por símbolos cortos (<code>$U1</code>, <code>$H1</code>, <code>$P1</code>) en salidas y restaurar <code>Φ⁻¹</code> antes de escribir en disco ahorra <code>(k - 1)·τ(e) - 2k - 3</code> tokens sin pérdida semántica.</li>
+            <li><strong>Cuantización decádica de números de línea (Strided Anchors):</strong> emitir números de línea cada <code>S = 10</code> líneas y en cabeceras de declaración en vez de cada línea reduce el overhead de numeración en <code>1 - 1/S = 90.0%</code>.</li>
+          </ul>
+        </section>
+
+        <section id="algebra">
+          <h2>4. Program Slicing, <code>δ-CRDT</code> de diagnósticos y Patricia-Trie</h2>
+          <ul>
+            <li><strong>Weiser Backward Slicing (punto fijo de Knaster-Tarski):</strong> sobre conjuntos <code>DEF(s)</code>, <code>USE(s)</code> y <code>CTRL(s)</code> dentro de una función, el menor punto fijo converge en ≤ 6 pasadas en Rust puro para aislar solo las sentencias causales respecto a un símbolo objetivo.</li>
+            <li><strong>Diferenciación algebraica de diagnósticos (<code>δ-CRDT</code>):</strong> proyectando cada error de compilación a una clave invariante a desplazamientos de línea <code>(kind, code, file, FNV1a64(msg_sin_números))</code>, corridas sucesivas solo emiten <code>(Δ⁻ resueltos, Δ⁺ nuevos, |Dₜ ∩ Dₜ₋₁|)</code>.</li>
+            <li><strong>Factorización Patricia-Trie en árboles de archivos:</strong> agrupar prefijo de carpeta y extensión común (<code>dir/{'{a,b,c}'}.rs</code>) comprime árboles de directorio sin perder rutas exactas.</li>
+          </ul>
+        </section>
+
+        <section id="estocastico">
+          <h2>5. Cadenas de Markov absorbentes y Group Testing adaptativo</h2>
+          <ul>
+            <li><strong>Pronóstico de costo y aborto anticipado:</strong> modelando el ciclo del agente como cadena absorbente con estados transitorios <code>{'{Search, Skeleton, Read, Patch, Check}'}</code> y absorbentes <code>{'{Success, Fail}'}</code>, la matriz fundamental <code>N = (I - Q)⁻¹</code> (5×5 vía Gauss-Jordan en microsegundos) estima <code>E[tokens | i] = (N·c)ᵢ</code> y probabilidad de éxito <code>B = N·R</code> para escalar de modelo o abortar trayectorias condenadas antes de quemar cuota.</li>
+            <li><strong>Group Testing adaptativo (Dorfman / binary splitting):</strong> para localizar <code>d</code> fallos entre <code>N</code> tests independientes con pruebas OR monótonas, el límite superior es <code>d·ceil(log₂(N/d)) + d - 1</code> corridas (7 corridas para 1 fallo en 128 tests) frente a <code>N</code> ejecuciones lineales.</li>
+          </ul>
+        </section>
+
+        <section id="epistemico">
+          <h2>6. Estado epistémico y protocolo de validación A/B</h2>
+          <p>
+            <strong>Aviso metodológico explícito:</strong> a diferencia del <a href="/laboratorio/cockpit-paper/">Paper 1 (Cockpit v2.0)</a> —cuyas tablas de ablación fueron medidas determinísticamente sobre código real—, esta nota presenta <strong>derivaciones analíticas y fundamentos de diseño</strong>. Las fórmulas son matemáticamente exactas bajo sus supuestos (descuento de caché <code>c</code>, independencia de tests, aproximación de Markov), pero el impacto empírico en sesiones reales requiere todavía:
+          </p>
+          <ol>
+            <li>Medición sobre trazas reales anonimizadas con tokenizadores de referencia (<code>o200k_base</code> / <code>cl100k_base</code>) en lugar de estimaciones analíticas.</li>
+            <li>Diseño A/B con cada mecanismo activable por bandera (≥ 30 tareas por brazo, mismo modelo, intervalos de confianza por bootstrap) midiendo tokens facturados, tasa de éxito y latencia p50/p95.</li>
+            <li>Validación de fundamentos clásicos citados: Weiser (1981, Program Slicing), Myers (1986, O(ND) Difference Algorithm), Wald (1945, SPRT), Dorfman (1943, Group Testing) y las 12 citas verificadas de arXiv documentadas en el Paper 1.</li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </main>
+</Base>
