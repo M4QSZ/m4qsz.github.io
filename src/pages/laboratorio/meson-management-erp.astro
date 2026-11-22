@@ -1,0 +1,149 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 6: Arquitectura de Gerencia Modular, ERP Multi-Tenant, BOM y RRHH | Miguel Quevedo"
+  description="Technical Report v1.0 — 44 módulos con carga diferida, RBAC granular, kiosco de asistencia y nómina, matemáticas de BOM/mermas/par-levels, licencias HMAC anti-rollback y balanzas RS-232."
+  pageLabel="Paper 6 · Gerencia & ERP"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Arquitectura de Gerencia Modular y ERP Multi-Tenant: Carga Diferida de 44 Módulos, RBAC, BOM/Mermas, RRHH y Hardware POS</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Cómo diseñar y gobernar una plataforma operativa completa (inventario, recetas BOM, talento/nómina, permisos, licenciamiento y control de flota) dentro de una única suite multiplataforma sin sacrificar memoria ni seguridad.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>module_registry.dart</code> · <code>permission_notifier.dart</code> · <code>shell_operation_access.dart</code> · <code>stock_calculator_logic.dart</code> · <code>shrinkage_calculator_logic.dart</code> · <code>license_engine.rs</code> · <code>scale_service.dart</code></strong></div>
+      <div><span>Evidencia verificable</span><strong>24 suites de dominio (<code>meson_models</code>) + 7 suites DB + BDD de inventario y Atelier RRHH</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/meson-management-erp/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-finance-erp/">Paper 5: Finanzas &amp; Fiscal ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes de gerencia y ERP">
+        <div class="paper-kpi"><strong>44 Módulos</strong><span><code>deferred as</code> lazy-loading + gating por licencia</span></div>
+        <div class="paper-kpi"><strong>BOM &amp; Par-Level</strong><span><code>Base × Mult ÷ Yield</code> + detección de merma</span></div>
+        <div class="paper-kpi"><strong>HMAC Anti-Clock</strong><span>Licencias ligadas a hardware contra rollback de reloj</span></div>
+        <div class="paper-kpi"><strong>RS-232 Anti-Robo</strong><span>Validación peso real vs. código de barras en autopago</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Desafío de gobernar un ERP multi-industria en el cliente</a>
+        <a href="#modularidad">2. Registro de 44 módulos, carga diferida y RBAC granular</a>
+        <a href="#bom">3. Matemáticas operativas: BOM anidado, rendimiento, merma y par-levels</a>
+        <a href="#rrhh">4. Atelier RRHH: máquina de estados del kiosco de asistencia y nómina</a>
+        <a href="#licencias">5. Plano de control central, licencias HMAC anti-rollback y balanzas RS-232</a>
+        <a href="#validez">6. Evidencia de pruebas y límites operativos</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">1. Desafío ERP</a>
+        <a href="#modularidad">2. 44 Módulos &amp; RBAC</a>
+        <a href="#bom">3. BOM &amp; Mermas</a>
+        <a href="#rrhh">4. RRHH &amp; Kiosco</a>
+        <a href="#licencias">5. Licencias &amp; Hardware</a>
+        <a href="#validez">6. Pruebas y límites</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Desafío de gobernar un ERP multi-industria en el cliente</h2>
+          <p>
+            Los sistemas de gerencia comercial suelen romperse al escalar en dos frentes: un monolito pesado que consume demasiada RAM en terminales POS económicas, o permisos superficiales (solo ocultar botones en la UI) que dejan expuestas operaciones destructivas de inventario, caja y nómina.
+          </p>
+          <p>
+            <strong>Meson</strong> resuelve la gerencia operativa separando cuatro planos: un <strong>registro de 44 módulos con carga diferida</strong>, un <strong>guardia RBAC reactivo</strong> en la capa de operaciones, <strong>modelos matemáticos deterministas</strong> para inventario/recetas/nómina, y un <strong>plano de control centralizado</strong> (<code>apps/meson_central</code>) con licenciamiento criptográfico por nodo.
+          </p>
+        </section>
+
+        <section id="modularidad">
+          <h2>2. Registro de 44 módulos, carga diferida y RBAC granular</h2>
+          <ul>
+            <li><strong>Carga diferida y Store interno (<code>module_registry.dart</code>):</strong> los 44 módulos funcionales (POS, KDS Cocina, Barra, Inventario, Costos, Estadísticas, Atelier RRHH, Contabilidad, etc.) se cargan bajo demanda mediante <code>deferred as</code> y se activan según el plan de licencia en <code>LicenseNotifier</code>, manteniendo baja la huella de memoria en equipos modestos.</li>
+            <li><strong>Matriz RBAC y guardias de operación (<code>PermissionNotifier</code>, <code>ShellOperationAccess</code>, <code>PermissionWrapper</code>):</strong> los roles (Admin, Gerente, Cajero, Cocina, Personal) se mapean a claves granulares (ej. <code>inventory:write</code>, <code>finance:read</code>, <code>settings:manage</code>). <code>ShellOperationAccess</code> aplica verificaciones antes de ejecutar acciones financieras o destructivas, no solo al renderizar menús.</li>
+            <li><strong>Aislamiento multi-tenant (<code>tenant_resolver.dart</code>):</strong> todas las consultas locales y cachés validan el contexto de sucursal/tenant (verificado en <code>tenant_isolation_test.dart</code> y <code>tenant_isolation_db_test.dart</code>).</li>
+          </ul>
+        </section>
+
+        <section id="bom">
+          <h2>3. Matemáticas operativas: BOM anidado, rendimiento, merma y par-levels</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-erp-cap">
+            <table class="paper-table">
+              <caption id="es-erp-cap">Tabla 1 · Fórmulas deterministas de operación implementadas en <code>inventory/logic/</code> y <code>meson_models</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Cálculo</th>
+                  <th scope="col">Fórmula / Regla</th>
+                  <th scope="col">Módulo y validación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Deducción BOM con rendimiento</th>
+                  <td data-label="Fórmula"><code>Consumo = (CantidadBase × Multiplicador) ÷ YieldRate</code> con expansión recursiva de sub-recetas y propagación de alérgenos.</td>
+                  <td data-label="Módulo"><code>meson_models</code> (<code>bom_yield_stress_test.dart</code>, <code>nested_bom_test.dart</code>)</td>
+                </tr>
+                <tr>
+                  <th scope="row">Merma real (Shrinkage)</th>
+                  <td data-label="Fórmula"><code>Merma = StockEsperado − (ConteoFísico + Ventas/Consumo)</code></td>
+                  <td data-label="Módulo"><code>shrinkage_calculator_logic.dart</code> + <code>table_lease_and_waste_test.dart</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Reposición Par-Level</th>
+                  <td data-label="Fórmula">Dispara alerta/pedido cuando <code>StockActual + ÓrdenesEnCamino &lt; ParMínimo</code>.</td>
+                  <td data-label="Módulo"><code>stock_calculator_logic.dart</code> + <code>stock_reservation_test.dart</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="rrhh">
+          <h2>4. Atelier RRHH: máquina de estados del kiosco de asistencia y nómina</h2>
+          <ul>
+            <li><strong>Gestión integral de talento (<code>features/atelier/</code>):</strong> cubre vacantes, candidatos, perfiles laborales (<code>worker_profile/</code>), turnos y horarios (<code>turnos_horarios/</code>), contratos y cálculo de nómina (<code>nomina/</code>: salario bruto/neto, deducciones, propinas y bonos por turno).</li>
+            <li><strong>Kiosco de asistencia offline (<code>asistencia_tab.dart</code>):</strong> opera como máquina de estados explícita (<code>checked_in</code> → <code>break</code> → <code>checked_out</code> / <code>overtime</code>) con verificación por PIN/cédula o biometría y sincronización diferida de marcajes cuando regresa la red.</li>
+          </ul>
+        </section>
+
+        <section id="licencias">
+          <h2>5. Plano de control central, licencias HMAC anti-rollback y balanzas RS-232</h2>
+          <ul>
+            <li><strong>Licenciamiento hardware anti-manipulación de reloj (<code>license_engine.rs</code>):</strong> vincula cada nodo a una huella de hardware (<code>HardwareFingerprint</code> vía <code>sysinfo</code> y APIs del SO) firmada con <code>HMAC-SHA256</code> e incluye <code>ClockDriftDetector</code> para detectar retrocesos deliberados del reloj del sistema y proteger ventanas de gracia offline.</li>
+            <li><strong>Control anti-robo en autopago (<code>scale_service.dart</code>, <code>cfd_service.dart</code>):</strong> la capa <code>device_hub</code> lee balanzas seriales RS-232/USB en tiempo real y compara el peso físico en plataforma contra el peso esperado del código de barras escaneado, bloqueando fraude por sustitución de producto.</li>
+            <li><strong>Consola super-admin (<code>apps/meson_central</code>):</strong> centraliza monitoreo de flota, emisión criptográfica de llaves de licencia, soporte multi-tenant y métricas de ingresos/costos.</li>
+          </ul>
+        </section>
+
+        <section id="validez">
+          <h2>6. Evidencia de pruebas y límites operativos</h2>
+          <p>
+            El núcleo de gerencia está verificado por <strong>24 archivos de test de dominio</strong> en <code>packages/meson_models/test/</code> (BOM anidado, lotes indexados, reglas de precios, ciclo de vida KDS, reservas de stock, aislamiento multi-tenant), <strong>7 tests de base de datos</strong> en <code>packages/meson_db/test/</code> y pruebas BDD de inventario y Atelier dentro de la suite de <code>apps/meson_business/test/</code>.
+          </p>
+          <p>
+            <strong>Límites:</strong> el comportamiento con periféricos físicos (balanzas RS-232 e impresoras térmicas ESC/POS) requiere calibración por modelo de hardware en campo; las garantías documentadas aquí corresponden a lógica de software verificada y pruebas automatizadas.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/meson-management-erp/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

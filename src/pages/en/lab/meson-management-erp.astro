@@ -1,0 +1,150 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 6: Modular Multi-Tenant ERP, RBAC, BOM/Shrinkage & HR Architecture | Miguel Quevedo"
+  description="Technical Report v1.0 — 44 deferred-loaded modules, granular RBAC guards, HR attendance kiosk state machine, BOM/shrinkage/par-level math, HMAC anti-clock licensing & RS-232 anti-theft scales."
+  pageLabel="Paper 6 · Management & ERP"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Modular Multi-Tenant Management &amp; Operations ERP: 44 Deferred Modules, RBAC, BOM/Shrinkage Math, HR Kiosks &amp; POS Hardware</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Architectural patterns for governing inventory, nested BOM recipes, workforce payroll, granular permissions, hardware-bound licensing, and multi-tenant fleet telemetry inside a single cross-platform suite.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited modules</span><strong><code>module_registry.dart</code> · <code>permission_notifier.dart</code> · <code>shell_operation_access.dart</code> · <code>stock_calculator_logic.dart</code> · <code>shrinkage_calculator_logic.dart</code> · <code>license_engine.rs</code> · <code>scale_service.dart</code></strong></div>
+      <div><span>Verifiable evidence</span><strong>24 domain test suites (<code>meson_models</code>) + 7 DB suites + inventory &amp; Atelier HR BDD suites</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/meson-management-erp/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-finance-erp/">Paper 5: Finance &amp; Fiscal ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="ERP and management invariants">
+        <div class="paper-kpi"><strong>44 Modules</strong><span><code>deferred as</code> lazy-loading + runtime license gating</span></div>
+        <div class="paper-kpi"><strong>BOM &amp; Par-Level</strong><span><code>Base × Mult ÷ Yield</code> + automated shrinkage detection</span></div>
+        <div class="paper-kpi"><strong>HMAC Anti-Clock</strong><span>Hardware-bound licenses with clock-rollback detection</span></div>
+        <div class="paper-kpi"><strong>RS-232 Anti-Theft</strong><span>Real-time scale weight vs. barcode verification</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#summary">1. The challenge of multi-industry client-side ERP</a>
+        <a href="#modularity">2. 44-module deferred registry &amp; granular RBAC</a>
+        <a href="#bom">3. Operational math: nested BOMs, yield, shrinkage &amp; par-levels</a>
+        <a href="#hr">4. Atelier HR: attendance kiosk state machine &amp; payroll</a>
+        <a href="#licensing">5. Central control plane, HMAC anti-clock licensing &amp; RS-232 scales</a>
+        <a href="#validity">6. Test evidence &amp; operational boundaries</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#summary">1. ERP Challenge</a>
+        <a href="#modularity">2. 44 Modules &amp; RBAC</a>
+        <a href="#bom">3. BOM &amp; Shrinkage</a>
+        <a href="#hr">4. HR &amp; Kiosk</a>
+        <a href="#licensing">5. Licensing &amp; Hardware</a>
+        <a href="#validity">6. Tests &amp; Limits</a>
+      </aside>
+      <div class="case-content">
+        <section id="summary">
+          <h2>1. The challenge of multi-industry client-side ERP</h2>
+          <p>
+            Commercial management suites typically degrade along two axes as features grow: monolithic memory overhead that overwhelms low-cost POS terminals, and UI-only permission checks that leave destructive inventory, cash, or payroll operations unprotected.
+          </p>
+          <p>
+            <strong>Meson</strong> structures operational governance across four decoupled layers: a <strong>44-module deferred registry</strong>, operation-level <strong>RBAC enforcement</strong>, <strong>deterministic inventory/BOM/payroll math</strong>, and a centralized multi-tenant control plane (<code>apps/meson_central</code>) with cryptographic node licensing.
+          </p>
+        </section>
+
+        <section id="modularity">
+          <h2>2. 44-module deferred registry &amp; granular RBAC</h2>
+          <ul>
+            <li><strong>Deferred loading &amp; internal Store (<code>module_registry.dart</code>):</strong> 44 functional modules (POS, Kitchen KDS, Bar, Inventory, Costs, Analytics, Atelier HR, Accounting, etc.) are lazy-loaded via <code>deferred as</code> and gated by active subscription tiers in <code>LicenseNotifier</code>.</li>
+            <li><strong>Operation-level RBAC (<code>PermissionNotifier</code>, <code>ShellOperationAccess</code>, <code>PermissionWrapper</code>):</strong> maps roles (Admin, Manager, Cashier, Kitchen, Staff) to granular keys (e.g. <code>inventory:write</code>, <code>finance:read</code>, <code>settings:manage</code>) and enforces guards inside operation handlers rather than solely hiding UI buttons.</li>
+            <li><strong>Multi-tenant isolation (<code>tenant_resolver.dart</code>):</strong> local queries and caches enforce strict tenant scoping (verified by <code>tenant_isolation_test.dart</code> and <code>tenant_isolation_db_test.dart</code>).</li>
+          </ul>
+        </section>
+
+        <section id="bom">
+          <h2>3. Operational math: nested BOMs, yield, shrinkage &amp; par-levels</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-erp-cap">
+            <table class="paper-table">
+              <caption id="en-erp-cap">Table 1 · Deterministic operational formulas in <code>inventory/logic/</code> and <code>meson_models</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Calculation</th>
+                  <th scope="col">Formula / Rule</th>
+                  <th scope="col">Module &amp; verification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Yield-adjusted BOM deduction</th>
+                  <td data-label="Formula"><code>Usage = (BaseQty × Multiplier) ÷ YieldRate</code> with recursive sub-recipe expansion and allergen propagation.</td>
+                  <td data-label="Module"><code>meson_models</code> (<code>bom_yield_stress_test.dart</code>, <code>nested_bom_test.dart</code>)</td>
+                </tr>
+                <tr>
+                  <th scope="row">Shrinkage variance</th>
+                  <td data-label="Formula"><code>Shrinkage = ExpectedStock − (PhysicalCount + SalesUsage)</code></td>
+                  <td data-label="Module"><code>shrinkage_calculator_logic.dart</code> + <code>table_lease_and_waste_test.dart</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Par-level restocking</th>
+                  <td data-label="Formula">Triggers replenishment when <code>CurrentStock + IncomingOrders &lt; ParMinimum</code>.</td>
+                  <td data-label="Module"><code>stock_calculator_logic.dart</code> + <code>stock_reservation_test.dart</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="hr">
+          <h2>4. Atelier HR: attendance kiosk state machine &amp; payroll</h2>
+          <ul>
+            <li><strong>Workforce lifecycle (<code>features/atelier/</code>):</strong> unifies job postings, candidate pipelines, worker profiles (<code>worker_profile/</code>), shift scheduling (<code>turnos_horarios/</code>), contracts, and payroll calculation (<code>nomina/</code>: gross/net pay, deductions, tips, and shift bonuses).</li>
+            <li><strong>Offline attendance kiosk (<code>asistencia_tab.dart</code>):</strong> runs an explicit shift state machine (<code>checked_in</code> → <code>break</code> → <code>checked_out</code> / <code>overtime</code>) with PIN/ID or biometric verification and deferred punch synchronization.</li>
+          </ul>
+        </section>
+
+        <section id="licensing">
+          <h2>5. Central control plane, HMAC anti-clock licensing &amp; RS-232 scales</h2>
+          <ul>
+            <li><strong>Hardware-bound anti-clock-tampering licenses (<code>license_engine.rs</code>):</strong> binds node licenses to <code>HardwareFingerprint</code> (CPU/disk/OS identifiers via <code>sysinfo</code>) signed with <code>HMAC-SHA256</code> and guarded by <code>ClockDriftDetector</code> to detect system clock rollbacks during offline grace windows.</li>
+            <li><strong>Self-checkout anti-theft scales (<code>scale_service.dart</code>, <code>cfd_service.dart</code>):</strong> <code>device_hub</code> reads live RS-232/USB serial scale weights and validates physical weight against scanned barcode expectations to catch weight-switching fraud.</li>
+            <li><strong>Super-admin console (<code>apps/meson_central</code>):</strong> aggregates fleet telemetry, cryptographic license key issuance, multi-tenant support tickets, and SaaS financial metrics.</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>6. Test evidence &amp; operational boundaries</h2>
+          <p>
+            Operational invariants are covered by <strong>24 domain test files</strong> in <code>packages/meson_models/test/</code>, <strong>7 persistence test files</strong> in <code>packages/meson_db/test/</code>, plus inventory and Atelier HR BDD tests inside <code>apps/meson_business/test/</code>.
+          </p>
+          <p>
+            <strong>Boundaries:</strong> physical peripheral integration (RS-232 scales, ESC/POS thermal printers) requires per-hardware calibration on site; documented guarantees reflect automated software test verification.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/meson-management-erp/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

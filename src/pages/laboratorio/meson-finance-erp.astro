@@ -1,0 +1,162 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 5: Ingeniería de Apps Financieras, Contabilidad Multi-Moneda y Cumplimiento Fiscal | Miguel Quevedo"
+  description="Technical Report v1.0 — Exact Integer Cent Math, Partida Doble, Snapshots FX Multi-Moneda, 3-Way AP Matching, Arqueo Ciego Z-Close y Cadena Hash Fiscal SENIAT en Meson."
+  pageLabel="Paper 5 · Finanzas & Fiscal"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Ingeniería de Aplicaciones Financieras y ERP Multi-Moneda Offline-First: Aritmética Exacta, Partida Doble y Cadena Hash Fiscal</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Arquitectura e invariantes contables implementadas en el ecosistema <strong>Meson</strong> para operar punto de venta, tesorería, cuentas por pagar y auditoría fiscal en economías bi-monetarias con conectividad intermitente.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>exact_cent_amounts.dart</code> · <code>accounting_ledger_operations.dart</code> · <code>fiscal_audit_service.dart</code> · <code>supplier_finance_integrity.dart</code> · <code>cash_checkout_totals.dart</code> · <code>meson_currency</code></strong></div>
+      <div><span>Evidencia verificable</span><strong>48 archivos de test financiero/fiscal (10 contabilidad · 21 caja/Z-Close · 7 fiscal/facturación · 10 compras/BOM)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/meson-finance-erp/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-management-erp/">Paper 6: Gerencia &amp; ERP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/proyectos/meson/">Caso Meson ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes financieras clave">
+        <div class="paper-kpi"><strong>BigInt / Cents</strong><span><code>maxExact = 9007199254740991</code> · cero drift IEEE-754</span></div>
+        <div class="paper-kpi"><strong>Partida Doble</strong><span>Débitos = Créditos + cierre de períodos inmutable</span></div>
+        <div class="paper-kpi"><strong>3-Way AP</strong><span>OC ↔ Recepción (GRN) ↔ Factura antes del pago</span></div>
+        <div class="paper-kpi"><strong>48 Test Suites</strong><span>Cobertura automatizada de caja, libro mayor y fiscal</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Problema: por qué fallan las apps financieras en el borde</a>
+        <a href="#aritmetica">2. Aritmética exacta en centavos y snapshots FX multi-moneda</a>
+        <a href="#partida-doble">3. Libro mayor de partida doble y proyección de pagos</a>
+        <a href="#fiscal">4. Cadena hash fiscal (SENIAT) y separación caja vs. emisión</a>
+        <a href="#tesoreria">5. Arqueo ciego Z-Close, 3-Way AP Matching y MRR SaaS</a>
+        <a href="#validez">6. Cobertura de pruebas y alcance honesto</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">1. Problema</a>
+        <a href="#aritmetica">2. Centavos &amp; FX</a>
+        <a href="#partida-doble">3. Partida doble</a>
+        <a href="#fiscal">4. Hash fiscal</a>
+        <a href="#tesoreria">5. Z-Close &amp; 3-Way AP</a>
+        <a href="#validez">6. Pruebas y alcance</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Problema: por qué fallan las apps financieras en el borde</h2>
+          <p>
+            Construir software financiero para comercios reales —especialmente en entornos bi-monetarios o con alta volatilidad cambiaria e Internet inestable— falla sistemáticamente por cinco errores clásicos: usar punto flotante (<code>double</code>) para montos, recalcular tasas de cambio históricas al vuelo, acoplar la sesión de caja física con el folio fiscal, permitir escrituras contables mutables y omitir la conciliación entre órdenes de compra, mercancía recibida y facturas de proveedores.
+          </p>
+          <p>
+            Este reporte documenta las invariantes de ingeniería implementadas en <strong>Meson</strong> (<code>apps/meson_business</code>, <code>apps/meson_currency</code> y <code>apps/meson_central</code>) para resolver esos cinco fallos a nivel de dominio, persistencia y pruebas automatizadas.
+          </p>
+        </section>
+
+        <section id="aritmetica">
+          <h2>2. Aritmética exacta en centavos y snapshots FX multi-moneda</h2>
+          <ul>
+            <li><strong>Cero punto flotante en dinero (<code>exact_cent_amounts.dart</code>):</strong> la clase <code>ExactCentAmounts</code> representa todos los importes como enteros exactos en centavos validados contra el límite entero seguro de Dart/JavaScript (<code>maxExact = 9007199254740991</code>, 2<sup>53</sup>−1) y utiliza aritmética <code>BigInt</code> en sumatorias y verificación de límites para eliminar pérdida de precisión al serializar en JSON o postear asientos.</li>
+            <li><strong>Snapshots inmutables de tasa cambiaria (<code>ExchangeRateService</code> &amp; <code>meson_currency</code>):</strong> cada transacción congela el tipo de cambio exacto en el instante de ejecución (<code>exchange_rate_model.dart</code>), impidiendo que una variación posterior de la tasa oficial o paralela altere márgenes históricos, cierres Z o reportes contables.</li>
+            <li><strong>Motor independiente de conversión:</strong> <code>apps/meson_currency</code> (<code>currency_logic.dart</code>, <code>currency_rate_service.dart</code>) aísla la conversión entre denominaciones fiat y digitales como utilidad reutilizable.</li>
+          </ul>
+        </section>
+
+        <section id="partida-doble">
+          <h2>3. Libro mayor de partida doble y proyección de pagos</h2>
+          <p>
+            El subsistema contable (<code>features/accounting/logic/</code>) separa la operación comercial del registro financiero formal mediante cuatro módulos con invariantes verificables:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-fin-cap">
+            <table class="paper-table">
+              <caption id="es-fin-cap">Tabla 1 · Módulos contables e invariantes implementadas en <code>meson_business</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Módulo</th>
+                  <th scope="col">Responsabilidad</th>
+                  <th scope="col">Invariante garantizada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>accounting_ledger_operations.dart</code></th>
+                  <td data-label="Responsabilidad">Asientos de libro diario y mayor</td>
+                  <td data-label="Invariante">Suma estricta <code>∑ Débitos == ∑ Créditos</code> por asiento en centavos exactos.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>accounting_posting_integrity.dart</code></th>
+                  <td data-label="Responsabilidad">Validación de inmutabilidad</td>
+                  <td data-label="Invariante">Los asientos posteados no se sobrescriben; las correcciones exigen contra-asientos auditables.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>accounting_period_operations.dart</code></th>
+                  <td data-label="Responsabilidad">Cierre de períodos contables</td>
+                  <td data-label="Invariante">Bloquea posteos retroactivos sobre meses o ejercicios fiscales cerrados.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>payment_accounting_projector.dart</code></th>
+                  <td data-label="Responsabilidad">Proyección automática POS → Contabilidad</td>
+                  <td data-label="Invariante">Traduce cobros mixtos (efectivo, tarjeta, transferencias, créditos) a cuentas del plan contable sin doble registro.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="fiscal">
+          <h2>4. Cadena hash fiscal (SENIAT) y separación caja vs. emisión</h2>
+          <p>
+            Siguiendo <code>FISCAL_ARCHITECTURE.md</code>, <code>FiscalAuditService</code>, <code>FiscalDocumentRepository</code> y <code>FiscalIssuerRepository</code> imponen tres reglas de cumplimiento regulatorio:
+          </p>
+          <ul>
+            <li><strong>Desacoplamiento estricto caja ↔ factura:</strong> abrir o cerrar una sesión de caja registradora nunca altera la secuencia correlativa ni el estado legal de los documentos fiscales emitidos.</li>
+            <li><strong>Encadenamiento criptográfico secuencial:</strong> cada documento fiscal incorpora el hash del documento inmediatamente anterior, formando una cadena auditable a prueba de manipulaciones silenciosas (requisito de auditoría estilo SENIAT).</li>
+            <li><strong>Perfil de emisor congelado e idempotencia:</strong> los datos fiscales del emisor (RIF, razón social, serie) quedan congelados por documento y los reintentos de envío validan idempotencia antes de re-despachar.</li>
+          </ul>
+        </section>
+
+        <section id="tesoreria">
+          <h2>5. Arqueo ciego Z-Close, 3-Way AP Matching y MRR SaaS</h2>
+          <ul>
+            <li><strong>Arqueo ciego de caja (<code>cash_checkout_totals.dart</code>):</strong> el cajero declara los montos físicos contados sin ver el esperado del sistema; el controlador concilia fondo inicial, retiros de gaveta (<code>cash_drawer_withdrawal_recorder</code>), liquidaciones con tarjeta y diferencias antes de sellar el cierre Z.</li>
+            <li><strong>3-Way AP Matching en compras (<code>supplier_finance_integrity.dart</code>, <code>supplier_finance_safety.dart</code>):</strong> antes de aprobar pagos a proveedores (<code>supplier_payables_global.dart</code>), el sistema cruza Orden de Compra ↔ Nota de Recepción (GRN) ↔ Factura del Proveedor, bloqueando pagos por mercancía no recibida o con sobreprecio.</li>
+            <li><strong>Valuación de inventario y BOM (<code>inventory_cost_evidence.dart</code>):</strong> el costo real de cada plato o producto se calcula recursivamente desde sus recetas anidadas (BOM) ajustando por rendimiento y merma.</li>
+            <li><strong>Control financiero SaaS (<code>meson_central</code>):</strong> <code>revenue_registry.dart</code> y <code>platform_costs_screen.dart</code> agregan MRR por niveles de suscripción frente a costos de infraestructura cloud multi-tenant.</li>
+          </ul>
+        </section>
+
+        <section id="validez">
+          <h2>6. Cobertura de pruebas y alcance honesto</h2>
+          <p>
+            El dominio financiero y fiscal está respaldado por <strong>48 archivos de prueba</strong> dentro del monorepo: 10 en <code>test/features/accounting/</code>, 21 en <code>test/features/cash_register/</code>, 7 en <code>test/features/fiscal/</code> e <code>invoicing/</code>, y 10 en <code>purchasing/</code>, <code>meson_db/test/</code> y <code>meson_models/test/</code> (<code>bom_yield_stress_test.dart</code>, <code>nested_bom_test.dart</code>).
+          </p>
+          <p>
+            <strong>Alcance honesto:</strong> la certificación legal ante autoridad tributaria (homologación fiscal física de impresora o API tributaria) depende de cada jurisdicción y proceso regulatorio externo; este reporte documenta la arquitectura verificada en pruebas de software.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/meson-finance-erp/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-management-erp/">Paper 6: Gerencia &amp; ERP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

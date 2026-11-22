@@ -27,8 +27,8 @@ import { publicCrates } from '../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Investigación y Papers (4 reportes técnicos)</h2>
-      <span>Reportes técnicos bilingües con ablaciones reproducibles, arquitectura verificada y derivaciones formales</span>
+      <h2>Investigación y Papers (8 reportes técnicos)</h2>
+      <span>Reportes técnicos bilingües de Cockpit v2.0 y Meson con arquitectura verificada, pruebas reales y derivaciones formales</span>
     </div>
     <div class="lab-grid">
       <article>
@@ -71,6 +71,46 @@ import { publicCrates } from '../data/profile';
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-algebraic-compression/">Leer nota (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-algebraic-compression/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 5 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Apps Financieras Multi-Moneda, Partida Doble y Hash Fiscal</h2>
+        <p>Ingeniería financiera offline-first: aritmética exacta en centavos con <code>BigInt</code> (<code>maxExact = 2⁵³−1</code>), libro mayor de partida doble inmutable, snapshots FX, 3-Way AP matching (OC↔GRN↔Factura), arqueo ciego Z-Close y cadena hash fiscal SENIAT.</p>
+        <p class="lab-stack-line">ExactCentAmounts · Double-Entry · 3-Way AP · SENIAT Hash · 48 test files</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-finance-erp/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-finance-erp/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 6 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Gerencia Modular, ERP Multi-Tenant, BOM y Kiosco RRHH</h2>
+        <p>Gobernanza de 44 módulos con carga diferida (<code>deferred as</code>), guardias RBAC por operación, fórmulas de BOM anidado/rendimiento/merma/par-levels, kiosco de asistencia y nómina (Atelier), licencias HMAC anti-rollback de reloj y balanzas RS-232 anti-robo.</p>
+        <p class="lab-stack-line">44 Modules · RBAC · BOM/Shrinkage · Atelier HR · HMAC License · RS-232</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-management-erp/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-management-erp/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 7 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Sync LAN Causal (HLC/CRDT/AEAD) y Mesh Relay Oportunista</h2>
+        <p>Consistencia causal en comercios sin Internet: relojes HLC + LWW-CRDT con tombstones y framing <code>ChaCha20-Poly1305</code> anti-replay (<code>lan-delta-sync</code>), WAL idempotente en Isar y red DTN donde los repartidores cosechan deltas cifrados del POS hacia la nube.</p>
+        <p class="lab-stack-line">HLC · LWW-CRDT · ChaCha20-Poly1305 · Isar WAL · DTN Mesh Relay · CI verde</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-offline-mesh/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 8 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Arenas FFI Generacionales, Motor DAG y RAG Edge en Rust</h2>
+        <p>Puente C-ABI / <code>dart:ffi</code> anti-pánico con handles <code>u64</code> generacionales (<code>ffi-arena-bridge</code>, smoke test C99 en CI), motor DAG de hojas de cálculo con detección de ciclos, IA offline SQLite RAG + TF-IDF/SIF + Whisper STT y parches binarios <code>qbsdiff</code>.</p>
+        <p class="lab-stack-line">u64 FFI Arena · catch_unwind · SheetDag · SQLite RAG · Whisper · qbsdiff</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-rust-edge/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-rust-edge/">English ↗</a>
         </div>
       </article>
     </div>

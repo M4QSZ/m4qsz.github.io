@@ -1,0 +1,124 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 7: Causal Offline-First LAN Sync (HLC/CRDT) & Opportunistic Courier Mesh Relay | Miguel Quevedo"
+  description="Technical Report v1.0 — Hybrid Logical Clocks, LWW CRDTs, ChaCha20-Poly1305 anti-replay framing, Isar WAL idempotency, and Delay-Tolerant courier mesh relay."
+  pageLabel="Paper 7 · P2P & Mesh DTN"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Causal Consistency at the Edge: Encrypted LAN P2P Sync (HLC/CRDT), Idempotent WAL, and Opportunistic Courier Mesh Relay (DTN)</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Distributed offline-first architecture combining Rust (<code>lan-delta-sync</code>), Isar WAL idempotency, and a Delay-Tolerant Network (DTN) where courier smartphones ferry encrypted POS deltas to the cloud during ISP outages.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited modules</span><strong><code>public-oss/lan-delta-sync</code> · <code>isar_idempotency_adapter.dart</code> · <code>mesh_relay_service.dart</code> · <code>network_scanner_service.dart</code> · <code>p2p_sync.rs</code></strong></div>
+      <div><span>Verifiable evidence</span><strong>Public MIT crate with green Ubuntu+Windows CI (<code>lan-delta-sync</code>) + <code>dart-offline-outbox</code> + <code>meson_db/test/</code></strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/meson-offline-mesh/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">Public repo lan-delta-sync ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-rust-edge/">Paper 8: FFI &amp; Rust Edge ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Sync and mesh invariants">
+        <div class="paper-kpi"><strong>HLC + LWW CRDT</strong><span>Total causal order without central servers or NTP</span></div>
+        <div class="paper-kpi"><strong>AEAD Anti-Replay</strong><span><code>ChaCha20-Poly1305</code> + sliding-window nonce guard</span></div>
+        <div class="paper-kpi"><strong>Isar WAL</strong><span><code>IsarIdempotencyAdapter</code> · zero duplicate execution</span></div>
+        <div class="paper-kpi"><strong>DTN Mesh Relay</strong><span>Couriers harvest encrypted POS payloads over LAN → cloud</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#summary">1. Partition model &amp; offline continuity</a>
+        <a href="#hlc">2. Hybrid Logical Clocks (HLC) &amp; CRDT convergence</a>
+        <a href="#aead">3. Anti-replay AEAD framing &amp; bounded outbox</a>
+        <a href="#wal">4. Local Isar WAL &amp; idempotent execution</a>
+        <a href="#mesh">5. Opportunistic courier mesh relay (DTN)</a>
+        <a href="#validity">6. CI verification &amp; physical limits</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#summary">1. Partition model</a>
+        <a href="#hlc">2. HLC &amp; CRDT</a>
+        <a href="#aead">3. AEAD &amp; Outbox</a>
+        <a href="#wal">4. Isar WAL</a>
+        <a href="#mesh">5. Mesh Relay DTN</a>
+        <a href="#validity">6. CI &amp; Limits</a>
+      </aside>
+      <div class="case-content">
+        <section id="summary">
+          <h2>1. Partition model &amp; offline continuity</h2>
+          <p>
+            Multi-station commercial venues (POS registers, floor tablets, kitchen displays, and field couriers) cannot halt sales during ISP outages — nor can they allow reconnecting nodes to silently overwrite inventory or double-charge customers.
+          </p>
+          <p>
+            Meson layers three complementary resilience mechanisms: <strong>encrypted Rust LAN P2P sync</strong> (clean-room open-sourced in <code>M4QSZ/lan-delta-sync</code>), <strong>transactional Isar WAL idempotency</strong> (<code>meson_db</code>), and an <strong>opportunistic courier mesh relay</strong> in <code>apps/meson_delivery</code> turning delivery smartphones into store-and-forward data mules.
+          </p>
+        </section>
+
+        <section id="hlc">
+          <h2>2. Hybrid Logical Clocks (HLC) &amp; CRDT convergence</h2>
+          <ul>
+            <li><strong>Causal ordering without perfect clocks (<code>clock.rs</code>, <code>hlc_engine.rs</code>):</strong> <code>HybridLogicalClock</code> pairs physical wall time with a monotonic logical counter and deterministic node ID, guaranteeing <code>e₁ → e₂ ⇒ hlc(e₁) &lt; hlc(e₂)</code> even under skewed terminal clocks.</li>
+            <li><strong>Tombstone LWW-CRDT map (<code>crdt.rs</code>):</strong> <code>LwwRegister</code> ensures strong eventual consistency (<code>CvRDT</code>) regardless of packet reordering or duplicate delivery, using bounded tombstones to prevent deleted record resurrection.</li>
+          </ul>
+        </section>
+
+        <section id="aead">
+          <h2>3. Anti-replay AEAD framing &amp; bounded outbox</h2>
+          <ul>
+            <li><strong>Authenticated LAN wire framing (<code>wire.rs</code>):</strong> every <code>DeltaMessage</code> travels inside an <code>EncryptedPacket</code> protected by <code>ChaCha20-Poly1305</code> (and <code>AES-256-GCM</code> + Argon2 on the internal bus) with a sliding-window <code>NonceManager</code> rejecting replayed frames.</li>
+            <li><strong>Coalescing bounded outbox (<code>outbox.rs</code> &amp; <code>dart-offline-outbox</code>):</strong> repeated writes to the same entity coalesce locally with jittered exponential backoff, partial batch ACKs, and deterministic dead-letter quarantine.</li>
+          </ul>
+        </section>
+
+        <section id="wal">
+          <h2>4. Local Isar WAL &amp; idempotent execution</h2>
+          <p>
+            In <code>packages/meson_db/lib/src/adapters/isar_idempotency_adapter.dart</code>, <code>IsarIdempotencyAdapter</code> commits an immutable <code>LocalExecutedTransaction</code> inside atomic <code>isar.writeTxn</code> blocks before enqueuing remote sync. Its <code>hasExecuted</code> / <code>shouldExecute</code> / <code>recordExecution</code> guards guarantee zero duplicate charges or inventory deductions across flaky reconnects.
+          </p>
+        </section>
+
+        <section id="mesh">
+          <h2>5. Opportunistic courier mesh relay (DTN)</h2>
+          <p>
+            When a venue loses ISP access while retaining local Wi-Fi, <code>apps/meson_delivery</code> executes a Delay-Tolerant Network relay:
+          </p>
+          <ol>
+            <li><strong>Local discovery (<code>NetworkScannerService</code>):</strong> courier smartphones discover isolated POS hosts over local Wi-Fi via mDNS and IP probing during order pickup.</li>
+            <li><strong>Blind encrypted harvesting (<code>MeshRelayService</code>):</strong> pulls encrypted offline transaction batches from <code>/api/relay/sync</code> tagged with carrier metadata (<code>relay_user_id</code>), without granting the courier decryption keys.</li>
+            <li><strong>Deferred cloud upload:</strong> once cellular connectivity returns in transit, batches upload to Supabase (<code>mesh_relay_payloads</code>) for idempotent server reconciliation.</li>
+          </ol>
+        </section>
+
+        <section id="validity">
+          <h2>6. CI verification &amp; physical limits</h2>
+          <ul>
+            <li><strong>Public verifiable proof:</strong> <a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> and <a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> run green GitHub Actions CI on Ubuntu and Windows.</li>
+            <li><strong>Physical boundary:</strong> continuity during electrical outages requires device batteries and UPS backup on the local router; large-scale field latency telemetry remains outside the scope of this report.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/meson-offline-mesh/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-rust-edge/">Paper 8: FFI &amp; Rust Edge ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

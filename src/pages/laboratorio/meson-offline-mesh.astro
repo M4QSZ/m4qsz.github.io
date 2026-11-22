@@ -1,0 +1,126 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 7: Sincronización Offline-First Causal (HLC/CRDT) y Mesh Relay Oportunista | Miguel Quevedo"
+  description="Technical Report v1.0 — Consistencia causal LAN con Hybrid Logical Clocks, LWW CRDT, ChaCha20-Poly1305 anti-replay, WAL Isar idempotente y Mesh Relay DTN vía repartidores."
+  pageLabel="Paper 7 · P2P & Mesh DTN"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Consistencia Causal en el Borde: Sincronización LAN Cifrada (HLC/CRDT), WAL Idempotente y Mesh Relay Oportunista vía Repartidores</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Arquitectura distribuida offline-first que combina Rust (<code>lan-delta-sync</code>), persistencia local Isar WAL y una red tolerante a retardos (DTN) donde los teléfonos de reparto transportan deltas cifrados cuando falla Internet.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>public-oss/lan-delta-sync</code> · <code>isar_idempotency_adapter.dart</code> · <code>mesh_relay_service.dart</code> · <code>network_scanner_service.dart</code> · <code>p2p_sync.rs</code></strong></div>
+      <div><span>Evidencia verificable</span><strong>Crate público MIT con CI verde Ubuntu+Windows (<code>lan-delta-sync</code>) + <code>dart-offline-outbox</code> + <code>meson_db/test/</code></strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/meson-offline-mesh/">Read full report in English ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">Repo público lan-delta-sync ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-rust-edge/">Paper 8: FFI &amp; Rust Edge ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes de sincronización y mesh">
+        <div class="paper-kpi"><strong>HLC + LWW CRDT</strong><span>Orden causal total sin servidor central ni relojes perfectos</span></div>
+        <div class="paper-kpi"><strong>AEAD Anti-Replay</strong><span><code>ChaCha20-Poly1305</code> + ventana deslizante de nonces</span></div>
+        <div class="paper-kpi"><strong>Isar WAL</strong><span><code>IsarIdempotencyAdapter</code> · cero cobros o rebajas duplicadas</span></div>
+        <div class="paper-kpi"><strong>DTN Mesh Relay</strong><span>Repartidores cosechan payloads POS por mDNS/LAN → nube</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Resumen y modelo de partición de red</a>
+        <a href="#hlc">2. Relojes Lógicos Híbridos (HLC) y convergencia CRDT</a>
+        <a href="#aead">3. Framing cifrado AEAD anti-replay y Outbox acotado</a>
+        <a href="#wal">4. WAL local en Isar y ejecución idempotente</a>
+        <a href="#mesh">5. Mesh Relay oportunista (DTN) en logística de reparto</a>
+        <a href="#validez">6. Verificación CI y límites físicos</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">1. Modelo de partición</a>
+        <a href="#hlc">2. HLC &amp; CRDT</a>
+        <a href="#aead">3. AEAD &amp; Outbox</a>
+        <a href="#wal">4. Isar WAL</a>
+        <a href="#mesh">5. Mesh Relay DTN</a>
+        <a href="#validez">6. CI y límites</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Resumen y modelo de partición de red</h2>
+          <p>
+            En operaciones comerciales con múltiples estaciones (caja, tablets de sala, cocina KDS y repartidores en calle), un corte de Internet no puede detener las ventas ni provocar que dos nodos sobreescriban inventario o cobren dos veces al reconectar.
+          </p>
+          <p>
+            Meson aborda la tolerancia a particiones en tres capas complementarias: <strong>sincronización LAN P2P en Rust</strong> (publicada en versión limpia en <code>M4QSZ/lan-delta-sync</code>), <strong>idempotencia transaccional en Isar</strong> (<code>meson_db</code>) y un <strong>mecanismo de relevo oportunista</strong> en <code>apps/meson_delivery</code> que convierte a los repartidores en nodos <em>store-and-forward</em>.
+          </p>
+        </section>
+
+        <section id="hlc">
+          <h2>2. Relojes Lógicos Híbridos (HLC) y convergencia CRDT</h2>
+          <ul>
+            <li><strong>Orden causal sin NTP (<code>clock.rs</code>, <code>hlc_engine.rs</code>):</strong> <code>HybridLogicalClock</code> combina tiempo físico de pared con un contador lógico monotónico y un identificador determinista de nodo. Ante relojes desfasados entre estaciones, el HLC preserva causalidad (<code>e₁ → e₂ ⇒ hlc(e₁) &lt; hlc(e₂)</code>) y desempate total.</li>
+            <li><strong>Mapa LWW-CRDT con tombstones (<code>crdt.rs</code>):</strong> <code>LwwRegister</code> garantiza convergencia fuerte eventual (<code>CvRDT</code>) independientemente del orden de llegada o duplicación de paquetes delta, usando <em>tombstones</em> acotados para propagar borrados sin resurrección de registros.</li>
+          </ul>
+        </section>
+
+        <section id="aead">
+          <h2>3. Framing cifrado AEAD anti-replay y Outbox acotado</h2>
+          <ul>
+            <li><strong>Cifrado autenticado en LAN (<code>wire.rs</code>):</strong> cada <code>DeltaMessage</code> viaja dentro de un <code>EncryptedPacket</code> autenticado con <code>ChaCha20-Poly1305</code> (y <code>AES-256-GCM</code> + Argon2 en el bus interno) acompañado por <code>NonceManager</code> con ventana deslizante anti-replay para rechazar paquetes capturados y reinyectados.</li>
+            <li><strong>Outbox acotado con coalescencia (<code>outbox.rs</code> &amp; <code>dart-offline-outbox</code>):</strong> múltiples escrituras sobre una misma entidad durante una desconexión prolongada se fusionan en el outbox con backoff exponencial con <em>jitter</em>, ACK parcial por lote y cuarentena determinista de fallos permanentes.</li>
+          </ul>
+        </section>
+
+        <section id="wal">
+          <h2>4. WAL local en Isar y ejecución idempotente</h2>
+          <p>
+            En la capa Dart (<code>packages/meson_db/lib/src/adapters/isar_idempotency_adapter.dart</code>), <code>IsarIdempotencyAdapter</code> implementa un registro inmutable de transacciones ejecutadas (<code>LocalExecutedTransaction</code>) guardado dentro de <code>isar.writeTxn</code> antes de encolar al outbox remoto:
+          </p>
+          <ul>
+            <li><strong>Guardia triple (<code>hasExecuted</code>, <code>shouldExecute</code>, <code>recordExecution</code>):</strong> impide que reintentos de red o reconexiones intermitentes dupliquen cobros, rebajas de stock o asientos contables.</li>
+          </ul>
+        </section>
+
+        <section id="mesh">
+          <h2>5. Mesh Relay oportunista (DTN) en logística de reparto</h2>
+          <p>
+            Cuando un local pierde su enlace ISP pero mantiene Wi-Fi interno, <code>apps/meson_delivery</code> implementa una red tolerante a retardos (<em>Delay-Tolerant Network</em>):
+          </p>
+          <ol>
+            <li><strong>Descubrimiento local (<code>NetworkScannerService</code>):</strong> el smartphone del repartidor escanea la LAN vía mDNS e inspección IP al acercarse al local para retirar un pedido.</li>
+            <li><strong>Cosecha cifrada (<code>MeshRelayService</code>):</strong> solicita los payloads offline cifrados al endpoint local del POS (<code>/api/relay/sync</code>) y los empaqueta con metadatos del portador (<code>relay_user_id</code>), sin que el repartidor pueda descifrar el contenido financiero.</li>
+            <li><strong>Entrega diferida a la nube:</strong> al recuperar señal celular 4G/5G fuera del local, el cliente sube los paquetes en lote a Supabase (<code>mesh_relay_payloads</code>), donde el backend valida integridad e idempotencia.</li>
+          </ol>
+        </section>
+
+        <section id="validez">
+          <h2>6. Verificación CI y límites físicos</h2>
+          <ul>
+            <li><strong>Código abierto verificable:</strong> <a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> (tests de integración + simulación CLI) y <a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> corren con CI verde en Ubuntu y Windows.</li>
+            <li><strong>Límite físico explícito:</strong> la operación durante cortes eléctricos exige baterías en terminales y respaldo UPS para el router LAN; además, aunque los tests de componentes y simulaciones pasan, las métricas de campo multi-dispositivo en producción quedan fuera del alcance de este reporte.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/meson-offline-mesh/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-rust-edge/">Paper 8: FFI &amp; Rust Edge ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

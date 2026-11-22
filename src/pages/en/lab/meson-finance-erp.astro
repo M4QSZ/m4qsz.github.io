@@ -1,0 +1,160 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 5: Engineering Offline-First Financial Apps, Multi-Currency Accounting & Fiscal Compliance | Miguel Quevedo"
+  description="Technical Report v1.0 — Exact Integer Cent Math, Double-Entry Ledger, Multi-Currency FX Snapshots, 3-Way AP Matching, Blind Z-Close & SENIAT Fiscal Hash Chain in Meson."
+  pageLabel="Paper 5 · Finance & Fiscal"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Engineering Offline-First Financial &amp; Multi-Currency ERP Apps: Exact Cent Math, Double-Entry Ledgers, and Fiscal Hash Chains</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Accounting and treasury invariants implemented across the <strong>Meson</strong> ecosystem to operate POS, accounts payable, cash-drawer reconciliation, and fiscal compliance in volatile multi-currency environments with intermittent connectivity.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited modules</span><strong><code>exact_cent_amounts.dart</code> · <code>accounting_ledger_operations.dart</code> · <code>fiscal_audit_service.dart</code> · <code>supplier_finance_integrity.dart</code> · <code>cash_checkout_totals.dart</code> · <code>meson_currency</code></strong></div>
+      <div><span>Verifiable evidence</span><strong>48 financial/fiscal test files (10 accounting · 21 cash/Z-Close · 7 fiscal/invoicing · 10 purchasing/BOM)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/meson-finance-erp/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-management-erp/">Paper 6: Management &amp; ERP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/projects/meson/">Meson Case Study ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Key financial invariants">
+        <div class="paper-kpi"><strong>BigInt / Cents</strong><span><code>maxExact = 9007199254740991</code> · zero IEEE-754 drift</span></div>
+        <div class="paper-kpi"><strong>Double-Entry</strong><span>Debits = Credits + immutable closed periods</span></div>
+        <div class="paper-kpi"><strong>3-Way AP</strong><span>PO ↔ Goods Receipt (GRN) ↔ Supplier Invoice</span></div>
+        <div class="paper-kpi"><strong>48 Test Suites</strong><span>Automated ledger, Z-Close, and fiscal coverage</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#summary">1. Why edge financial applications fail in production</a>
+        <a href="#arithmetic">2. Exact integer cent math &amp; multi-currency FX snapshots</a>
+        <a href="#ledger">3. Double-entry ledger &amp; automated payment projection</a>
+        <a href="#fiscal">4. Cryptographic fiscal hash chain (SENIAT) &amp; issuer isolation</a>
+        <a href="#treasury">5. Blind Z-Close reconciliation, 3-Way AP matching &amp; SaaS MRR</a>
+        <a href="#validity">6. Test coverage &amp; honest scope</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#summary">1. Problem</a>
+        <a href="#arithmetic">2. Cents &amp; FX</a>
+        <a href="#ledger">3. Double-Entry</a>
+        <a href="#fiscal">4. Fiscal Chain</a>
+        <a href="#treasury">5. Z-Close &amp; 3-Way AP</a>
+        <a href="#validity">6. Tests &amp; Scope</a>
+      </aside>
+      <div class="case-content">
+        <section id="summary">
+          <h2>1. Why edge financial applications fail in production</h2>
+          <p>
+            Commercial financial software — especially in multi-currency economies with flaky connectivity — routinely breaks due to five recurring engineering defects: storing money in floating-point (<code>double</code>), recomputing historical FX conversions dynamically, coupling physical cash register sessions with legal fiscal numbering, allowing mutable journal entries, and disbursing supplier payments without verifying goods receipt.
+          </p>
+          <p>
+            This report documents the domain invariants implemented in <strong>Meson</strong> (<code>apps/meson_business</code>, <code>apps/meson_currency</code>, and <code>apps/meson_central</code>) to eliminate these five failure modes across runtime logic, persistence schemas, and automated tests.
+          </p>
+        </section>
+
+        <section id="arithmetic">
+          <h2>2. Exact integer cent math &amp; multi-currency FX snapshots</h2>
+          <ul>
+            <li><strong>Zero floating-point drift (<code>exact_cent_amounts.dart</code>):</strong> <code>ExactCentAmounts</code> models monetary amounts as exact integer cents bounded by the Dart/JavaScript safe integer ceiling (<code>maxExact = 9007199254740991</code>, 2<sup>53</sup>−1) and uses <code>BigInt</code> arithmetic for summations and range checks across JSON transport and ledger posting.</li>
+            <li><strong>Immutable FX rate snapshots (<code>ExchangeRateService</code> &amp; <code>meson_currency</code>):</strong> every transaction freezes the exact exchange rate at execution time (<code>exchange_rate_model.dart</code>), guaranteeing that later FX shifts never mutate historical margins, Z-Closes, or ledger reports.</li>
+            <li><strong>Dedicated currency conversion engine:</strong> <code>apps/meson_currency</code> (<code>currency_logic.dart</code>, <code>currency_rate_service.dart</code>) isolates fiat and digital denomination math into a reusable client.</li>
+          </ul>
+        </section>
+
+        <section id="ledger">
+          <h2>3. Double-entry ledger &amp; automated payment projection</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-fin-cap">
+            <table class="paper-table">
+              <caption id="en-fin-cap">Table 1 · Accounting modules and enforced invariants in <code>meson_business</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Module</th>
+                  <th scope="col">Responsibility</th>
+                  <th scope="col">Enforced invariant</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>accounting_ledger_operations.dart</code></th>
+                  <td data-label="Responsibility">Journal &amp; general ledger entries</td>
+                  <td data-label="Invariant">Strict <code>∑ Debits == ∑ Credits</code> balance per entry in exact integer cents.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>accounting_posting_integrity.dart</code></th>
+                  <td data-label="Responsibility">Immutability enforcement</td>
+                  <td data-label="Invariant">Posted entries cannot be overwritten; corrections require auditable reversing entries.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>accounting_period_operations.dart</code></th>
+                  <td data-label="Responsibility">Accounting period closure</td>
+                  <td data-label="Invariant">Blocks retroactive postings into closed monthly or fiscal periods.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>payment_accounting_projector.dart</code></th>
+                  <td data-label="Responsibility">POS-to-ledger projection</td>
+                  <td data-label="Invariant">Maps split payments (cash, card, bank transfer, credit) into chart-of-accounts entries without duplication.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="fiscal">
+          <h2>4. Cryptographic fiscal hash chain (SENIAT) &amp; issuer isolation</h2>
+          <p>
+            Following <code>FISCAL_ARCHITECTURE.md</code>, <code>FiscalAuditService</code>, <code>FiscalDocumentRepository</code>, and <code>FiscalIssuerRepository</code> enforce three regulatory invariants:
+          </p>
+          <ul>
+            <li><strong>Register vs. fiscal decoupling:</strong> opening or closing a cash drawer never alters sequential fiscal numbering or document validity.</li>
+            <li><strong>Sequential cryptographic hash chaining:</strong> each fiscal document incorporates the cryptographic hash of the immediately preceding document, creating a tamper-evident audit chain aligned with SENIAT requirements.</li>
+            <li><strong>Frozen issuer snapshots &amp; idempotent dispatch:</strong> tax issuer metadata is frozen per document, and retries verify idempotency before re-transmission.</li>
+          </ul>
+        </section>
+
+        <section id="treasury">
+          <h2>5. Blind Z-Close reconciliation, 3-Way AP matching &amp; SaaS MRR</h2>
+          <ul>
+            <li><strong>Blind cash-drawer count (<code>cash_checkout_totals.dart</code>):</strong> cashiers declare counted physical denominations without seeing expected totals; the controller reconciles opening float, drawer withdrawals (<code>cash_drawer_withdrawal_recorder</code>), card settlements, and variance before sealing Z-Close.</li>
+            <li><strong>3-Way AP matching (<code>supplier_finance_integrity.dart</code>, <code>supplier_finance_safety.dart</code>):</strong> supplier disbursements (<code>supplier_payables_global.dart</code>) require cross-verification across Purchase Order ↔ Goods Received Note (GRN) ↔ Supplier Invoice.</li>
+            <li><strong>Recursive BOM costing (<code>inventory_cost_evidence.dart</code>):</strong> real product costs roll up recursively across nested recipes adjusted by ingredient yield.</li>
+            <li><strong>SaaS revenue &amp; cost plane (<code>meson_central</code>):</strong> <code>revenue_registry.dart</code> and <code>platform_costs_screen.dart</code> aggregate multi-tenant subscription MRR against cloud infrastructure spend.</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>6. Test coverage &amp; honest scope</h2>
+          <p>
+            Financial invariants are backed by <strong>48 test files</strong> across the monorepo: 10 in <code>test/features/accounting/</code>, 21 in <code>test/features/cash_register/</code>, 7 in <code>test/features/fiscal/</code> and <code>invoicing/</code>, plus 10 across <code>purchasing/</code>, <code>meson_db/test/</code>, and <code>meson_models/test/</code> (<code>bom_yield_stress_test.dart</code>, <code>nested_bom_test.dart</code>).
+          </p>
+          <p>
+            <strong>Honest scope:</strong> formal government certification of physical fiscal printers or tax-authority APIs depends on external jurisdictional homologation; this report documents software-verified architectural invariants.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/meson-finance-erp/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-management-erp/">Paper 6: Management &amp; ERP ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

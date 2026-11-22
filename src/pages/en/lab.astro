@@ -27,8 +27,8 @@ import { publicCrates } from '../../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Research &amp; Papers (4 technical reports)</h2>
-      <span>Bilingual technical reports with reproducible ablations, verified architecture, and formal derivations</span>
+      <h2>Research &amp; Papers (8 technical reports)</h2>
+      <span>Bilingual technical reports from Cockpit v2.0 and Meson with verified architecture, real test suites, and formal derivations</span>
     </div>
     <div class="lab-grid">
       <article>
@@ -71,6 +71,46 @@ import { publicCrates } from '../../data/profile';
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-algebraic-compression/">Read note (EN) ↗</a>
           <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-algebraic-compression/">Español ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 5 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Offline-First Financial Apps, Double-Entry &amp; Fiscal Hash Chains</h2>
+        <p>Mission-critical financial invariants: exact integer cent math via <code>BigInt</code> (<code>maxExact = 2⁵³−1</code>), immutable double-entry ledger, frozen multi-currency FX snapshots, 3-Way AP matching (PO↔GRN↔Invoice), blind Z-Close reconciliation, and SENIAT cryptographic fiscal hash chains.</p>
+        <p class="lab-stack-line">ExactCentAmounts · Double-Entry · 3-Way AP · SENIAT Hash · 48 test files</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-finance-erp/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-finance-erp/">Español ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 6 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Modular Multi-Tenant ERP, RBAC, BOM &amp; HR Kiosk Architecture</h2>
+        <p>Governing 44 deferred-loaded modules (<code>deferred as</code>), operation-level RBAC guards, recursive BOM/yield/shrinkage/par-level math, Atelier HR attendance kiosk state machine &amp; payroll, hardware-bound HMAC anti-clock licensing, and RS-232 anti-theft scales.</p>
+        <p class="lab-stack-line">44 Modules · RBAC · BOM/Shrinkage · Atelier HR · HMAC License · RS-232</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-management-erp/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-management-erp/">Español ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 7 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Causal LAN Sync (HLC/CRDT/AEAD) &amp; Opportunistic Courier Mesh</h2>
+        <p>Causal consistency during ISP outages: Hybrid Logical Clocks + tombstone LWW-CRDTs with anti-replay <code>ChaCha20-Poly1305</code> framing (<code>lan-delta-sync</code>), Isar WAL idempotency, and a DTN mesh relay where courier smartphones ferry encrypted POS deltas to the cloud.</p>
+        <p class="lab-stack-line">HLC · LWW-CRDT · ChaCha20-Poly1305 · Isar WAL · DTN Mesh Relay · Green CI</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-offline-mesh/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Español ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 8 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>Generational FFI Arenas, DAG Solver &amp; Zero-Cloud Edge AI in Rust</h2>
+        <p>Panic-safe C-ABI / <code>dart:ffi</code> bridge with <code>u64</code> generational handles (<code>ffi-arena-bridge</code>, live C99 CI smoke test), incremental DAG spreadsheet solver with cycle detection, offline SQLite RAG + TF-IDF/SIF + Whisper STT, and <code>qbsdiff</code> binary delta patching.</p>
+        <p class="lab-stack-line">u64 FFI Arena · catch_unwind · SheetDag · SQLite RAG · Whisper · qbsdiff</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-rust-edge/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-rust-edge/">Español ↗</a>
         </div>
       </article>
     </div>

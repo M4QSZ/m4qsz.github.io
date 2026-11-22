@@ -1,0 +1,122 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 8: Panic-Safe Generational FFI Arenas, DAG Spreadsheet Engine & Zero-Cloud Edge AI in Rust | Miguel Quevedo"
+  description="Technical Report v1.0 — u64 generational handle C-ABI/dart:ffi bridge (ffi-arena-bridge), DAG spreadsheet solver, offline SQLite RAG + Whisper STT, qbsdiff delta updates & GPUI."
+  pageLabel="Paper 8 · Rust FFI & Edge AI"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Panic-Safe Generational FFI Arenas, DAG Spreadsheet Solving, and Zero-Cloud Edge AI in Rust</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Memory-safe Rust ↔ Dart/C99 boundary engineering (<code>ffi-arena-bridge</code>) paired with native compute engines for incremental DAG spreadsheets, offline SQLite RAG + Whisper STT, and <code>qbsdiff</code> binary delta patching.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited modules</span><strong><code>public-oss/ffi-arena-bridge</code> · <code>sheets_engine.rs</code> · <code>local_ai_engine.rs</code> · <code>crates/meson_ai</code> · <code>crates/meson_speech_worker</code> · <code>meson_gpui</code></strong></div>
+      <div><span>Verifiable evidence</span><strong>Public MIT repo with live C99 <code>cdylib</code> smoke test (Ubuntu+Windows CI) + ~155 Rust unit tests in Meson</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/meson-rust-edge/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">Public repo ffi-arena-bridge ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/projects/suite-rust-nativa/">Rust Suite Case ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Rust FFI and Edge AI invariants">
+        <div class="paper-kpi"><strong>u64 Handles</strong><span>Generational arena · zero use-after-free or double-free</span></div>
+        <div class="paper-kpi"><strong>catch_unwind</strong><span>Panic shield at every <code>extern "C"</code> entry point</span></div>
+        <div class="paper-kpi"><strong>SheetDag</strong><span>Topological evaluation + Tarjan/DFS cycle detection</span></div>
+        <div class="paper-kpi"><strong>Zero-Cloud AI</strong><span>SQLite RAG + TF-IDF/SIF + offline Whisper STT</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#summary">1. Offloading heavy compute from the UI isolate</a>
+        <a href="#ffi">2. Generational FFI arenas (<code>ffi-arena-bridge</code>) &amp; panic shields</a>
+        <a href="#dag">3. Incremental DAG spreadsheet engine (<code>sheets_engine.rs</code>)</a>
+        <a href="#ai">4. Zero-cloud edge AI: SQLite RAG, TF-IDF/SIF &amp; Whisper STT</a>
+        <a href="#native">5. Delta patching (<code>qbsdiff</code>), SIMD &amp; <code>meson_gpui</code></a>
+        <a href="#validity">6. CI verification &amp; future benchmarks</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#summary">1. Motivation</a>
+        <a href="#ffi">2. u64 FFI Arenas</a>
+        <a href="#dag">3. DAG Engine</a>
+        <a href="#ai">4. Offline Edge AI</a>
+        <a href="#native">5. qbsdiff &amp; GPUI</a>
+        <a href="#validity">6. CI &amp; Scope</a>
+      </aside>
+      <div class="case-content">
+        <section id="summary">
+          <h2>1. Offloading heavy compute from the UI isolate</h2>
+          <p>
+            Running full-text indexing, large spreadsheet recalculations, speech recognition, or SIMD media transforms on a Flutter/Dart UI isolate degrades frame pacing, while exposing raw heap pointers over FFI introduces use-after-free, double-free, and undefined behavior when Rust panics unwind across C frames.
+          </p>
+          <p>
+            Meson resolves this by isolating 49 native Rust APIs across 8 workspace crates behind a zero-dependency generational arena pattern open-sourced in <code>ffi-arena-bridge</code>.
+          </p>
+        </section>
+
+        <section id="ffi">
+          <h2>2. Generational FFI arenas (<code>ffi-arena-bridge</code>) &amp; panic shields</h2>
+          <ul>
+            <li><strong>Opaque <code>u64</code> handles instead of raw pointers (<code>abi.rs</code>, <code>engine.rs</code>):</strong> <code>ArenaBridge</code> packs slot index + <code>GenerationId</code> into a 64-bit <code>OpaqueHandle</code>. Stale reads or double-frees fail generation checks and return deterministic error codes instead of corrupting memory.</li>
+            <li><strong>Mandatory <code>catch_unwind</code> boundary:</strong> every <code>extern "C"</code> entry point traps Rust panics and translates them into structured error codes.</li>
+            <li><strong>Bounded slice views &amp; trigram search (<code>trigram.rs</code>):</strong> <code>SafeSliceView</code> enforces explicit buffer bounds alongside a deterministic trigram catalog verified by <code>tests/integration_ffi.rs</code> and the live C99 <code>cdylib</code> binary <code>tests/c_smoke.c</code>.</li>
+          </ul>
+        </section>
+
+        <section id="dag">
+          <h2>3. Incremental DAG spreadsheet engine (<code>sheets_engine.rs</code>)</h2>
+          <ul>
+            <li><strong>Dependency graph &amp; cycle validation (<code>SheetDag</code>, <code>DependencyGraph</code>, <code>CycleDetector</code>):</strong> models cell references as a directed acyclic graph and rejects circular references via DFS/Tarjan validation before propagation.</li>
+            <li><strong>Topological incremental recalculation:</strong> edits re-evaluate only the affected downstream subgraph (<code>FormulaEvaluator</code>) with XLSX export, yielding <em>O(1)</em> amortized updates on independent cells.</li>
+          </ul>
+        </section>
+
+        <section id="ai">
+          <h2>4. Zero-cloud edge AI: SQLite RAG, TF-IDF/SIF &amp; Whisper STT</h2>
+          <ul>
+            <li><strong>Sub-millisecond local retrieval:</strong> <code>LocalRagEngine</code> combines <code>SqliteVectorStore</code>, <code>TfIdfIndex</code>, Smooth Inverse Frequency (SIF) sentence embeddings, phonetic/Levenshtein spellcheck, and domain slang dictionaries with zero cloud API calls.</li>
+            <li><strong>Offline voice pipeline:</strong> <code>WhisperWorker</code> (<code>crates/meson_speech_worker</code>) handles local speech-to-text paired with pre-generated TTS caches (<code>generate_tts_cache</code>) during outages.</li>
+          </ul>
+        </section>
+
+        <section id="native">
+          <h2>5. Delta patching (<code>qbsdiff</code>), SIMD &amp; <code>meson_gpui</code></h2>
+          <ul>
+            <li><strong>Binary delta updates:</strong> <code>meson_updater</code> and <code>meson_patcher</code> apply <code>qbsdiff</code> binary patches to minimize update bandwidth on constrained links.</li>
+            <li><strong>SIMD media &amp; Win32 recovery:</strong> <code>meson_media</code> accelerates image resizing with SIMD instructions alongside Win32 input-freeze recovery.</li>
+            <li><strong>Pure-Rust GPUI desktop exploration (<code>meson_gpui</code>):</strong> 33 Rust files on GPUI CE (<code>desktop_grid.rs</code>, <code>taskbar.rs</code>, <code>window_layer.rs</code>) validate direct GPU-rendered desktop shells without web runtimes.</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>6. CI verification &amp; future benchmarks</h2>
+          <p>
+            <a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> runs Rust integration tests and compiles/executes a live C99 client against the shared library in GitHub Actions (Ubuntu and Windows). Future work includes publishing a reproducible 1M FFI-crossing micro-benchmark and 50k-document RAG latency profile.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/meson-rust-edge/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-finance-erp/">Paper 5: Finance &amp; Fiscal ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>
