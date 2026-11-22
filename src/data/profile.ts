@@ -308,20 +308,165 @@ export const projects: ProjectItem[] = [
   },
 ];
 
-export const capabilities = [
+export interface CapabilitySkill {
+  name: string;
+  core?: boolean;
+}
+
+export interface CapabilityGroup {
+  index: string;
+  label: string;
+  detail: string;
+  skills: CapabilitySkill[];
+}
+
+export const capabilities: CapabilityGroup[] = [
   {
-    label: 'Apps multiplataforma y sistemas',
-    detail: 'PC (Windows), móvil y web con código modular, motores Skia/Impeller/GPUI, FFI nativo y control de versiones.',
-    skills: ['Dart', 'Flutter (Deferred Components)', 'Skia / Impeller', 'Rust (68k+ LOC)', 'GPUI', 'C-ABI / FRB FFI', 'Kotlin', 'Isar / WAL', 'HLC / CRDT / AES-GCM', 'Win32 Interop', 'RS-232 / ESC-POS', 'Git', 'Git LFS'],
+    index: '01',
+    label: 'Sistemas nativos, Rust y multiplataforma',
+    detail: 'Software de escritorio, móvil y red local con motores nativos (GPUI, Skia/Impeller), puentes FFI seguros y sincronización cifrada.',
+    skills: [
+      { name: 'Rust (68k+ LOC)', core: true },
+      { name: 'GPUI', core: true },
+      { name: 'Flutter / Dart', core: true },
+      { name: 'C-ABI / FRB FFI', core: true },
+      { name: 'Kotlin' },
+      { name: 'Skia / Impeller' },
+      { name: 'Isar / WAL' },
+      { name: 'HLC / CRDT' },
+      { name: 'ChaCha20 / AES-GCM' },
+      { name: 'Iroh QUIC' },
+      { name: 'Tailscale Serve' },
+      { name: 'Win32 UIA' },
+      { name: 'qbsdiff' },
+      { name: 'RS-232 / ESC-POS' },
+    ],
   },
   {
-    label: 'Web, bases de datos e IA',
-    detail: 'Sistemas agénticos MCP, aplicaciones web, diseño relacional y NoSQL, migración Firebase/Firestore → Supabase/PostgreSQL, Whisper offline y RAG local.',
-    skills: ['MCP / AI Systems', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'WebRTC', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite RAG', 'Cloud Firestore', 'Firebase', 'Whisper STT / Local AI', 'qbsdiff'],
+    index: '02',
+    label: 'Agentes IA, MCP y datos',
+    detail: 'Servidores MCP concurrentes, compresión determinista de contexto, RAG local offline y migración entre NoSQL y SQL.',
+    skills: [
+      { name: 'MCP (stdio / JSON-RPC)', core: true },
+      { name: 'Compresión AST / CLI', core: true },
+      { name: 'SQLite RAG / TF-IDF', core: true },
+      { name: 'Whisper STT / IA Local' },
+      { name: 'Prompt Engineering' },
+      { name: 'PostgreSQL', core: true },
+      { name: 'Supabase', core: true },
+      { name: 'Firebase / Firestore' },
+      { name: 'MySQL' },
+      { name: 'WebRTC' },
+    ],
   },
   {
-    label: 'Videojuegos, producto y equipo',
-    detail: 'Motores activos, producto 0 a 1 (MVP con retroalimentación), fidelidad 1:1 a diseño (on-model), coordinación multidisciplinaria y AppSec.',
-    skills: ['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (base)', 'MVP (0 a 1)', 'Diseño 1:1 (on-model)', 'Coordinación de proyectos', 'Trabajo en equipo', 'Depuración / AppSec', 'C / C++', 'Java', 'PHP / Laravel', 'Django'],
+    index: '03',
+    label: 'Web full-stack e ingeniería',
+    detail: 'Aplicaciones web rápidas y mantenibles, flujos 0 a 1 (MVP), integración continua multiplataforma y seguridad aplicada.',
+    skills: [
+      { name: 'TypeScript', core: true },
+      { name: 'Next.js', core: true },
+      { name: 'React' },
+      { name: 'Astro', core: true },
+      { name: 'Tailwind CSS' },
+      { name: 'Python', core: true },
+      { name: 'JavaScript' },
+      { name: 'HTML / CSS' },
+      { name: 'Git / Git LFS' },
+      { name: 'GitHub Actions CI' },
+      { name: 'AppSec / Debugging' },
+    ],
+  },
+  {
+    index: '04',
+    label: 'Videojuegos, 3D y pipelines media',
+    detail: 'Motores interactivos con lógica desacoplada y herramientas headless para auditoría, generación de assets 3D y video en lote.',
+    skills: [
+      { name: 'Unity / C#', core: true },
+      { name: 'Roblox Studio / Luau', core: true },
+      { name: 'Rojo / Lune', core: true },
+      { name: 'Blender Python (bpy)', core: true },
+      { name: 'FFmpeg' },
+      { name: 'Flame' },
+      { name: 'Bevy (Rust)' },
+      { name: 'Godot (base)' },
+    ],
   },
 ];
+
+export const capabilitiesEn: CapabilityGroup[] = [
+  {
+    index: '01',
+    label: 'Native systems, Rust & multiplatform',
+    detail: 'Desktop, mobile and local-first networking built on native engines (GPUI, Skia/Impeller), panic-safe FFI bridges and encrypted sync.',
+    skills: [
+      { name: 'Rust (68k+ LOC)', core: true },
+      { name: 'GPUI', core: true },
+      { name: 'Flutter / Dart', core: true },
+      { name: 'C-ABI / FRB FFI', core: true },
+      { name: 'Kotlin' },
+      { name: 'Skia / Impeller' },
+      { name: 'Isar / WAL' },
+      { name: 'HLC / CRDT' },
+      { name: 'ChaCha20 / AES-GCM' },
+      { name: 'Iroh QUIC' },
+      { name: 'Tailscale Serve' },
+      { name: 'Win32 UIA' },
+      { name: 'qbsdiff' },
+      { name: 'RS-232 / ESC-POS' },
+    ],
+  },
+  {
+    index: '02',
+    label: 'AI agents, MCP & data',
+    detail: 'Concurrent MCP servers, deterministic context compression, offline local RAG and production NoSQL-to-SQL migrations.',
+    skills: [
+      { name: 'MCP (stdio / JSON-RPC)', core: true },
+      { name: 'AST / CLI Compression', core: true },
+      { name: 'SQLite RAG / TF-IDF', core: true },
+      { name: 'Whisper STT / Local AI' },
+      { name: 'Prompt Engineering' },
+      { name: 'PostgreSQL', core: true },
+      { name: 'Supabase', core: true },
+      { name: 'Firebase / Firestore' },
+      { name: 'MySQL' },
+      { name: 'WebRTC' },
+    ],
+  },
+  {
+    index: '03',
+    label: 'Full-stack web & engineering',
+    detail: 'Fast, maintainable web platforms, 0-to-1 MVP execution, cross-platform CI pipelines and pragmatic application security.',
+    skills: [
+      { name: 'TypeScript', core: true },
+      { name: 'Next.js', core: true },
+      { name: 'React' },
+      { name: 'Astro', core: true },
+      { name: 'Tailwind CSS' },
+      { name: 'Python', core: true },
+      { name: 'JavaScript' },
+      { name: 'HTML / CSS' },
+      { name: 'Git / Git LFS' },
+      { name: 'GitHub Actions CI' },
+      { name: 'AppSec / Debugging' },
+    ],
+  },
+  {
+    index: '04',
+    label: 'Games, 3D & media pipelines',
+    detail: 'Interactive engines with decoupled simulation cores plus headless automation for Luau audits, 3D asset prep and batch video.',
+    skills: [
+      { name: 'Unity / C#', core: true },
+      { name: 'Roblox Studio / Luau', core: true },
+      { name: 'Rojo / Lune', core: true },
+      { name: 'Blender Python (bpy)', core: true },
+      { name: 'FFmpeg' },
+      { name: 'Flame' },
+      { name: 'Bevy (Rust)' },
+      { name: 'Godot (familiar)' },
+    ],
+  },
+];
+
+export const priorStack = ['C / C++', 'Java', 'PHP / Laravel', 'Django', 'MVP (0 → 1)', 'Diseño 1:1 (on-model)'];
+export const priorStackEn = ['C / C++', 'Java', 'PHP / Laravel', 'Django', 'MVP (0 → 1)', '1:1 Design (on-model)'];

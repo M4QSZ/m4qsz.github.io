@@ -4,7 +4,7 @@ import HeroShowcase from '../../components/HeroShowcase.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import ProjectFilter from '../../components/ProjectFilter.astro';
 import CopyEmailButton from '../../components/CopyEmailButton.astro';
-import { profile } from '../../data/profile';
+import { capabilitiesEn, priorStackEn, profile } from '../../data/profile';
 import { englishProjects } from '../../data/english';
 
 const flagship = englishProjects.find((project) => project.number === '01')!;
@@ -118,32 +118,36 @@ const toCardProps = (p: (typeof englishProjects)[number]) => ({
           <p>Active verified stack separated clearly from prior coursework and pre-Git experience.</p>
         </div>
         <div class="capability-grid">
-          <div class="capability-col reveal-on-scroll">
-            <h3>Multiplatform & systems</h3>
-            <p>Desktop (Windows), mobile and web with modular code, Skia/Impeller engines, FFI, persistence and Git.</p>
-            <div class="skill-list">
-              {['Dart', 'Flutter', 'Skia / Impeller', 'Rust', 'Flutter Rust Bridge', 'Kotlin', 'Isar', 'LAN P2P / UDP / TCP', 'Git', 'Git LFS'].map((skill) => <span>{skill}</span>)}
+          {capabilitiesEn.map((group) => (
+            <div class="capability-col reveal-on-scroll">
+              <div class="capability-head">
+                <span class="capability-index">{group.index}</span>
+                <h3>{group.label}</h3>
+              </div>
+              <p>{group.detail}</p>
+              <div class="skill-list">
+                {group.skills.map((skill) => (
+                  <span class={skill.core ? 'skill-chip skill-chip--core' : 'skill-chip'}>{skill.name}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="skills-footer reveal-on-scroll">
+          <div>
+            <strong>Prior stack &amp; product</strong>
+            <div class="skill-list skill-list--compact">
+              {priorStackEn.map((item) => <span class="skill-chip skill-chip--muted">{item}</span>)}
             </div>
           </div>
-          <div class="capability-col reveal-on-scroll">
-            <h3>Web, databases & AI</h3>
-            <p>Web platforms, relational/NoSQL modeling, Firebase/Firestore to Supabase/PostgreSQL migration, LLMs and Prompt Engineering.</p>
-            <div class="skill-list">
-              {['TypeScript', 'JavaScript', 'HTML', 'CSS', 'Next.js', 'React', 'Astro', 'Python', 'PostgreSQL', 'Supabase', 'MySQL', 'SQLite', 'Cloud Firestore', 'Firebase', 'LLMs / Meson IA', 'Prompt Engineering'].map((skill) => <span>{skill}</span>)}
-            </div>
-          </div>
-          <div class="capability-col reveal-on-scroll">
-            <h3>Games, product & teamwork</h3>
-            <p>Active engines, 0-to-1 MVP with feedback, 1:1 "on-model" design fidelity, cross-functional teams, AppSec and pre-Git stack.</p>
-            <div class="skill-list">
-              {['Unity', 'C#', 'Flame', 'Roblox Studio', 'Luau / Lua', 'Bevy (Rust)', 'Godot (familiar)', 'MVP (0-to-1)', '1:1 Design (on-model)', 'Project coordination', 'Teamwork', 'Debugging / AppSec', 'C / C++', 'Java', 'PHP / Laravel', 'Django'].map((skill) => <span>{skill}</span>)}
-            </div>
+          <div>
+            <strong>Languages &amp; lab</strong>
+            <p class="skills-note-inline">
+              Spanish &amp; English (bilingual), Portuguese &amp; Italian (advanced), German &amp; Japanese (basic).
+              The <a href="/en/lab/">lab</a> adds technical reports and verified samples in Rust, C, Assembly, C++, Swift and PHP.
+            </p>
           </div>
         </div>
-        <p class="skills-note">
-          Languages: Spanish & English (bilingual / 100%), Portuguese & Italian (advanced), German & Japanese (basic).
-          The lab adds Rust, C, Assembly, C++, Swift and PHP examples with explicit verification status.
-        </p>
       </div>
     </section>
 

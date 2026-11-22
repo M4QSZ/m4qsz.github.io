@@ -4,7 +4,7 @@ import HeroShowcase from '../components/HeroShowcase.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectFilter from '../components/ProjectFilter.astro';
 import CopyEmailButton from '../components/CopyEmailButton.astro';
-import { capabilities, profile, projects } from '../data/profile';
+import { capabilities, priorStack, profile, projects } from '../data/profile';
 
 const flagshipProject = projects.find((project) => project.number === '01')!;
 const cockpitProject = projects.find((project) => project.number === '18')!;
@@ -104,18 +104,34 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
         <div class="capability-grid">
           {capabilities.map((group) => (
             <div class="capability-col reveal-on-scroll">
-              <h3>{group.label}</h3>
+              <div class="capability-head">
+                <span class="capability-index">{group.index}</span>
+                <h3>{group.label}</h3>
+              </div>
               <p>{group.detail}</p>
               <div class="skill-list">
-                {group.skills.map((skill) => <span>{skill}</span>)}
+                {group.skills.map((skill) => (
+                  <span class={skill.core ? 'skill-chip skill-chip--core' : 'skill-chip'}>{skill.name}</span>
+                ))}
               </div>
             </div>
           ))}
         </div>
-        <p class="skills-note">
-          Idiomas: español e inglés (100% / bilingüe), portugués e italiano (avanzado), alemán y japonés (básico).
-          El laboratorio añade muestras en Rust, C, ensamblador, C++, Swift y PHP con su estado de verificación.
-        </p>
+        <div class="skills-footer reveal-on-scroll">
+          <div>
+            <strong>Stack previo y producto</strong>
+            <div class="skill-list skill-list--compact">
+              {priorStack.map((item) => <span class="skill-chip skill-chip--muted">{item}</span>)}
+            </div>
+          </div>
+          <div>
+            <strong>Idiomas y laboratorio</strong>
+            <p class="skills-note-inline">
+              Español e inglés (bilingüe), portugués e italiano (avanzado), alemán y japonés (básico).
+              El <a href="/laboratorio/">laboratorio</a> añade reportes técnicos y muestras verificadas en Rust, C, ensamblador, C++, Swift y PHP.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
