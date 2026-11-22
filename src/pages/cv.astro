@@ -11,7 +11,7 @@ import { profile } from '../data/profile';
     </div>
     <article class="cv-sheet">
       <h1>{profile.name}</h1>
-      <p class="cv-role">Ingeniero de software multiplataforma (PC · Móvil · Web) | Flutter · Dart · Rust · Unity (C#) · Web</p>
+      <p class="cv-role">Ingeniero de Sistemas Rust e Infraestructura IA (MCP / GPUI) · Multiplataforma (Flutter · Dart · Kotlin · Unity C# · Web)</p>
       <p class="cv-meta">
         Estado Aragua, Venezuela (Remoto · Híbrido · Presencial · Jornada completa/media · Reubicación) ·
         <a href={`mailto:${profile.email}`}>{profile.email}</a> ·
@@ -48,7 +48,7 @@ import { profile } from '../data/profile';
           <li><strong>Brasas (Flutter y Unity C#):</strong> Paquete compartido Flutter (<code>meson_brasas</code> integrado en Meson Pausa) y versión independiente en Unity 6.3 LTS (C# desacoplado, pruebas EditMode/PlayMode y scripts Python).</li>
           <li><strong>El Pueblo del Faro (Roblox Studio):</strong> Experiencia independiente en desarrollo con Luau cliente/servidor, Rojo y empaquetado Python (pendiente de pruebas en Studio).</li>
           <li><strong>Alma (Next.js) y sitios Astro:</strong> E-commerce estilo marketplace Alma con Next.js, React, TypeScript y Supabase (catálogo, Fuse.js, roles, panel admin, Recharts, Resend, checkout demo) y dos proyectos Astro (servicios técnicos y prototipo QR/NFC).</li>
-          <li><strong>Cockpit (Orquestador Multi-CLI en Rust + GPUI + MCP):</strong> Aplicación de escritorio nativa y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode con cuotas en vivo, worktrees Git con <em>quality gates</em> y diff lado a lado (<a href="/proyectos/cockpit/">caso</a> · 139 tests Rust). <em>Technical Report (<a href="/laboratorio/cockpit-paper/">web</a> / <a href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF</a>):</em> reducción medida de 94.13% en esqueletos, 84.94% en filtrado CLI, 88.34%–97.31% en compactación y 3/3 en <code>LoopGuard</code> (0 FP).</li>
+          <li><strong>Cockpit v2.0 (Orquestador Multi-CLI en Rust + GPUI CE 0.3.0 + MCP · ~68k LOC Rust · 52 módulos runtime · 216 tests):</strong> Escritorio nativo y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode con cuotas 5h/7d, MCP-Zero/TOON/LSP, worktrees Git con <em>quality gates</em>, red local-first (Iroh QUIC, Tailscale Serve, WireGuard userspace <code>wgproxyrs</code>, app Android Kotlin + QR/HMAC) y harnesses zero-vision (Win32 UIA, Blender <code>bpy</code>, Roblox Rojo/Lune, FFmpeg) (<a href="/proyectos/cockpit/">caso</a> · <a href="/laboratorio/">4 reportes técnicos bilingües</a> · <a href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF</a>: 94.13% en esqueletos, 84.94% en CLI filter, 88.34%–97.31% en compactación, 3/3 <code>LoopGuard</code> 0 FP).</li>
           <li><strong>Meson IA y prototipos:</strong> Automatización aplicada con LLMs y flujos estructurados de prompts (Meson IA), más prototipo 2D en Rust con Bevy.</li>
         </ul>
       </section>
@@ -65,7 +65,7 @@ import { profile } from '../data/profile';
 
       <section>
         <h2>Tecnologías y conocimientos</h2>
-        <p><strong>Principal (activo):</strong> Flutter (Impeller / Skia / Deferred Components), Dart, Flame, Rust, <code>C-ABI</code> / <code>dart:ffi</code>, WebRTC, HLC / CRDTs, AES-256-GCM / Argon2, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, CI/CD (GitHub Actions), Whisper STT / IA Local RAG, parches binarios <code>qbsdiff</code>, Win32 Interop, hardware RS-232 / ESC-POS, SEO técnico.</p>
+        <p><strong>Principal (activo):</strong> Rust (GPUI CE 0.3.0, MCP stdio, Iroh QUIC, WireGuard userspace, <code>C-ABI</code> / <code>dart:ffi</code>), Flutter (Impeller / Skia / Deferred Components), Dart, Flame, WebRTC, HLC / CRDTs, AES-256-GCM / Argon2, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua (Rojo/Lune), Blender <code>bpy</code>, FFmpeg, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, CI/CD (GitHub Actions), Whisper STT / IA Local RAG, parches binarios <code>qbsdiff</code>, Win32 UIA / Interop, hardware RS-232 / ESC-POS, SEO técnico.</p>
         <p><strong>Prácticas de ingeniería:</strong> Arquitectura modular / Clean Architecture, diseño offline-first, migración NoSQL ↔ SQL, pruebas automatizadas, perfilado de memoria y estabilidad, ciberseguridad de aplicaciones (AppSec), liderazgo técnico y coordinación multidisciplinaria, Godot y base en C, C++, Java, PHP, Laravel y Django.</p>
       </section>
 

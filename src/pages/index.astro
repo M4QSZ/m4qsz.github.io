@@ -7,6 +7,7 @@ import CopyEmailButton from '../components/CopyEmailButton.astro';
 import { capabilities, profile, projects } from '../data/profile';
 
 const flagshipProject = projects.find((project) => project.number === '01')!;
+const cockpitProject = projects.find((project) => project.number === '18')!;
 const webProjects = projects.filter((project) => ['06', '07', '08'].includes(project.number));
 const mesonSystems = projects.filter((project) => ['02', '03', '04', '05', '09', '10', '14', '15', '16', '17'].includes(project.number));
 const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(project.number));
@@ -20,7 +21,7 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
       <div class="hero-copy">
         <h1>Diseño la idea y construyo el sistema completo.</h1>
         <p class="hero-lede">
-          Apps multiplataforma en Flutter y Rust, videojuegos en Unity C# y web Next.js o Astro.
+          Sistemas en Rust (GPUI + MCP + P2P), apps multiplataforma Flutter/Kotlin, videojuegos Unity C# y web Next.js o Astro.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="#proyectos">Explorar proyectos <span aria-hidden="true">↘</span></a>
@@ -58,6 +59,7 @@ const gamesAndAi = projects.filter((project) => ['11', '12', '13'].includes(proj
       <div class="project-section-block">
         <div class="project-grid">
           <ProjectCard {...flagshipProject} featured={true} group="systems" isEnglish={false} />
+          <ProjectCard {...cockpitProject} featured={true} group="systems" isEnglish={false} />
         </div>
         <div class="project-grid project-grid--3" style="margin-top: 22px;">
           {webProjects.map((project) => (
