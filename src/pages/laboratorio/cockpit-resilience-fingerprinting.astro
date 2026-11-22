@@ -1,0 +1,125 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 9: Resiliencia ante Cortes de Luz, Reanudación Delta y Behavioral Fingerprinting | Miguel Quevedo"
+  description="Technical Report v1.0 — Persistencia split atómica con sync_all() cada 15 s, Git-Anchored Delta Resumption, Stale-Session Self-Healing y Black-Box Behavioral Fingerprinting en Cockpit."
+  pageLabel="Paper 9 · Crash Resilience & Fingerprinting"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Resiliencia Zero-Token ante Cortes de Luz, Reanudación Delta Anclada en Git y Black-Box Behavioral Fingerprinting en Cockpit</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Persistencia durable estilo <code>sync_all()</code> ante cortes físicos de energía (como en Meson), reanudación de turnos interrumpidos anclada en <code>git status</code>, auto-curación de sesiones CLI corruptas y modelado conductual black-box a costo $0.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>workspace_state.rs</code> · <code>app.rs</code> · <code>loop_guard.rs</code> · <code>agent_runner.rs</code> · <code>telemetry.rs</code> · <code>mcp_server.rs</code></strong></div>
+      <div><span>Rigor y verificación</span><strong>Arquitectura implementada + tests unitarios Rust verificados · ablaciones de producción marcadas <code>[TBD]</code></strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-resilience-fingerprinting/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/proyectos/cockpit/">Caso Cockpit ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes de resiliencia y fingerprinting">
+        <div class="paper-kpi"><strong>sync_all() 15s</strong><span><code>workspace_index.json</code> + <code>sessions/&lt;id&gt;.jsonl</code> atómico</span></div>
+        <div class="paper-kpi"><strong>Git Delta Resume</strong><span><code>git status --short</code> + cola <code>300</code>/<code>600</code> chars ($0 tokens)</span></div>
+        <div class="paper-kpi"><strong>Self-Healing</strong><span>Limpia <code>cli_sessions[slot]</code> en <code>interrupted</code> + clasifica <code>401</code></span></div>
+        <div class="paper-kpi"><strong>7 Failure Sigs</strong><span><code>ThinkingLoopGuard</code> + <code>ConsecutiveFailGuard</code> 2× FNV-1a</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#resumen">1. Problema: cortes de luz, sesiones envenenadas y cajas negras</a>
+        <a href="#persistencia">2. Persistencia split atómica y durable flush cada 15 s</a>
+        <a href="#reanudacion">3. Git-Anchored Delta Resumption y Self-Healing de sesiones CLI</a>
+        <a href="#fingerprinting">4. Black-Box Behavioral Fingerprinting y trazas sanitizadas</a>
+        <a href="#guards">5. Guards deterministas en streaming y taxonomía de 7 firmas</a>
+        <a href="#ablacion">6. Tests verificados vs. protocolo experimental [TBD]</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#resumen">1. Problema</a>
+        <a href="#persistencia">2. Persistencia 15s</a>
+        <a href="#reanudacion">3. Delta &amp; Self-Heal</a>
+        <a href="#fingerprinting">4. Fingerprinting</a>
+        <a href="#guards">5. Guards &amp; Taxonomía</a>
+        <a href="#ablacion">6. Tests &amp; Ablación</a>
+      </aside>
+      <div class="case-content">
+        <section id="resumen">
+          <h2>1. Problema: cortes de luz, sesiones envenenadas y cajas negras</h2>
+          <p>
+            En estaciones de trabajo sin UPS y flujos agénticos multi-modelo, tres fallos operativos destruyen presupuesto y tiempo: (1) un <strong>corte físico de energía</strong> corrompe archivos de estado monolíticos u obliga a reenviar todo el historial gastando miles de tokens y repitiendo ediciones ya escritas; (2) un <code>conversation_id</code> propietario que queda en estado <code>interrupted</code> produce cascadas de <strong>10×–13× fallos consecutivos</strong> si se reintenta sobre el mismo ID; y (3) intentar extraer CoT cifrado para optimizar el enrutamiento viola términos de servicio y no es portátil entre proveedores.
+          </p>
+        </section>
+
+        <section id="persistencia">
+          <h2>2. Persistencia split atómica y durable flush cada 15 s (<code>workspace_state.rs</code>)</h2>
+          <ul>
+            <li><strong>Almacenamiento dividido:</strong> metadatos livianos en <code>workspace_index.json</code> (~20 KB) y trazas de conversación por hilo en <code>sessions/&lt;id&gt;.jsonl</code> (append-only), escritos siempre vía archivo temporal + <code>rename</code> atómico (<code>atomic_write_bytes_inner</code>).</li>
+            <li><strong>Hilo dedicado <code>cockpit-persist</code>:</strong> coalesce actualizaciones de streaming entre <code>220–1500 ms</code> sin bloquear el render GPUI.</li>
+            <li><strong>Garantía ante cortes de luz:</strong> durante streaming activo vuelca cada <code>2 s</code> al caché del SO y cada <strong><code>15 s</code></strong> fuerza <code>File::sync_all()</code> sobre el archivo y su directorio padre (<code>durable = true</code>), acotando la pérdida máxima ante apagón físico a ≤ 15 s sin corrupción de JSON.</li>
+          </ul>
+        </section>
+
+        <section id="reanudacion">
+          <h2>3. Git-Anchored Delta Resumption y Self-Healing de sesiones CLI (<code>app.rs</code>)</h2>
+          <ul>
+            <li><strong>Anclaje en disco ($0 tokens):</strong> <code>continue_from_partial_turn</code> ejecuta <code>git status --short</code> (máx. 10 entradas) y envía un micro-prompt delta con los últimos <code>300</code> chars (si reutiliza <code>cli_sessions</code> / KV-cache) o <code>600</code> chars (sesión nueva) junto a los archivos ya modificados en disco.</li>
+            <li><strong>Self-Healing ante sesiones corruptas:</strong> si Antigravity devuelve <code>interrupted</code>, Cockpit invalida automáticamente <code>thread.cli_sessions[slot] = None</code> para que el siguiente intento abra una sesión limpia con el delta, eliminando los bucles <code>interrupted</code> repetidos.</li>
+            <li><strong>Clasificación de credenciales:</strong> errores <code>UNAUTHENTICATED (code 401)</code> y <code>Eligibility check failed</code> pausan la cola (<code>queue_paused = true</code>) y piden reautenticación sin quemar reintentos inútiles.</li>
+          </ul>
+        </section>
+
+        <section id="fingerprinting">
+          <h2>4. Black-Box Behavioral Fingerprinting (<code>telemetry.rs</code>)</h2>
+          <p>
+            En lugar de inspeccionar CoT oculto, cada turno delegado registra únicamente estructura sanitizada sin PII ni código en <code>traces/trace_log.jsonl</code>: <code>Input (task_class, read_only) → tool_sequence (≤40, prefijo ! en fallo) → Outcome (pass@1, tokens, latency_ms, failure_signature)</code>.
+          </p>
+          <ul>
+            <li><strong>Partición automática Open-CoT vs. Black-Box:</strong> separa trazas con <code>thinking_chars &gt;= 200</code> (modelos open-weight) de modelos propietarios sin CoT crudo bajo el mismo esquema.</li>
+            <li><strong>Retroalimentación al enrutador (<code>analyze_behavioral_fingerprints</code>):</strong> expuesto vía <code>cockpit_benchmark_models(action:"traces")</code>, agrupa por <code>(model, task_class)</code> y emite <code>behavioral_hints</code> accionables cuando <code>runs &gt;= 3</code> y <code>pass@1 &lt; 60%</code>.</li>
+          </ul>
+        </section>
+
+        <section id="guards">
+          <h2>5. Guards deterministas en streaming y taxonomía de 7 firmas</h2>
+          <ul>
+            <li><strong><code>ThinkingLoopGuard</code> (<code>loop_guard.rs</code>):</strong> corta bucles circulares de duda en <code>ThinkingDelta</code> si detecta <code>&gt;= 6</code> <em>hedging cues</em> bilingües o <code>&gt;= 18,000</code> chars continuos sin emitir tool calls; resetea contadores ante cualquier tool call (<code>record_tool_call</code>).</li>
+            <li><strong><code>ConsecutiveFailGuard</code> (<code>loop_guard.rs</code>):</strong> aplica hash <code>FNV-1a</code> de 64 bits sobre <code>normalize_error_signature</code> y aborta al <strong><code>2×</code> fallo consecutivo idéntico</strong> para escalar rápido en <code>RLM-Cascade</code>.</li>
+            <li><strong>7 firmas mutuamente excluyentes por prioridad (<code>classify_failure_signature</code>):</strong> <code>1. thinking_spin</code> → <code>2. consecutive_tool_fail_or_loop</code> → <code>3. timeout</code> → <code>4. blind_patch_no_read</code> → <code>5. repeated_tool_error</code> → <code>6. no_tool_action</code> → <code>7. unverified_or_exit_nonzero</code>.</li>
+          </ul>
+        </section>
+
+        <section id="ablacion">
+          <h2>6. Tests verificados vs. protocolo experimental [TBD]</h2>
+          <p>
+            <strong>Implementado y verificado hoy:</strong> <code>split_workspace_index_and_append_only_session_jsonl_roundtrip</code>, <code>saves_and_restores_projects_drafts_and_queue_atomically</code> (<code>workspace_state.rs</code>), <code>thinking_loop_breaker_and_consecutive_fail_guard_trip_deterministically</code> (<code>loop_guard.rs</code>) y <code>behavioral_fingerprint_analyzer_detects_blind_patch_and_open_cot_split</code> (<code>telemetry.rs</code>).
+          </p>
+          <p>
+            <strong>Evaluación empírica pendiente (<code>[TBD]</code>):</strong> se proponen dos ablaciones controladas sin cifras sintéticas: (1) <em>replay completo vs. Git-anchored delta resume + self-healing</em> sobre <code>N &gt;= 50</code> cortes forzados (<code>SIGKILL</code> / inyección de <code>interrupted</code>) y (2) <em>sin guards vs. guards + fingerprint routing</em> sobre <code>N &gt;= 120</code> trazas reales en <code>traces/trace_log.jsonl</code>, midiendo <code>pass@1</code>, tokens ahorrados, latencia p50/p95 y falsos positivos de <code>early_abort</code>.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-resilience-fingerprinting/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

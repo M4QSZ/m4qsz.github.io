@@ -52,16 +52,16 @@ import ProjectPreview from '../../components/ProjectPreview.astro';
           </p>
         </section>
         <section>
-          <h2>Expansión v2.0, Worktrees y 3 reportes técnicos públicos</h2>
+          <h2>Persistencia ante cortes de luz, Worktrees y reportes técnicos públicos</h2>
           <p>
-            La interfaz incluye timeline adaptativo, visor de diff unificado y <strong>lado a lado (Split)</strong> con comentarios inline al agente, aislamiento por <strong>Git worktree</strong>, <em>quality gate</em> pre-merge y sección <strong>EQUIPOS</strong> para coordinar PC Windows, laptop Linux y Android (Iroh QUIC, Tailscale, <code>wgproxyrs</code> y <code>/offload</code>). El runtime v2.0 suma MCP-Zero, TOON, LSP JSON-RPC, RTS, MintMCP Guard, Diff Radar, Resource Guard FIFO y harnesses zero-vision (Win32 UIA, Blender CPU <code>bpy</code>, Roblox Rojo/Lune y FFmpeg). Respaldado por <strong>216 tests unitarios Rust</strong> y 3 reportes técnicos bilingües.
+            Igual que Meson, Cockpit garantiza <strong>persistencia durable ante apagones sin UPS</strong>: almacenamiento split atómico (<code>workspace_index.json</code> + <code>sessions/&lt;id&gt;.jsonl</code>) con <code>sync_all()</code> cada 15 s desde <code>cockpit-persist</code>, reanudación delta anclada en <code>git status --short</code> (300/600 chars sin replay completo), self-healing de sesiones CLI <code>interrupted</code> y <strong>Black-Box Behavioral Fingerprinting</strong> (<code>ThinkingLoopGuard</code> + <code>ConsecutiveFailGuard</code> 2× FNV-1a). Incluye visor de diff <strong>Split</strong>, aislamiento por <strong>Git worktree</strong>, sección <strong>EQUIPOS</strong> (Iroh QUIC, Tailscale, <code>wgproxyrs</code>, <code>/offload</code>) y harnesses zero-vision (Win32 UIA, Blender <code>bpy</code>, Roblox Rojo/Lune y FFmpeg).
           </p>
         </section>
       </div>
     </div>
     <div class="detail-actions">
       <a class="button button-primary" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
-      <a class="button button-outline" href="/laboratorio/cockpit-zero-vision/">Paper 2: Zero-Vision ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-resilience-fingerprinting/">Paper 9: Persistencia &amp; Fingerprinting ↗</a>
       <a class="button button-outline" href="/laboratorio/cockpit-distributed/">Paper 3: Multi-Device P2P ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/">Ir al laboratorio técnico ↗</a>
     </div>

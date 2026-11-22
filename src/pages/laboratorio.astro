@@ -27,8 +27,8 @@ import { publicCrates } from '../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Investigación y Papers (8 reportes técnicos)</h2>
-      <span>Reportes técnicos bilingües de Cockpit v2.0 y Meson con arquitectura verificada, pruebas reales y derivaciones formales</span>
+      <h2>Investigación y Papers (9 reportes técnicos)</h2>
+      <span>Reportes técnicos bilingües de Cockpit v2.1 y Meson con arquitectura verificada, pruebas reales y derivaciones formales</span>
     </div>
     <div class="lab-grid">
       <article>
@@ -111,6 +111,16 @@ import { publicCrates } from '../data/profile';
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/meson-rust-edge/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/meson-rust-edge/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 9 · Cockpit Technical Report v1.0 · Nov 2026</span>
+        <h2>Resiliencia ante Cortes de Luz, Reanudación Delta y Fingerprinting</h2>
+        <p>Persistencia split atómica (<code>workspace_index.json</code> + <code>sessions/&lt;id&gt;.jsonl</code>) con <code>sync_all()</code> cada 15 s contra apagones sin UPS, reanudación delta anclada en <code>git status --short</code>, self-healing de sesiones CLI <code>interrupted</code> y Black-Box Behavioral Fingerprinting (<code>ThinkingLoopGuard</code> + <code>ConsecutiveFailGuard</code> 2× FNV-1a + taxonomía de 7 firmas).</p>
+        <p class="lab-stack-line">sync_all() 15s · Git Delta Resume · Self-Healing · Behavioral Fingerprinting · $0 Tokens</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-resilience-fingerprinting/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-resilience-fingerprinting/">English ↗</a>
         </div>
       </article>
     </div>

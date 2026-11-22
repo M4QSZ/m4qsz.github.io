@@ -1,0 +1,126 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 9: Zero-Token Crash Resilience, Git-Anchored Delta Resumption & Behavioral Fingerprinting | Miguel Quevedo"
+  description="Technical Report v1.0 — Split atomic persistence with 15s sync_all() flush, Git-Anchored Delta Resumption, CLI stale-session self-healing, and Black-Box Behavioral Fingerprinting in Cockpit."
+  pageLabel="Paper 9 · Crash Resilience & Fingerprinting"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Zero-Token Crash Resilience, Git-Anchored Delta Resumption, and Black-Box Behavioral Fingerprinting in Cockpit</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Power-loss-safe <code>sync_all()</code> persistence (mirroring Meson's offline durability), <code>git status</code>-anchored turn resumption, automatic stale CLI session self-healing, and `$0` black-box behavioral routing.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited modules</span><strong><code>workspace_state.rs</code> · <code>app.rs</code> · <code>loop_guard.rs</code> · <code>agent_runner.rs</code> · <code>telemetry.rs</code> · <code>mcp_server.rs</code></strong></div>
+      <div><span>Rigor &amp; verification</span><strong>Implemented architecture + passing Rust unit tests · production ablations explicitly marked <code>[TBD]</code></strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/laboratorio/cockpit-resilience-fingerprinting/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Cockpit Case Study ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Resilience and fingerprinting invariants">
+        <div class="paper-kpi"><strong>sync_all() 15s</strong><span>Atomic <code>workspace_index.json</code> + <code>sessions/&lt;id&gt;.jsonl</code></span></div>
+        <div class="paper-kpi"><strong>Git Delta Resume</strong><span><code>git status --short</code> + <code>300</code>/<code>600</code>-char tail ($0 tokens)</span></div>
+        <div class="paper-kpi"><strong>Self-Healing</strong><span>Clears <code>cli_sessions[slot]</code> on <code>interrupted</code> + classifies <code>401</code></span></div>
+        <div class="paper-kpi"><strong>7 Failure Sigs</strong><span><code>ThinkingLoopGuard</code> + <code>ConsecutiveFailGuard</code> 2× FNV-1a</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#summary">1. Problem: power outages, poisoned sessions &amp; black-box LLMs</a>
+        <a href="#persistence">2. Split atomic persistence &amp; 15s durable flush</a>
+        <a href="#resumption">3. Git-Anchored Delta Resumption &amp; CLI self-healing</a>
+        <a href="#fingerprinting">4. Black-Box Behavioral Fingerprinting &amp; sanitized logging</a>
+        <a href="#guards">5. Deterministic streaming guards &amp; 7-signature taxonomy</a>
+        <a href="#ablation">6. Verified unit tests vs. proposed ablation protocol [TBD]</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#summary">1. Problem</a>
+        <a href="#persistence">2. 15s Durability</a>
+        <a href="#resumption">3. Delta &amp; Self-Heal</a>
+        <a href="#fingerprinting">4. Fingerprinting</a>
+        <a href="#guards">5. Guards &amp; Taxonomy</a>
+        <a href="#ablation">6. Tests &amp; Ablation</a>
+      </aside>
+      <div class="case-content">
+        <section id="summary">
+          <h2>1. Problem: power outages, poisoned sessions &amp; black-box LLMs</h2>
+          <p>
+            Long-horizon desktop agent workflows without UPS hardware face three costly failure modes: (1) abrupt power loss corrupts monolithic state files or forces full-history replay that wastes thousands of tokens and repeats edits already on disk; (2) proprietary CLI backends leaving a <code>conversation_id</code> wedged in <code>interrupted</code> trigger <strong>10×–13× cascading retry failures</strong>; and (3) attempting to extract encrypted CoT traces violates provider ToS and fails across black-box APIs.
+          </p>
+        </section>
+
+        <section id="persistence">
+          <h2>2. Split atomic persistence &amp; 15s durable flush (<code>workspace_state.rs</code>)</h2>
+          <ul>
+            <li><strong>Two-tier atomic storage:</strong> lightweight metadata in <code>workspace_index.json</code> (~20 KB) plus per-thread append-only logs in <code>sessions/&lt;id&gt;.jsonl</code>, written via temporary file + atomic rename (<code>atomic_write_bytes_inner</code>).</li>
+            <li><strong>Dedicated worker <code>cockpit-persist</code>:</strong> adaptively coalesces streaming writes (<code>220–1500 ms</code>) off the GPUI UI thread.</li>
+            <li><strong>Power-loss durability:</strong> flushes to OS page cache every <code>2 s</code> during active streaming and forces explicit <code>File::sync_all()</code> on file + parent directory every <strong><code>15 s</code></strong> (<code>durable = true</code>), bounding crash loss to ≤ 15 s with zero JSON corruption.</li>
+          </ul>
+        </section>
+
+        <section id="resumption">
+          <h2>3. Git-Anchored Delta Resumption &amp; CLI self-healing (<code>app.rs</code>)</h2>
+          <ul>
+            <li><strong>Zero-token disk grounding:</strong> <code>continue_from_partial_turn</code> runs local <code>git status --short</code> (max 10 lines) and sends a micro-delta prompt containing only the trailing <code>300</code> chars (warm <code>cli_sessions</code> KV-cache) or <code>600</code> chars (fresh session) plus already-modified files.</li>
+            <li><strong>Stale-session self-healing:</strong> on an exact Antigravity <code>interrupted</code> error, Cockpit clears <code>thread.cli_sessions[slot] = None</code> so the next resume starts a clean session seeded with the Git delta, eliminating repeated <code>interrupted</code> loops.</li>
+            <li><strong>Credential classification:</strong> <code>UNAUTHENTICATED (code 401)</code> and <code>Eligibility check failed</code> pause the queue (<code>queue_paused = true</code>) instead of burning retries.</li>
+          </ul>
+        </section>
+
+        <section id="fingerprinting">
+          <h2>4. Black-Box Behavioral Fingerprinting (<code>telemetry.rs</code>)</h2>
+          <p>
+            Instead of inspecting hidden reasoning, every delegated turn logs only PII-free, code-free structure to <code>traces/trace_log.jsonl</code>: <code>Input (task_class, read_only) → tool_sequence (≤40, ! prefix on failure) → Outcome (pass@1, tokens, latency_ms, failure_signature)</code>.
+          </p>
+          <ul>
+            <li><strong>Open-CoT vs. Black-Box split:</strong> automatically partitions <code>thinking_chars &gt;= 200</code> (open-weight reasoning models) from proprietary black-box backends under one schema.</li>
+            <li><strong>Routing feedback (<code>analyze_behavioral_fingerprints</code>):</strong> exposed via <code>cockpit_benchmark_models(action:"traces")</code>, aggregating per <code>(model, task_class)</code> and emitting <code>behavioral_hints</code> whenever <code>runs &gt;= 3</code> and <code>pass@1 &lt; 60%</code>.</li>
+          </ul>
+        </section>
+
+        <section id="guards">
+          <h2>5. Deterministic streaming guards &amp; 7-signature taxonomy</h2>
+          <ul>
+            <li><strong><code>ThinkingLoopGuard</code> (<code>loop_guard.rs</code>):</strong> terminates circular self-doubt loops in <code>ThinkingDelta</code> upon <code>&gt;= 6</code> bilingual hedging cues or <code>&gt;= 18,000</code> continuous chars without tool calls; resets counters on any tool call (<code>record_tool_call</code>).</li>
+            <li><strong><code>ConsecutiveFailGuard</code> (<code>loop_guard.rs</code>):</strong> hashes <code>normalize_error_signature</code> with 64-bit <code>FNV-1a</code> and triggers Fast-Escalate abort on <strong><code>2×</code> consecutive identical tool failures</strong> for <code>RLM-Cascade</code>.</li>
+            <li><strong>7 mutually exclusive priority signatures (<code>classify_failure_signature</code>):</strong> <code>1. thinking_spin</code> → <code>2. consecutive_tool_fail_or_loop</code> → <code>3. timeout</code> → <code>4. blind_patch_no_read</code> → <code>5. repeated_tool_error</code> → <code>6. no_tool_action</code> → <code>7. unverified_or_exit_nonzero</code>.</li>
+          </ul>
+        </section>
+
+        <section id="ablation">
+          <h2>6. Verified unit tests vs. proposed ablation protocol [TBD]</h2>
+          <p>
+            <strong>Verified today:</strong> <code>split_workspace_index_and_append_only_session_jsonl_roundtrip</code>, <code>saves_and_restores_projects_drafts_and_queue_atomically</code> (<code>workspace_state.rs</code>), <code>thinking_loop_breaker_and_consecutive_fail_guard_trip_deterministically</code> (<code>loop_guard.rs</code>), and <code>behavioral_fingerprint_analyzer_detects_blind_patch_and_open_cot_split</code> (<code>telemetry.rs</code>).
+          </p>
+          <p>
+            <strong>Pending empirical evaluation (<code>[TBD]</code>):</strong> two controlled ablations with zero fabricated numbers — (1) <em>full replay vs. Git-anchored delta resume + self-healing</em> over <code>N &gt;= 50</code> hard-kill / fault-injection trials, and (2) <em>no guards vs. guards + fingerprint routing</em> over <code>N &gt;= 120</code> real traces in <code>traces/trace_log.jsonl</code>, measuring <code>pass@1</code>, token savings, p50/p95 latency, and false-positive <code>early_abort</code> rate.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/cockpit-resilience-fingerprinting/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/cockpit-paper/">Paper 1: Cockpit v2.0 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>
