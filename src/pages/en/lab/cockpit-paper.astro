@@ -3,38 +3,39 @@ import Base from '../../../layouts/Base.astro';
 ---
 <Base
   lang="en"
-  title="Technical Report: Cockpit v2.0 Multi-CLI Orchestrator | Miguel Quevedo"
-  description="Technical Report (v2.0) on Cockpit (agent-orchestrator): native Rust + GPUI desktop orchestrator & concurrent stdio MCP harness with 94.13% skeleton reduction, 84.94% CLI filtering, 88.34%–97.31% compaction, 216 Rust tests, and v2.0 runtime expansion."
-  pageLabel="Paper · Cockpit v2.0"
+  title="Technical Report: Cockpit v2.2 Multi-CLI Orchestrator | Miguel Quevedo"
+  description="Technical Report (v2.2) on Cockpit (agent-orchestrator): native Rust + GPUI desktop orchestrator (~78k LOC, 57 runtime modules, 228 Rust tests) & concurrent stdio MCP harness with 94.13% skeleton reduction, 84.94% CLI filtering, automatic RTK shims, and multi-device expansion."
+  pageLabel="Paper · Cockpit v2.2"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/en/lab/">← Back to technical lab</a>
 
     <div class="detail-hero">
-      <h1 class="long-title">Cockpit v2.0: A Native Multi-CLI Orchestrator</h1>
+      <h1 class="long-title">Cockpit v2.2: A Native Multi-CLI Orchestrator</h1>
       <p class="detail-lede">
-        Technical Report v2.0 — Quota-constrained, token-efficient agentic software engineering via a native Rust + GPUI desktop harness, concurrent stdio MCP runtime, and multi-device expansion.
+        Technical Report v2.2 — Quota-constrained, token-efficient agentic software engineering via a native Rust + GPUI desktop harness, automatic RTK interception, concurrent stdio MCP runtime, and multi-device expansion.
       </p>
     </div>
 
     <div class="detail-meta">
-      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v2.0)</strong></div>
-      <div><span>Evaluated system</span><strong>67 Rust files (~68k LOC) · 52 runtime modules · Android Kotlin (~2.2k LOC) · Python (~2.9k LOC)</strong></div>
-      <div><span>Verification</span><strong>v1.0 deterministic harness + 216 Rust unit tests</strong></div>
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v2.2)</strong></div>
+      <div><span>Evaluated system</span><strong>73 Rust files (~78k LOC) · 57 runtime modules · Android Kotlin (~2.7k LOC) · Python (~3.6k LOC)</strong></div>
+      <div><span>Verification</span><strong>v1.0 deterministic harness + 228 Rust unit tests (17 core + 211 runtime)</strong></div>
     </div>
 
     <div class="cv-actions">
       <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Download v1.0 Print-Ready PDF ↗</a>
       <a class="button button-outline" href="/laboratorio/cockpit-paper/">Leer versión en Español ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-rtk-telemetry-pipelines/">Paper 10: RTK, Telemetry &amp; Pipelines v2.2 ↗</a>
       <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Architecture case study ↗</a>
     </div>
 
     <div class="paper-kpis-wrap">
       <div class="paper-kpis" aria-label="Measured deterministic benchmark results">
         <div class="paper-kpi"><strong>94.13%</strong><span>Avg token reduction in <code>fs_skeleton</code> (up to 97.07% in 38.0 ms)</span></div>
-        <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests)</span></div>
+        <div class="paper-kpi"><strong>84.94%</strong><span>Avg CLI output reduction in <code>cli_filter</code> (96.83% on 123 tests; −85% live shim)</span></div>
         <div class="paper-kpi"><strong>88.3–97.3%</strong><span>18-turn session compaction (Capsule / 5-line structured handoff)</span></div>
-        <div class="paper-kpi"><strong>216 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 52 runtime modules</span></div>
+        <div class="paper-kpi"><strong>228 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 57 runtime modules</span></div>
       </div>
     </div>
 
@@ -70,7 +71,7 @@ import Base from '../../../layouts/Base.astro';
             Local agentic coding workflows increasingly span heterogeneous CLI agents—each backed by distinct model families, billing structures, and rolling subscription quotas (e.g., 5-hour and 7-day rate-limit windows). Running these tools independently forces developers to manually switch terminals, loses cross-session context, wastes substantial context tokens on raw file reads and verbose CLI output, and lacks deterministic safeguards against tool-call loops.
           </p>
           <p>
-            We present <strong>Cockpit v2.0 (<code>agent-orchestrator</code>)</strong>, a native Rust + GPUI desktop orchestrator and concurrent stdio Model Context Protocol (MCP) server unifying Claude Code, Codex CLI, Antigravity, and OpenCode. In v2.0, the workspace spans <strong>67 Rust files (~68,000 LOC)</strong> across <strong>52 runtime modules</strong>, paired with a native <strong>Kotlin Android app (~2.2k LOC)</strong> and <strong>Python 3D/Video pipelines (~2.9k LOC)</strong>, verified by <strong>216 passing Rust unit tests</strong>. Across our deterministic v1.0 ablation suite run directly on Cockpit's Rust codebase, structural skeletons cut tokens by <strong>94.13%</strong> on average (up to <strong>97.07%</strong> on <code>app.rs</code> in 38.0 ms), CLI filtering cuts verbose logs by <strong>84.94%</strong> (<strong>96.83%</strong> on 123-test <code>cargo test</code> output), context compaction reduces an 18-turn session by <strong>88.34%</strong> (Capsule) and <strong>97.31%</strong> (5-line handoff), observation masking cuts stale tool output by <strong>69.51%</strong>, <code>LoopGuard</code> catches <strong>3/3</strong> loops with <strong>0 false positives</strong>, and deterministic routing achieves <strong>100.0%</strong> accuracy in <code>&lt; 20 µs</code>. Section 6 documents the implemented v2.0 runtime subsystems separately from the v1.0 measured tables.
+            We present <strong>Cockpit v2.2 (<code>agent-orchestrator</code>)</strong>, a native Rust + GPUI desktop orchestrator and concurrent stdio Model Context Protocol (MCP) server unifying Claude Code, Codex CLI, Antigravity, and OpenCode. In v2.2, the workspace spans <strong>73 Rust files (~78,000 LOC)</strong> across <strong>57 runtime modules</strong>, paired with a native <strong>Kotlin Android app (~2.7k LOC)</strong> and <strong>Python 3D/Observatory pipelines (~3.6k LOC)</strong>, verified by <strong>228 passing Rust unit tests</strong> (automatic RTK shims, delta telemetry, hot Auto-Failover, and $0 pipelines detailed in <a href="/en/lab/cockpit-rtk-telemetry-pipelines/">Paper 10</a>). Across our deterministic v1.0 ablation suite run directly on Cockpit's Rust codebase, structural skeletons cut tokens by <strong>94.13%</strong> on average (up to <strong>97.07%</strong> on <code>app.rs</code> in 38.0 ms), CLI filtering cuts verbose logs by <strong>84.94%</strong> (<strong>96.83%</strong> on 123-test <code>cargo test</code> output; <strong>−85.0%</strong> live via <code>cli_shims</code>), context compaction reduces an 18-turn session by <strong>88.34%</strong> (Capsule) and <strong>97.31%</strong> (5-line handoff), observation masking cuts stale tool output by <strong>69.51%</strong>, <code>LoopGuard</code> catches <strong>3/3</strong> loops with <strong>0 false positives</strong>, and deterministic routing achieves <strong>100.0%</strong> accuracy in <code>&lt; 20 µs</code>. Section 6 documents the implemented v2.x runtime subsystems separately from the v1.0 measured tables.
           </p>
         </section>
 

@@ -2,38 +2,39 @@
 import Base from '../../layouts/Base.astro';
 ---
 <Base
-  title="Paper Técnico: Cockpit v2.0 Multi-CLI Orchestrator | Miguel Quevedo"
-  description="Technical Report (v2.0) de Cockpit (agent-orchestrator): orquestador nativo Rust + GPUI y servidor MCP stdio con reducción medida de 94.13% en esqueletos, 84.94% en filtrado CLI, 88.34%–97.31% en compactación, 216 tests Rust y expansión de runtime v2.0."
-  pageLabel="Paper · Cockpit v2.0"
+  title="Paper Técnico: Cockpit v2.2 Multi-CLI Orchestrator | Miguel Quevedo"
+  description="Technical Report (v2.2) de Cockpit (agent-orchestrator): orquestador nativo Rust + GPUI (~78k LOC, 57 módulos, 228 tests) y servidor MCP stdio con reducción medida de 94.13% en esqueletos, 84.94% en filtrado CLI, 88.34%–97.31% en compactación, shims RTK automáticos y expansión multi-dispositivo."
+  pageLabel="Paper · Cockpit v2.2"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
 
     <div class="detail-hero">
-      <h1 class="long-title">Cockpit v2.0: Orquestador Nativo Multi-CLI</h1>
+      <h1 class="long-title">Cockpit v2.2: Orquestador Nativo Multi-CLI</h1>
       <p class="detail-lede">
-        Reporte técnico v2.0 — Orquestación local en Rust + GPUI y servidor MCP stdio para ingeniería de software agéntica bajo restricciones de cuota, eficiencia de tokens y expansión de runtime multi-dispositivo.
+        Reporte técnico v2.2 — Orquestación local en Rust + GPUI y servidor MCP stdio para ingeniería de software agéntica bajo restricciones de cuota, eficiencia determinista de tokens, shims RTK automáticos y expansión multi-dispositivo.
       </p>
     </div>
 
     <div class="detail-meta">
-      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v2.0)</strong></div>
-      <div><span>Escala del sistema</span><strong>67 archivos Rust (~68k LOC) · 52 módulos runtime · Android Kotlin (~2.2k LOC) · Python (~2.9k LOC)</strong></div>
-      <div><span>Verificación</span><strong>Harness determinista v1.0 + 216 tests unitarios Rust</strong></div>
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v2.2)</strong></div>
+      <div><span>Escala del sistema</span><strong>73 archivos Rust (~78k LOC) · 57 módulos runtime · Android Kotlin (~2.7k LOC) · Python (~3.6k LOC)</strong></div>
+      <div><span>Verificación</span><strong>Harness determinista v1.0 + 228 tests unitarios Rust (17 core + 211 runtime)</strong></div>
     </div>
 
     <div class="cv-actions">
       <a class="button button-primary" href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF v1.0 (EN + Resumen ES) ↗</a>
       <a class="button button-outline" href="/en/lab/cockpit-paper/">Read full paper in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-rtk-telemetry-pipelines/">Paper 10: RTK, Telemetría &amp; Pipelines v2.2 ↗</a>
       <a class="text-link" style="margin-top:0" href="/proyectos/cockpit/">Ver caso de arquitectura ↗</a>
     </div>
 
     <div class="paper-kpis-wrap">
       <div class="paper-kpis" aria-label="Métricas medidas en el benchmark determinista">
         <div class="paper-kpi"><strong>94.13%</strong><span>Reducción promedio en <code>fs_skeleton</code> (hasta 97.07% en 38 ms)</span></div>
-        <div class="paper-kpi"><strong>84.94%</strong><span>Reducción promedio en <code>cli_filter</code> (96.83% en 123 tests)</span></div>
+        <div class="paper-kpi"><strong>84.94%</strong><span>Reducción promedio en <code>cli_filter</code> (96.83% en 123 tests; −85% en vivo vía shims)</span></div>
         <div class="paper-kpi"><strong>88.3–97.3%</strong><span>Compactación de sesión de 18 turnos (Cápsula / Handoff 5L)</span></div>
-        <div class="paper-kpi"><strong>216 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 52 módulos runtime</span></div>
+        <div class="paper-kpi"><strong>228 tests</strong><span><code>LoopGuard</code> 3/3 (0 FP) · 8/8 routing &lt;20 µs · 57 módulos runtime</span></div>
       </div>
     </div>
 
@@ -64,7 +65,7 @@ import Base from '../../layouts/Base.astro';
         <section id="resumen">
           <h2>Resumen ejecutivo</h2>
           <p>
-            <strong>Cockpit (<code>agent-orchestrator</code>)</strong> es un orquestador de escritorio nativo en Rust + GPUI y servidor MCP stdio que unifica cuatro motores CLI heterogéneos (<strong>Claude Code</strong>, <strong>Codex CLI</strong>, <strong>Antigravity</strong> y <strong>OpenCode</strong>) bajo cuotas reales con ventanas móviles (5 horas / 7 días). En su versión <strong>v2.0</strong>, el workspace crece a <strong>67 archivos Rust (~68,000 LOC)</strong> con <strong>52 módulos de runtime</strong>, acompañado por una app nativa Android en Kotlin (~2.2k LOC) y pipelines deterministas en Python para 3D/video (~2.9k LOC), verificados mediante <strong>216 tests unitarios Rust</strong>.
+            <strong>Cockpit (<code>agent-orchestrator</code>)</strong> es un orquestador de escritorio nativo en Rust + GPUI y servidor MCP stdio que unifica cuatro motores CLI heterogéneos (<strong>Claude Code</strong>, <strong>Codex CLI</strong>, <strong>Antigravity</strong> y <strong>OpenCode</strong>) bajo cuotas reales con ventanas móviles (5 horas / 7 días). En su versión <strong>v2.2</strong>, el workspace crece a <strong>73 archivos Rust (~78,000 LOC)</strong> con <strong>57 módulos de runtime</strong>, acompañado por una app nativa Android en Kotlin (~2.7k LOC) y pipelines deterministas en Python para 3D/observatorio (~3.6k LOC), verificados mediante <strong>228 tests unitarios Rust</strong> (detalles de RTK automático, telemetría delta, Auto-Failover y pipelines $0 en <a href="/laboratorio/cockpit-rtk-telemetry-pipelines/">Paper 10</a>).
           </p>
           <p>
             Este reporte distingue explícitamente entre las <strong>ablaciones deterministas medidas</strong> del núcleo v1.0 (Tablas 1 y 2) y los <strong>subsistemas de runtime implementados en v2.0</strong> (Sección 5), documentando el estado verificado del código sin extrapolar cifras no medidas:

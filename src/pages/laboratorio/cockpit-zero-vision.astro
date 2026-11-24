@@ -33,7 +33,7 @@ import Base from '../../layouts/Base.astro';
         <div class="paper-kpi"><strong>0 tok visión</strong><span>Inspección y acción Win32 vía <code>pc_ui_tree</code> + <code>pc_act</code> (UIA-first)</span></div>
         <div class="paper-kpi"><strong>&lt;0.15% / &lt;65%</strong><span>Umbrales de <code>ScreenDiffCapture</code> (Unchanged / bbox crop)</span></div>
         <div class="paper-kpi"><strong>1/6 frames</strong><span>Contact Sheet 2×3 en Blender CPU <code>bpy</code> (0 GPU)</span></div>
-        <div class="paper-kpi"><strong>10 reglas</strong><span>Auditor estático Luau (leaks, <code>RemoteEvent</code>, <code>DataStore</code>) + BFS</span></div>
+        <div class="paper-kpi"><strong>14 + 10 reglas</strong><span>Auditores estáticos Roblox Luau (14) + Unity C# (10) + 3D Cloud S→D</span></div>
       </div>
     </div>
 
@@ -133,7 +133,7 @@ import Base from '../../layouts/Base.astro';
             Al abrir cualquier repositorio con archivos <code>*.project.json</code>, <code>.rbxl</code>/<code>.rbxlx</code>, <code>wally.toml</code> o scripts <code>.luau</code>, Cockpit inyecta automáticamente un contexto compacto y expone herramientas deterministas a 0 tokens LLM:
           </p>
           <ul>
-            <li><strong>Auditor estático Luau de 10 reglas (<code>audit_luau_source</code>):</strong> escanea hasta 2,500 scripts detectando fugas de conexiones (<code>RenderStepped</code>/<code>Heartbeat</code>/<code>Stepped</code>/<code>Touched</code> sin <code>:Disconnect()</code> ni <code>Trove</code>/<code>Maid</code>/<code>Janitor</code>), <code>:WaitForChild()</code> sin timeout, vulnerabilidades de <code>RemoteEvent</code> sin validación en servidor, llamadas a <code>DataStore</code> sin <code>pcall</code>, cruces indebidos cliente↔servidor y APIs heredadas (<code>BodyMover</code>).</li>
+            <li><strong>Auditor estático Luau de 14 reglas (<code>audit_luau_source</code>):</strong> escanea hasta 2,500 scripts detectando fugas de conexiones (<code>RenderStepped</code>/<code>Heartbeat</code>/<code>Stepped</code>/<code>Touched</code> sin <code>:Disconnect()</code> ni <code>Trove</code>/<code>Maid</code>/<code>Janitor</code>), <code>:WaitForChild()</code> sin timeout, vulnerabilidades de <code>RemoteEvent</code> (validación, <code>NaN</code> y rate-limit en servidor), llamadas a <code>DataStore</code>/<code>ProfileStore</code> sin <code>pcall</code>, cruces indebidos cliente↔servidor, netcode <code>Heartbeat</code>/<code>Blink</code>/<code>Zap</code> y APIs heredadas (<code>BodyMover</code>). Acompañado por <code>unity_audit.rs</code> (auditor Unity C# de 10 reglas) y la cascada 3D Cloud S→D de 7 proveedores en <a href="/laboratorio/cockpit-rtk-telemetry-pipelines/">Paper 10</a>.</li>
             <li><strong>Rojo + Lune headless:</strong> detección de proyectos Rojo y ejecución de pruebas Luau fuera de Studio mediante <code>lune</code>.</li>
             <li><strong>Generador de niveles solubles (<code>level_gen</code>):</strong> generador WFC-lite con verificación determinista por <strong>BFS</strong> que garantiza camino mínimo entre inicio y meta y exporta el constructor en Luau, junto a utilidades de producción (<code>vfx_flipbook</code> RGBA, <code>sfx_variants</code> y <code>pack_sprites</code>).</li>
           </ul>

@@ -27,15 +27,15 @@ import { publicCrates } from '../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Investigación y Papers (9 reportes técnicos)</h2>
-      <span>Reportes técnicos bilingües de Cockpit v2.1 y Meson con arquitectura verificada, pruebas reales y derivaciones formales</span>
+      <h2>Investigación y Papers (10 reportes técnicos)</h2>
+      <span>Reportes técnicos bilingües de Cockpit v2.2 y Meson con arquitectura verificada, pruebas reales y derivaciones formales</span>
     </div>
     <div class="lab-grid">
       <article>
-        <span class="lab-card-label">Paper 1 · Technical Report v2.0 · Nov 2026</span>
-        <h2>Cockpit v2.0: Orquestador Nativo Multi-CLI</h2>
-        <p>Orquestador Rust + GPUI (~68k LOC, 52 módulos runtime, 216 tests) y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode. Ablación v1.0 medida: 94.13% en esqueletos, 84.94% en CLI filter, 88.34%–97.31% en compactación y 3/3 LoopGuard (0 FP), más expansión de runtime v2.0.</p>
-        <p class="lab-stack-line">Rust · GPUI CE · MCP-Zero · LSP · 216 tests · 12 citas arXiv</p>
+        <span class="lab-card-label">Paper 1 · Technical Report v2.2 · Nov 2026</span>
+        <h2>Cockpit v2.2: Orquestador Nativo Multi-CLI</h2>
+        <p>Orquestador Rust + GPUI (~78k LOC, 57 módulos runtime, 228 tests) y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode. Ablación v1.0 medida: 94.13% en esqueletos, 84.94% en CLI filter (−85% en vivo vía shims PATH), 88.34%–97.31% en compactación y 3/3 LoopGuard (0 FP), más expansión v2.2.</p>
+        <p class="lab-stack-line">Rust · GPUI CE · MCP-Zero · LSP · 228 tests · 12 citas arXiv</p>
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-paper/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-paper/">English ↗</a>
@@ -44,10 +44,10 @@ import { publicCrates } from '../data/profile';
         </div>
       </article>
       <article>
-        <span class="lab-card-label">Paper 2 · Technical Report v1.0 · Nov 2026</span>
-        <h2>Automatización Zero-Vision: PC, 3D y Video vía MCP</h2>
-        <p>Harnesses deterministas a 0 tokens de visión: Win32 UIA-first (<code>pc_ui_tree</code>/<code>pc_act</code>), Screenshot Diffing (&lt;0.15% unchanged / &lt;65% bbox crop), Blender CPU <code>bpy</code> (Quadriflow, PBR bake, R15 IK, Contact Sheet 2×3 = 1/6 frames), auditor Roblox Luau de 10 reglas + BFS y edición FFmpeg no destructiva.</p>
-        <p class="lab-stack-line">Win32 UIA · Blender bpy · Roblox Rojo/Lune · FFmpeg · Python (~2.9k LOC)</p>
+        <span class="lab-card-label">Paper 2 · Technical Report v1.1 · Nov 2026</span>
+        <h2>Automatización Zero-Vision: PC, 3D, Unity, Roblox y Video vía MCP</h2>
+        <p>Harnesses deterministas a 0 tokens de visión: Win32 UIA-first (<code>pc_ui_tree</code>/<code>pc_act</code>), Screenshot Diffing (&lt;0.15% unchanged / &lt;65% bbox crop), Blender CPU <code>bpy</code> + cascada 3D Cloud S→D, auditor Roblox Luau de 14 reglas + BFS, auditor Unity C# de 10 reglas y edición FFmpeg no destructiva.</p>
+        <p class="lab-stack-line">Win32 UIA · Blender bpy · Roblox 14 · Unity C# 10 · FFmpeg · Python (~3.6k LOC)</p>
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-zero-vision/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-zero-vision/">English ↗</a>
@@ -121,6 +121,16 @@ import { publicCrates } from '../data/profile';
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-resilience-fingerprinting/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-resilience-fingerprinting/">English ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 10 · Cockpit Technical Report v1.0 · Nov 2026</span>
+        <h2>Interceptación RTK Automática, Telemetría Delta y Pipelines $0</h2>
+        <p>Hook <code>PreToolUse</code> (<code>updatedInput</code>) en Claude + shims automáticos de <code>PATH</code> (<code>−85.0%</code> en vivo en <code>cargo test</code>), corrección de inflación <code>7.4×</code> y file-lock JSONL con rescate de <code>+2,315</code> logs <code>&#125;&#123;</code>, Auto-Failover en caliente, Relay 4G, 3D Cloud S→D (7 proveedores), Unity C# 10 reglas, Roblox 14 reglas y Math/Music Lab.</p>
+        <p class="lab-stack-line">PreToolUse · PATH Shims · File-Lock JSONL · Auto-Failover · 3D S→D · Math/Music Lab</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-rtk-telemetry-pipelines/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/cockpit-rtk-telemetry-pipelines/">English ↗</a>
         </div>
       </article>
     </div>

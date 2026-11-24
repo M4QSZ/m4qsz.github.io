@@ -2,6 +2,19 @@ import type { APIRoute } from 'astro';
 import { englishProjects } from '../data/english';
 import { labSamples } from '../data/labSamples';
 
+const labPaperSlugs = [
+  'cockpit-paper',
+  'cockpit-zero-vision',
+  'cockpit-distributed',
+  'cockpit-algebraic-compression',
+  'meson-finance-erp',
+  'meson-management-erp',
+  'meson-offline-mesh',
+  'meson-rust-edge',
+  'cockpit-resilience-fingerprinting',
+  'cockpit-rtk-telemetry-pipelines',
+];
+
 const staticRoutes = [
   '/',
   '/en/',
@@ -9,8 +22,8 @@ const staticRoutes = [
   '/en/cv/',
   '/laboratorio/',
   '/en/lab/',
-  '/laboratorio/cockpit-paper/',
-  '/en/lab/cockpit-paper/',
+  ...labPaperSlugs.map((slug) => `/laboratorio/${slug}/`),
+  ...labPaperSlugs.map((slug) => `/en/lab/${slug}/`),
   '/muestras/sync-local/',
   '/en/samples/local-sync/',
   ...labSamples.map((sample) => `/muestras/${sample.slug}/`),

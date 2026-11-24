@@ -298,9 +298,9 @@ export const projects: ProjectItem[] = [
   },
   {
     number: '18',
-    title: 'Cockpit v2.0: Orquestador Multi-CLI',
-    type: 'Escritorio Rust + GPUI · MCP · 3 Technical Reports',
-    description: 'Orquestador nativo Rust (~68k LOC, 52 módulos runtime, 216 tests) que unifica Claude Code, Codex CLI, Antigravity y OpenCode con MCP-Zero, skeletons 94.13% más compactos, harnesses zero-vision (Win32/Blender/Roblox/FFmpeg) y red P2P (Iroh QUIC, wgproxyrs, Android Kotlin).',
+    title: 'Cockpit v2.2: Orquestador Multi-CLI',
+    type: 'Escritorio Rust + GPUI · MCP · 6 Technical Reports',
+    description: 'Orquestador nativo Rust (~78k LOC, 57 módulos runtime, 228 tests) que unifica Claude Code, Codex CLI, Antigravity y OpenCode con shims RTK automáticos (PreToolUse + PATH, −85% en vivo), Auto-Failover en caliente, persistencia anti-apagón + /recover, pipelines $0 (3D Cloud S→D, Unity, Roblox 14, Math/Music Lab) y red P2P/4G.',
     stack: ['Rust', 'GPUI', 'MCP', 'Iroh QUIC'],
     href: '/proyectos/cockpit/',
     accent: 'orange',
@@ -326,7 +326,7 @@ export const capabilities: CapabilityGroup[] = [
     label: 'Sistemas nativos, Rust y multiplataforma',
     detail: 'Software de escritorio, móvil y red local con motores nativos (GPUI, Skia/Impeller), puentes FFI seguros y sincronización cifrada.',
     skills: [
-      { name: 'Rust (68k+ LOC)', core: true },
+      { name: 'Rust (78k+ LOC)', core: true },
       { name: 'GPUI', core: true },
       { name: 'Flutter / Dart', core: true },
       { name: 'C-ABI / FRB FFI', core: true },
@@ -400,7 +400,7 @@ export const capabilitiesEn: CapabilityGroup[] = [
     label: 'Native systems, Rust & multiplatform',
     detail: 'Desktop, mobile and local-first networking built on native engines (GPUI, Skia/Impeller), panic-safe FFI bridges and encrypted sync.',
     skills: [
-      { name: 'Rust (68k+ LOC)', core: true },
+      { name: 'Rust (78k+ LOC)', core: true },
       { name: 'GPUI', core: true },
       { name: 'Flutter / Dart', core: true },
       { name: 'C-ABI / FRB FFI', core: true },

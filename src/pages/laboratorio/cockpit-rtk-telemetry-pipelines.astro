@@ -1,0 +1,158 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 10: Interceptación RTK Automática, Telemetría Delta Exacta, Auto-Failover y Pipelines $0 | Miguel Quevedo"
+  description="Technical Report v1.0 — Shims automáticos PATH + PreToolUse updatedInput en Claude, corrección de inflación 7.4× y bloqueo JSONL en telemetría, Auto-Failover en caliente y pipelines 3D Cloud S→D, Unity, Roblox 14 reglas y Math/Music Lab."
+  pageLabel="Paper 10 · RTK, Telemetría & Pipelines $0"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Interceptación RTK Transparente (<code>PreToolUse</code> + Shims <code>PATH</code>), Telemetría Delta Atómica, Auto-Failover en Caliente y Pipelines $0 en Cockpit v2.2</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Cómo cerrar la brecha entre herramientas MCP de ahorro y las tools nativas de cada CLI mediante reescritura previa de <code>Bash</code>, shims <code>PATH</code> anti-recursión, auditoría honesta de telemetría (10,435 llamadas reales) y pipelines locales $0 GPU.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0 · Cockpit v2.2)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>cli_filter.rs</code> · <code>agent_runner.rs</code> · <code>telemetry.rs</code> · <code>accounts.rs</code> · <code>router.rs</code> · <code>evolve_lab.rs</code> · <code>unity_audit.rs</code> · <code>cloud_image_to_3d.py</code></strong></div>
+      <div><span>Verificación</span><strong>228 tests unitarios Rust (17 core + 211 runtime) + mediciones en vivo sobre <code>telemetry.jsonl</code></strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-rtk-telemetry-pipelines/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.2 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/cockpit-resilience-fingerprinting/">Paper 9: Resiliencia &amp; Fingerprinting ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Resultados reales verificados de Cockpit v2.2">
+        <div class="paper-kpi"><strong>−85.0% en vivo</strong><span><code>cargo test</code> automático vía <code>cli_shims</code> (<code>1,932 B → 289 B</code>, <code>410 tok</code>)</span></div>
+        <div class="paper-kpi"><strong>7.4× corregido</strong><span>Delta exacto por sesión AGY/Codex + rescate de <code>+2,315</code> logs <code>&#125;&#123;</code></span></div>
+        <div class="paper-kpi"><strong>7 prov. S→D</strong><span>3D Cloud 0-clic (<code>Hunyuan3D-2.1</code>/<code>TRELLIS.2</code>) + Unity 10 + Roblox 14</span></div>
+        <div class="paper-kpi"><strong>228 tests</strong><span><code>PreToolUse</code>, <code>PATH</code> shims, file-lock JSONL y CI Windows/Linux</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#auditoria">1. Hallazgos reales al auditar nuestra propia telemetría</a>
+        <a href="#rtk">2. Interceptación RTK transparente: PreToolUse + Shims PATH</a>
+        <a href="#telemetria">3. Telemetría delta exacta, file-lock JSONL y Observatorio</a>
+        <a href="#failover">4. Auto-Failover en caliente, Pre-Flight, Relay 4G y CI</a>
+        <a href="#pipelines">5. Pipelines especializados $0: 3D Cloud S→D, Unity, Roblox 14 y Math/Music</a>
+        <a href="#honestidad">6. Balance honesto de limitaciones y verificación [TBD]</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#auditoria">1. Auditoría real</a>
+        <a href="#rtk">2. RTK PreToolUse + PATH</a>
+        <a href="#telemetria">3. Telemetría atómica</a>
+        <a href="#failover">4. Auto-Failover &amp; CI</a>
+        <a href="#pipelines">5. Pipelines $0</a>
+        <a href="#honestidad">6. Límites honestos</a>
+      </aside>
+      <div class="case-content">
+        <section id="auditoria">
+          <h2>1. Hallazgos reales al auditar nuestra propia telemetría</h2>
+          <p>
+            Al auditar los archivos de telemetría producidos durante semanas de desarrollo real en <code>agent-orchestrator</code> (<code>usage_events.jsonl</code> y <code>telemetry.jsonl</code>), encontramos tres problemas concretos que desmentían las estimaciones optimistas iniciales:
+          </p>
+          <ul>
+            <li><strong>Inflación 7.4× por contadores acumulados:</strong> <code>agy --resume</code> y <code>codex</code> reportan totales acumulados de toda la conversación. Sumarlos por turno inflaba el volumen crudo y disparaba falsas <code>burn_anomaly</code>.</li>
+            <li><strong>Brecha de adopción de tools MCP:</strong> de <strong>10,435 llamadas reales</strong> a herramientas, las tools nativas de cada CLI (<code>run_command</code>, <code>read_file</code>) dominaban por amplio margen sobre <code>fs_read_range</code>; si el filtro RTK solo vivía en MCP, casi ningún comando de compilación o test pasaba por él.</li>
+            <li><strong>Corrupción concurrente <code>&#125;&#123;</code> en JSONL:</strong> <code>writeln!</code> realizaba dos llamadas <code>write()</code> separadas (payload + <code>\n</code>), pegando líneas entre la UI GPUI y los bridges MCP concurrentes y ocultando <code>2,315</code> registros históricos.</li>
+          </ul>
+        </section>
+
+        <section id="rtk">
+          <h2>2. Interceptación RTK transparente: <code>PreToolUse</code> + Shims <code>PATH</code></h2>
+          <p>
+            Para ahorrar tokens incluso cuando los agentes usan sus herramientas nativas de terminal, <code>cli_filter.rs</code> y <code>agent_runner.rs</code> mueven la compresión RTK por debajo de la capa del agente sin romper salidas legibles por máquina:
+          </p>
+          <ul>
+            <li><strong>Claude Code <code>PreToolUse</code> con <code>updatedInput</code>:</strong> la primera iteración usando <code>PostToolUse</code> añadía <code>additionalContext</code> encima del resultado crudo (aumentando tokens en lugar de reducirlos). Se reemplazó por un hook <code>PreToolUse</code> (<code>--claude-hook</code>, desactivado en <code>SafeReadOnly</code>) que reescribe comandos simples seguros a <code>orchestrator-ui --filter-exec &lt;cmd&gt;</code> preservando todos los campos de <code>tool_input</code> (<code>description</code>, <code>timeout</code>) y rechazando pipes (<code>|</code>), cadenas (<code>&amp;&amp;</code>), redirecciones (<code>&gt;</code>), subshells (<code>$(...)</code>) o flags máquina (<code>--json</code>, <code>--porcelain</code>).</li>
+            <li><strong>Shims automáticos de <code>PATH</code> (<code>cli_shims/</code>):</strong> <code>spawn_agent_headless</code>, <code>run_delegated_subagent</code> y <code>spawn_agent_pty</code> anteponen un directorio de shims generados únicamente para binarios realmente presentes en el host (<code>cargo</code>, <code>npm</code>, <code>pnpm</code>, <code>yarn</code>, <code>pytest</code>, <code>vitest</code>, <code>jest</code>, <code>tsc</code>). Cada shim corta recursión al instante vía <code>COCKPIT_FILTER_ACTIVE=1</code> y <code>run_cli_filter_exec</code> resuelve el binario real excluyendo <code>cli_shims/</code> del <code>PATH</code>. En Windows se omite <code>git.cmd</code> para no corromper <code>%</code> en <code>git log --format</code>, y se escriben pares <code>.cmd</code> + POSIX <code>#!/bin/sh</code> para cubrir PowerShell, <code>cmd.exe</code> y Git Bash.</li>
+            <li><strong>Mediciones reales en vivo:</strong> al ejecutar <code>cargo test -p orchestrator-core --lib</code> sin modificar el comando, el shim comprimió automáticamente <strong><code>1,932 B → 289 B</code> (−85.0%, <code>410</code> tokens ahorrados)</strong> y <code>git status</code> verboso de <strong><code>752 B → 435 B</code> (−42.2%, <code>79</code> tokens)</strong>, registrando eventos <code>TokenSaving</code> en disco.</li>
+          </ul>
+        </section>
+
+        <section id="telemetria">
+          <h2>3. Telemetría delta exacta, file-lock JSONL y Observatorio HTML</h2>
+          <ul>
+            <li><strong>Delta real por sesión y costo exacto (<code>accounts.rs</code>):</strong> resta el acumulado previo en sesiones reanudadas y separa la convención OpenAI/Codex (<code>input</code> incluye caché) de Antigravity/Claude (<code>input</code> excluye caché).</li>
+            <li><strong>Append atómico y recuperación <code>&#125;&#123;</code> (<code>telemetry.rs</code>):</strong> <code>append_jsonl</code> serializa el registro + <code>\n</code> en un único buffer bajo <code>File::lock()</code> exclusivo; <code>load_jsonl</code> y <code>scripts/build_observatory.py</code> decodifican en flujo líneas concatenadas heredadas, recuperando <code>+2,315</code> eventos perdidos (<code>8,120 → 10,435</code>).</li>
+            <li><strong><code>TokenSaving</code> real + Observatorio local:</strong> cada recorte de <code>cli_shim</code>, <code>cli_filter</code>, <code>read_dedup</code> y <code>fs_compact</code> emite bytes reales ahorrados visibles en la pestaña <code>Usos</code> y en el reporte HTML estático <code>docs/cockpit-observatory.html</code> (con botón <code>:L</code> para abrir diffs directo en VS Code/Cursor/Zed y telemetría de hunks descartados).</li>
+          </ul>
+        </section>
+
+        <section id="failover">
+          <h2>4. Auto-Failover en caliente, Pre-Flight, Relay 4G y CI</h2>
+          <ul>
+            <li><strong>Salud Pre-Flight + Auto-Failover en caliente (<code>router.rs</code>, <code>accounts.rs</code>):</strong> verifica cuotas y estado de autenticación antes de despachar; si un proveedor agota créditos o límite de ventana, conmuta automáticamente al respaldo disponible preservando el hilo mediante cápsula compacta.</li>
+            <li><strong>Persistencia anti-apagón extendida + Relay 4G (<code>workspace_state.rs</code>, <code>relay</code>):</strong> suma comando <code>/recover</code> (importación desde sesiones CLI y papelera), espejo PC↔Laptop, worker Cloudflare Relay 4G sin Tailscale, auto-instalación 1-clic de CLIs (<code>winget</code>) y cliente Android con vista previa inbox, imágenes inline y despacho a peers.</li>
+            <li><strong>Zero-Downtime Self-Update &amp; GitHub Release CI:</strong> en Windows <code>apply-self-update.ps1</code> renombra el <code>.exe</code> en ejecución a <code>.old.exe</code> antes de compilar con <code>lto=false</code> y <code>codegen-units=16</code> (evitando OOM <code>0xc0000409</code> y cortes de UI), respaldado por <code>.github/workflows/release.yml</code> para builds Windows + Linux.</li>
+          </ul>
+        </section>
+
+        <section id="pipelines">
+          <h2>5. Pipelines especializados $0 GPU: 3D Cloud S→D, Unity, Roblox 14 y Math/Music</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p10-pipes">
+            <table class="paper-table">
+              <caption id="es-p10-pipes">Tabla 1 · Expansión de pipelines deterministas y gratuitos incorporados en Cockpit v2.2</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Dominio</th>
+                  <th scope="col">Módulo / Script</th>
+                  <th scope="col">Capacidades implementadas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">3D Cloud → Roblox</th>
+                  <td data-label="Módulo"><code>cloud_image_to_3d.py</code> + <code>blender_audit.rs</code></td>
+                  <td data-label="Capacidades">Cascada 0-clic de 7 proveedores ZeroGPU con ranking estricto <strong>S→D</strong> (<code>Hunyuan3D-2.1</code>/<code>TRELLIS.2</code> → <code>TRELLIS</code>/<code>Hunyuan2</code> → <code>TripoSG</code>/<code>SF3D</code> → <code>InstantMesh</code> → <code>TripoSR CPU</code>), puerta <code>--min-tier</code>, <code>--batch-dir</code>, fallback Colab T4 y regla de enrutamiento orgánico vs. hard-surface/Neon + polish Blender <code>≤10k</code> tris.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Unity C#</th>
+                  <td data-label="Módulo"><code>unity_audit.rs</code> + <code>unity-mcp</code></td>
+                  <td data-label="Capacidades">Auditor estático C# de 10 reglas (asignaciones en <code>Update</code>, fugas de eventos, <code>Find</code>), detección de stack (<code>UniTask</code>, <code>Animancer</code>, <code>VContainer</code>, <code>R3</code>, <code>NGO</code>) y ejecución headless de tests.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Roblox Pro</th>
+                  <td data-label="Módulo"><code>roblox_loop.rs</code></td>
+                  <td data-label="Capacidades">Auditor Luau ampliado de 10 a <strong>14 reglas</strong> (rate-limit, validación <code>NaN</code>, <code>ProfileStore</code>, netcode <code>Heartbeat</code>/<code>Blink</code>/<code>Zap</code>) + inspector de toolchain (<code>Rokit</code>, <code>Rojo</code>, <code>Selene</code>, <code>StyLua</code>, <code>Pesde</code>).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Math &amp; Music Lab</th>
+                  <td data-label="Módulo"><code>evolve_lab.rs</code></td>
+                  <td data-label="Capacidades">Bitácora evolutiva <code>MAP-Elites</code>, <code>novelty_radar</code> (OEIS + arXiv + Loogle/LeanSearch), <code>lean_verify</code>, solvers <code>Z3</code>/<code>SymPy</code>/<code>CaDiCaL</code>/<code>OR-Tools</code>/<code>FLINT</code>/<code>CVXPY</code>/<code>PySR</code>, <code>Basic Pitch</code> audio→MIDI, MIR ITU-R BS.1770-4 LUFS, mastering Pedalboard/Matchering, LilyPond y Faust DSP bajo demanda con <code>uv</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="honestidad">
+          <h2>6. Balance honesto de limitaciones y verificación (228 tests)</h2>
+          <ul>
+            <li><strong>Lo que ya está probado por código y tests (228 pasando: 17 core + 211 runtime):</strong> <code>claude_pre_tool_hook_rewrites_safe_commands_and_preserves_input_fields</code>, <code>cli_shim_path_resolution_skips_shim_dir_to_prevent_recursion</code>, <code>compacts_verbose_human_git_status</code>, <code>append_and_load_jsonl_handles_atomic_writes_and_recovers_concatenated_lines</code> y <code>summarizes_token_savings_by_source</code>.</li>
+            <li><strong>Límites abiertos documentados con transparencia:</strong> (1) <code>read_file</code> nativo en AGY/Codex/OpenCode aún no se intercepta automáticamente vía dedup MCP; (2) <code>compact_context</code> (techo <code>260k</code> tok) aún no emite <code>TokenSaving</code> directo; (3) el ahorro semanal agregado en producción queda marcado como <code>[TBD: ventana de 3–7 días / ≥50 turnos tras el despliegue c83e5c7]</code>; y (4) Cockpit sigue siendo un orquestador pre-beta sin editor inline, sin instalador firmado ni marketplace de extensiones.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/cockpit-rtk-telemetry-pipelines/">Read in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/cockpit-paper/">Paper 1: Cockpit v2.2 ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

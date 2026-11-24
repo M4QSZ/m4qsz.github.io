@@ -34,7 +34,7 @@ import Base from '../../../layouts/Base.astro';
         <div class="paper-kpi"><strong>0 vision tok</strong><span>Win32 inspection &amp; action via <code>pc_ui_tree</code> + <code>pc_act</code> (UIA-first)</span></div>
         <div class="paper-kpi"><strong>&lt;0.15% / &lt;65%</strong><span><code>ScreenDiffCapture</code> thresholds (Unchanged / bbox crop)</span></div>
         <div class="paper-kpi"><strong>1/6 frames</strong><span>2×3 Contact Sheet in CPU Blender <code>bpy</code> (0 GPU)</span></div>
-        <div class="paper-kpi"><strong>10 rules</strong><span>Static Luau auditor (leaks, <code>RemoteEvent</code>, <code>DataStore</code>) + BFS</span></div>
+        <div class="paper-kpi"><strong>14 + 10 rules</strong><span>Static Roblox Luau (14) + Unity C# (10) auditors + 3D Cloud S→D</span></div>
       </div>
     </div>
 
@@ -134,7 +134,7 @@ import Base from '../../../layouts/Base.astro';
             Whenever Cockpit opens a directory containing <code>*.project.json</code>, <code>.rbxl</code>/<code>.rbxlx</code>, <code>wally.toml</code>, or <code>.luau</code> scripts, it injects a compact capability hint and exposes zero-token deterministic tools:
           </p>
           <ul>
-            <li><strong>10-Rule Static Luau Auditor (<code>audit_luau_source</code>):</strong> scans up to 2,500 scripts for unmanaged <code>RenderStepped</code>/<code>Heartbeat</code>/<code>Stepped</code>/<code>Touched</code> connections lacking <code>:Disconnect()</code> or <code>Trove</code>/<code>Maid</code>/<code>Janitor</code> cleanup, timeout-less <code>:WaitForChild()</code> calls, unvalidated server <code>RemoteEvent</code> handlers, unguarded <code>DataStore</code> calls without <code>pcall</code>, client↔server boundary violations, and deprecated <code>BodyMover</code> APIs.</li>
+            <li><strong>14-Rule Static Luau Auditor (<code>audit_luau_source</code>):</strong> scans up to 2,500 scripts for unmanaged <code>RenderStepped</code>/<code>Heartbeat</code>/<code>Stepped</code>/<code>Touched</code> connections lacking <code>:Disconnect()</code> or <code>Trove</code>/<code>Maid</code>/<code>Janitor</code> cleanup, timeout-less <code>:WaitForChild()</code> calls, unvalidated server <code>RemoteEvent</code> handlers (missing type checks, <code>NaN</code> guards, or rate-limiting), unguarded <code>DataStore</code>/<code>ProfileStore</code> calls without <code>pcall</code>, client↔server boundary violations, <code>Heartbeat</code>/<code>Blink</code>/<code>Zap</code> netcode issues, and deprecated <code>BodyMover</code> APIs. Paired with <code>unity_audit.rs</code> (10-rule Unity C# auditor) and the 7-provider S→D Cloud 3D cascade in <a href="/en/lab/cockpit-rtk-telemetry-pipelines/">Paper 10</a>.</li>
             <li><strong>Rojo + Headless Lune Runner:</strong> detects Rojo project manifests and executes Luau tests headlessly via <code>lune</code> outside Roblox Studio.</li>
             <li><strong>BFS-Verified Solvable Level Generator (<code>level_gen</code>):</strong> Space-Time WFC-lite generator that verifies a guaranteed shortest path via <strong>BFS</strong> and emits a Roblox Luau builder script, alongside production utilities (<code>vfx_flipbook</code> RGBA, <code>sfx_variants</code>, and <code>pack_sprites</code>).</li>
           </ul>
