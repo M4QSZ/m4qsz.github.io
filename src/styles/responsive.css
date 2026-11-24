@@ -94,20 +94,113 @@
 }
 
 @page {
-  margin: 12mm 14mm;
+  size: A4;
+  margin: 14mm 15mm;
   background: #fff;
 }
 
 @media print {
-  :root, html, body { background: #fff !important; color: #000 !important; padding-bottom: 0 !important; margin: 0 !important; }
+  :root, html, body {
+    background: #fff !important;
+    color: #111 !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.48 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
   .site-header,
   .site-footer,
   .back-link,
   .cv-actions,
+  .detail-actions,
+  .paper-toc,
+  .bottom-progress,
+  .case-layout > aside,
   .skip-link {
     display: none !important;
   }
-  .wrap { width: 100%; max-width: none; margin: 0; }
+  .wrap { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .detail-main { padding: 0 !important; }
   .cv-sheet { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; color: #000 !important; max-width: none !important; }
+  .paper-wide .detail-hero { margin-bottom: 14px !important; padding-bottom: 12px !important; border-bottom: 1.5px solid #222 !important; }
+  .paper-wide h1,
+  .paper-wide h2,
+  .paper-wide h3,
+  .paper-wide strong { color: #0b0f14 !important; }
+  .paper-wide h1 { font-size: 18pt !important; line-height: 1.2 !important; margin: 0 0 8px !important; }
+  .paper-wide h2 { font-size: 12.5pt !important; margin: 16px 0 6px !important; break-after: avoid; page-break-after: avoid; }
+  .paper-wide p,
+  .paper-wide li,
+  .paper-wide .detail-lede { color: #1f2937 !important; }
+  .paper-wide a { color: #1d4ed8 !important; text-decoration: none !important; }
+  .paper-wide code {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0 3px !important;
+    border-radius: 3px !important;
+    font-size: 8.8pt !important;
+  }
+  .paper-wide .detail-meta {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin: 10px 0 14px !important;
+    padding: 8px 10px !important;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    break-inside: avoid;
+  }
+  .paper-wide .detail-meta span { color: #475569 !important; font-size: 8pt !important; }
+  .paper-wide .paper-kpis-wrap { margin: 0 0 14px !important; overflow: visible !important; }
+  .paper-wide .paper-kpis {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    break-inside: avoid;
+  }
+  .paper-wide .paper-kpi {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 8px 10px !important;
+  }
+  .paper-wide .paper-kpi strong { font-size: 11.5pt !important; color: #0f172a !important; }
+  .paper-wide .paper-kpi span { font-size: 8.2pt !important; color: #334155 !important; }
+  .paper-wide .case-layout { display: block !important; grid-template-columns: 1fr !important; margin-top: 8px !important; }
+  .paper-wide .case-content { max-width: none !important; }
+  .paper-wide .case-content section {
+    max-width: none !important;
+    margin: 0 0 14px !important;
+    padding: 0 0 10px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+  .paper-wide .paper-table-wrap { overflow: visible !important; border: 0 !important; margin: 10px 0 !important; }
+  .paper-wide .paper-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 8.8pt !important;
+    background: #fff !important;
+  }
+  .paper-wide .paper-table caption { color: #334155 !important; font-weight: 600 !important; text-align: left !important; margin-bottom: 6px !important; }
+  .paper-wide .paper-table th,
+  .paper-wide .paper-table td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 5px 7px !important;
+    color: #111827 !important;
+    background: #fff !important;
+    vertical-align: top !important;
+  }
+  .paper-wide .paper-table thead th { background: #f1f5f9 !important; font-weight: 700 !important; }
+  .paper-wide .paper-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .paper-wide .arch-stack,
+  .paper-wide .arch-layer {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #111827 !important;
+    break-inside: avoid;
+  }
 }

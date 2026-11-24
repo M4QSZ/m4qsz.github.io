@@ -13,6 +13,7 @@ const labPaperSlugs = [
   'meson-rust-edge',
   'cockpit-resilience-fingerprinting',
   'cockpit-rtk-telemetry-pipelines',
+  'meson-nosql-to-sql',
 ];
 
 const staticRoutes = [

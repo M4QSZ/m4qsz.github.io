@@ -1,0 +1,161 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 11: Migración de Producción NoSQL (Firestore) a SQL (Supabase/PostgreSQL + Isar WAL) en Meson | Miguel Quevedo"
+  description="Technical Report v1.0 — Migración completa de Firebase/Cloud Firestore a Supabase/PostgreSQL en Meson (502 archivos, 0 referencias Firestore, 324 archivos Supabase, 389 Isar, 59 políticas RLS, PN-Counter CRDT en SQL y contrato de despacho v1 con FOR UPDATE y SHA-256)."
+  pageLabel="Paper 11 · Meson NoSQL → SQL"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">De NoSQL a SQL en Producción sin Romper Offline-First: Migración Firebase/Firestore → Supabase/PostgreSQL + Isar WAL en Meson</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Cómo migrar una suite POS/ERP multi-app desde colecciones documentales en Firestore hacia PostgreSQL relacional con proyecciones idempotentes de outbox, índices únicos parciales, PN-Counter CRDT en PL/pgSQL, bloqueo explícito <code>FOR UPDATE</code> y aislamiento multi-tenant por JWT RLS.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Evidencia auditada</span><strong>502 archivos migrados (<code>+35,730 / −11,731</code> líneas) · 18 scripts SQL · 0 archivos Firestore restantes</strong></div>
+      <div><span>Arquitectura final</span><strong>324 archivos Dart Supabase · 389 archivos Isar WAL · 59 políticas RLS · 9 RPCs PL/pgSQL</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-nosql-to-sql.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-nosql-to-sql/">Read full report in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-finance-erp/">Paper 5: Finanzas &amp; Fiscal ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Paper 7: Sync LAN &amp; Mesh ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Métricas reales de la migración NoSQL a SQL en Meson">
+        <div class="paper-kpi"><strong>502 archivos</strong><span><code>+35,730 / −11,731</code> líneas en commits <code>6e9547e2 → c55582cd</code></span></div>
+        <div class="paper-kpi"><strong>0 Firestore</strong><span><code>324</code> archivos Supabase + <code>389</code> Isar WAL sobre <code>4,052</code> Dart</span></div>
+        <div class="paper-kpi"><strong>59 RLS · 9 RPCs</strong><span>18 scripts SQL · 22 tablas RLS · 17 índices · 4 triggers</span></div>
+        <div class="paper-kpi"><strong>FOR UPDATE</strong><span>PN-Counter CRDT SQL + despacho v1 con <code>SHA-256</code> y <code>BIGINT ×10⁴</code></span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#motivacion">1. Por qué NoSQL (Firestore) chocó con un POS/ERP financiero</a>
+        <a href="#ejecucion">2. Migración por fases en un monorepo de 4,052 archivos Dart</a>
+        <a href="#outbox-sql">3. Proyecciones SQL seguras para Outbox Offline-First e índices parciales</a>
+        <a href="#inventario">4. Evolución de inventario concurrente: Delta → PN-Counter CRDT → Contrato v1</a>
+        <a href="#rls">5. Aislamiento Multi-Tenant Zero-Trust, RLS y endurecimiento Linter</a>
+        <a href="#lecciones">6. Compromisos arquitectónicos y amenazas a la validez</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#motivacion">1. Límite NoSQL</a>
+        <a href="#ejecucion">2. Migración 502 archivos</a>
+        <a href="#outbox-sql">3. Outbox &amp; Parciales</a>
+        <a href="#inventario">4. CRDT &amp; Contrato v1</a>
+        <a href="#rls">5. RLS &amp; Linter</a>
+        <a href="#lecciones">6. Compromisos</a>
+      </aside>
+      <div class="case-content">
+        <section id="motivacion">
+          <h2>1. Por qué NoSQL (Firestore) chocó con un POS/ERP financiero</h2>
+          <p>
+            Meson arrancó sobre Firebase/Cloud Firestore por velocidad de prototipado, pero al escalar hacia un ERP multi-sucursal con contabilidad de partida doble, cajas multi-moneda, inventario por recetas BOM y entregas offline-first surgieron cuatro bloqueos estructurales:
+          </p>
+          <ul>
+            <li><strong>Ausencia de invariantes relacionales en servidor:</strong> Firestore no ofrece índices únicos parciales para impedir a nivel de motor que una estación abra dos sesiones de caja simultáneas o que una misma orden apruebe dos pagos concurrentes.</li>
+            <li><strong>Contención y carreras en stock concurrente:</strong> múltiples cajas, comandas y despachos offline descontando un mismo insumo requerían bloqueos de fila explícitos (<code>SELECT ... FOR UPDATE</code>), aritmética entera exacta y recibos de idempotencia transaccionales.</li>
+            <li><strong>Costos por lectura documental en reportes ERP:</strong> consultas analíticas (kardex, arqueos Z-Close, conciliación AP 3-vías y dashboards multi-sucursal) penalizan el modelo de cobro por documento leído y carecen de <code>JOIN</code>s y agregaciones SQL nativas.</li>
+            <li><strong>Gobernanza de seguridad por fila:</strong> las reglas de Firestore se fragmentaban por ruta de colección, dificultando validar claims JWT multi-tenant (<code>entity_id</code>) de forma uniforme junto a RPCs transaccionales.</li>
+          </ul>
+        </section>
+
+        <section id="ejecucion">
+          <h2>2. Migración por fases en un monorepo de 4,052 archivos Dart</h2>
+          <p>
+            La transición se ejecutó incrementalmente en git sin detener el desarrollo del resto del ecosistema (<code>6e9547e2</code> 50% → <code>983f683f</code> 80% → <code>b0050578</code> 90% → <code>75ba7326</code> app clientes → <code>c55582cd</code> corte total), acumulando <strong>502 archivos modificados (<code>+35,730 / −11,731</code> líneas)</strong>:
+          </p>
+          <ul>
+            <li><strong>Corte limpio de dependencia:</strong> hoy el repositorio contiene <strong><code>0</code> archivos importando <code>cloud_firestore</code></strong>, <strong><code>324</code> archivos conectados a Supabase/PostgreSQL</strong> y <strong><code>389</code> archivos respaldados por Isar WAL local</strong>.</li>
+            <li><strong>Infraestructura SQL reproducible:</strong> <code>18</code> scripts SQL idempotentes (<code>apps/meson_business/scripts/sql/</code> + <code>BUCO</code>) definiendo <code>16</code> tablas de migración, <code>59</code> políticas RLS, <code>22</code> activaciones <code>ENABLE ROW LEVEL SECURITY</code>, <code>9</code> funciones PL/pgSQL, <code>17</code> índices y <code>4</code> triggers.</li>
+          </ul>
+        </section>
+
+        <section id="outbox-sql">
+          <h2>3. Proyecciones SQL seguras para Outbox Offline-First e índices parciales</h2>
+          <p>
+            Uno de los errores más comunes al migrar un sistema offline-first a SQL es trasladar llaves foráneas rígidas a tablas que reciben reintentos asíncronos de una cola <em>outbox</em>: si el pago llega antes que la sesión de caja tras un corte de red, una <code>FOREIGN KEY</code> bloquea o descarta el lote.
+          </p>
+          <ul>
+            <li><strong>Proyección idempotente sin deadlocks de orden (<code>06_cash_register_financial_sync.sql</code>):</strong> Isar local sigue siendo la fuente operativa offline; las tablas <code>cash_sessions</code>, <code>cash_movements</code>, <code>pos_payments</code> y <code>cash_currency_balances</code> usan UUIDs generados en cliente y referencias lógicas sin FKs rígidas para tolerar entregas fuera de orden.</li>
+            <li><strong>Invariantes financieros blindados por PostgreSQL:</strong>
+              <ul>
+                <li><code>cash_sessions_one_active_per_station</code>: índice único parcial <code>(entity_id, station_id) WHERE status IN ('open', 'closing')</code>.</li>
+                <li><code>pos_payments_one_approved_per_order</code>: índice único parcial <code>(entity_id, order_id) WHERE state = 'approved'</code> + <code>idempotency_key TEXT NOT NULL UNIQUE</code>.</li>
+                <li>Restricciones <code>CHECK</code> de centavos exactos en <code>BIGINT</code> (<code>&gt; 0</code>) y códigos ISO-4217 de exactamente 3 caracteres (<code>char_length = 3</code>).</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section id="inventario">
+          <h2>4. Evolución de inventario concurrente: Delta → PN-Counter CRDT → Contrato v1</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p11-evol">
+            <table class="paper-table">
+              <caption id="es-p11-evol">Tabla 1 · Tres iteraciones reales del modelo transaccional de stock en PostgreSQL</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Etapa / Script</th>
+                  <th scope="col">Mecanismo SQL</th>
+                  <th scope="col">Problema resuelto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Fase 1 · <code>01_atomic_inventory_and_modifiers.sql</code></th>
+                  <td data-label="Mecanismo">Kardex inmutable (<code>inventory_transactions</code> con <code>mutation_id UNIQUE</code>) + RPC <code>apply_inventory_stock_delta</code> + <code>DROP FUNCTION</code> de sobrecargas legacy.</td>
+                  <td data-label="Resuelve">Elimina sobreescrituras perdidas de Firestore y resuelve errores HTTP <code>300 Multiple Choices</code> de PostgREST por sobrecargas ambiguas.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Fase 2 · <code>02_inventory_pn_counter_crdt.sql</code></th>
+                  <td data-label="Mecanismo">Tabla <code>inventory_crdt_nodes (item_id, node_id)</code> + RPC <code>merge_inventory_crdt_state</code> usando <em>Join-Semilattice</em> <code>GREATEST()</code> y stock global <code>SUM(p_val) − SUM(n_val)</code>.</td>
+                  <td data-label="Resuelve">Convergencia matemática idempotente cuando varias estaciones offline emiten reintentos o estados desordenados.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Fase 3 · <code>08_stock_dispatch_contract.sql</code></th>
+                  <td data-label="Mecanismo"><code>apply_inventory_stock_dispatch_v1</code> con bloqueo previo <code>SELECT ... FOR UPDATE</code>, unidades de punto fijo <code>BIGINT × 10,000</code> (≤ <code>2⁵³−1</code>), recibo separado (<code>inventory_stock_dispatch_receipts</code>) + verificación <code>SHA-256 dispatch_digest</code> (<code>23505</code> en conflicto) y <code>REVOKE EXECUTE</code> sobre el RPC escalar previo.</td>
+                  <td data-label="Resuelve">Elimina carreras TOCTOU entre lectura de recibo y descuento, impide doble conteo en Kardex y bloquea degradaciones de clientes viejos.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="rls">
+          <h2>5. Aislamiento Multi-Tenant Zero-Trust, RLS y endurecimiento Linter</h2>
+          <ul>
+            <li><strong>Políticas RLS ligadas a JWT firmado:</strong> todas las tablas financieras y de inventario exigen <code>entity_id = (auth.jwt() -&gt;&gt; 'entity_id')</code>; en funciones <code>SECURITY DEFINER</code> se fija <code>SET search_path = pg_catalog, public, pg_temp</code> y se verifica explícitamente <code>auth.uid()</code> + <code>auth.role()</code> + claim <code>entity_id</code> lanzando <code>SQLSTATE 42501</code> ante cualquier intento cross-tenant.</li>
+            <li><strong>Auditoría Supabase Linter (<code>fix_supabase_linter_warnings.sql</code>):</strong> eliminó políticas permisivas públicas en <code>change_logs</code>, <code>chat_rooms_typing</code>, <code>deletion_logs</code>, <code>marketplace_order_items</code>, <code>radar_shot_likes</code> y <code>reviews</code>, migró <code>sync_employee_photos()</code> a <code>SECURITY INVOKER</code>, revocó <code>EXECUTE</code> a <code>PUBLIC</code>/<code>anon</code> y cerró fugas de listado público en <code>storage.objects</code> (<code>app_releases</code>).</li>
+          </ul>
+        </section>
+
+        <section id="lecciones">
+          <h2>6. Compromisos arquitectónicos y amenazas a la validez</h2>
+          <ul>
+            <li><strong>Compromiso deliberado (Sin FKs en proyecciones outbox):</strong> sacrificar llaves foráneas estrictas en tablas alimentadas por outbox evita bloqueos de entrega offline, trasladando la integridad referencial a reconciliadores de dominio y pruebas automatizadas.</li>
+            <li><strong>Evaluación empírica pendiente (<code>[TBD]</code>):</strong> aunque los scripts SQL, políticas RLS y 324 archivos Supabase están en producción en el monorepo (sin trazas de Firestore), no se registraron latencias p50/p95 pareadas ni facturación comparativa Firestore vs. PostgreSQL antes del corte; se documenta como arquitectura verificada en código, no como benchmark A/B de costos.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/papers/meson-nosql-to-sql.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-nosql-to-sql/">Read in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>
