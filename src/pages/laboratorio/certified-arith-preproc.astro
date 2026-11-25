@@ -1,26 +1,26 @@
 ---
 import Base from '../../layouts/Base.astro';
-import paperHtml from '../../data/certifiedArithPaper.html?raw';
+import paperHtml from '../../data/certifiedArithPaper.es.html?raw';
 ---
 <Base
-  title="Certified Arithmetic Preprocessing for Scrambled CNF | Miguel Quevedo"
-  description="Research prototype and technical note: VeriPB-certified arithmetic adder extraction and dual annihilator preprocessing for scrambled CNF; 30 Lean 4 theorems (0 axioms), 5/5 VeriPB 3.0.2 checks, 300 s comparison vs Kissat 4.0.4 and CryptoMiniSat 5."
+  title="Preprocesamiento Aritmético Certificado para CNF Permutada | Miguel Quevedo"
+  description="Prototipo de investigación y nota técnica: extracción aritmética de sumadores certificada con VeriPB y preprocesamiento por aniquiladores duales para CNF permutada; 30 teoremas en Lean 4 (0 axiomas), 5/5 verificaciones VeriPB 3.0.2, comparación de 300 s contra Kissat 4.0.4 y CryptoMiniSat 5."
   pageLabel="Paper · Certified Arithmetic Preprocessing"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
     <div class="detail-hero">
-      <h1 class="long-title">Certified Arithmetic Preprocessing for Scrambled CNF</h1>
-      <p class="detail-lede">Technical Note / borrador de preprint v0.1 — sin revisión por pares. El texto técnico está en inglés; todos los números provienen de ejecuciones registradas en el repositorio público.</p>
+      <h1 class="long-title">Preprocesamiento Aritmético Certificado para CNF Permutada</h1>
+      <p class="detail-lede">Nota Técnica / borrador de preprint v0.1 — sin revisión por pares. Todas las cifras provienen de comandos ejecutados y registrados en el repositorio público.</p>
     </div>
     <div class="detail-meta">
-      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.1)</strong></div>
-      <div><span>Verification</span><strong>Lean 4: 30 theorems, 0 axioms · veripb 3.0.2: 5/5 VERIFIED UNSATISFIABLE</strong></div>
-      <div><span>Status</span><strong>Research Prototype · Technical Note</strong></div>
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v0.1)</strong></div>
+      <div><span>Verificación</span><strong>Lean 4: 30 teoremas, 0 axiomas · veripb 3.0.2: 5/5 VERIFIED UNSATISFIABLE</strong></div>
+      <div><span>Estado</span><strong>Prototipo de investigación · Nota Técnica</strong></div>
     </div>
     <div class="cv-actions">
-      <a class="button button-primary" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repository + reproduce.sh ↗</a>
-      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/TECHNICAL_NOTE.md" target="_blank" rel="noopener noreferrer">Markdown source ↗</a>
+      <a class="button button-primary" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repositorio + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/TECHNICAL_NOTE.md" target="_blank" rel="noopener noreferrer">Fuente en Markdown (EN) ↗</a>
     </div>
     <article class="paper-body" set:html={paperHtml} />
   </main>

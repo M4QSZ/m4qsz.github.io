@@ -1,0 +1,218 @@
+<blockquote>
+<p><strong>Estado:</strong> Prototipo de investigación y Nota Técnica (v0.1). No ha sido revisada por pares ni enviada a ninguna conferencia; sirve como compañero técnico reproducible y base para trabajo futuro en SAT / verificación formal.</p>
+</blockquote>
+<hr />
+<h2>Resumen</h2>
+<p>Los <em>miters</em> de equivalencia aritmética heterogéneos (por ejemplo, comparar un multiplicador <em>schoolbook</em>/ripple contra uno de árbol de Wallace) y las combinaciones disyuntivas de restricciones de palomar y paridad con cables eliminados son un cuello de botella serio para los solvers CDCL (<em>Conflict-Driven Clause Learning</em>) cuando se presentan como fórmulas 3-CNF planas, con variables y polaridades permutadas. Por su parte, los verificadores algebraicos de multiplicadores suelen operar sobre grafos AND-Inverter (AIG) y emiten pruebas en cálculos algebraicos (<code>PAC</code>/<code>LPAC</code>), separados de los verificadores de pruebas pseudo-booleanas.</p>
+<p>Esta nota técnica documenta un prototipo de preprocesamiento y refutación que opera directamente sobre fórmulas 3-CNF anónimas:</p>
+<ol>
+<li><strong>Extracción ciega de sumadores aritméticos y certificación <code>VeriPB 3.0</code>:</strong> recupera compuertas deterministas de 2 entradas bajo permutaciones y cambios de fase arbitrarios, fusiona salidas congruentes, sintetiza ecuaciones enteras de semisumador y de sumador completo con acarreo disjunto mediante <em>Reverse Unit Propagation</em> (RUP) con cubos acotados y división de planos de corte, elimina acarreos internos con una sola pasada RREF racional dispersa, y registra pruebas <code>VeriPB 3.0</code> verificadas por máquina para refutaciones por <em>bit-peeling</em> 2-ádico/GCD.</li>
+<li><strong>Síntesis de aniquiladores duales de Reed–Muller y Macaulay disperso / planos de corte acoplados:</strong> identifica definiciones no lineales ocultas elevando conjuntos locales de falsificación a coordenadas de Reed–Muller de grado $d$, $\mathrm{RM}(d, n)$, con aislamiento de derivadas booleanas direccionales en $O(|V|\cdot \dim^2)$, y acopla colisiones de diamante de ancho 3, ideales de pétalo de 4 variables, RREF dispersa sobre $\mathbb{F}_2$ y planos de corte monótonos con guardas (cliques y acarreo de pares).</li>
+</ol>
+<p>En <em>miters</em> <code>Schoolbook vs Wallace</code> con variables permutadas (<code>6x6</code> a <code>16x16</code> bits), <code>veripb 3.0.2</code> valida cada prueba <code>.pbp</code> generada en <code>37.2 ms</code>–<code>400.9 ms</code>. En una comparación de 300 s de reloj contra <code>Kissat 4.0.4</code> y <code>CryptoMiniSat 5</code>, nuestro prototipo en Python resuelve <em>miters</em> de multiplicador <code>12x12</code>–<code>20x20</code> permutados (<code>6.7 s</code>–<code>27.8 s</code>) donde ambos solvers en C/C++ agotan el tiempo a <code>300 s</code>, y resuelve un interpolante <code>PHP_{13}^{12} \vee \mathrm{Tseitin}_{28}</code> con cables eliminados <code>73x</code> más rápido que <code>Kissat 4.0.4</code> (<code>2.87 s</code> vs <code>209.75 s</code>).</p>
+<hr />
+<h2>1. Trabajo relacionado y posicionamiento</h2>
+<ul>
+<li><strong>Clausal Congruence Closure:</strong> Biere, Fazekas, Fleury y Froleyks [1] (<em>SAT 2024</em>, integrado en <code>Kissat 4.0.4</code>) recuperan compuertas <code>AND</code>, <code>XOR</code> e <code>ITE</code> directamente desde CNF y fusionan salidas estructuralmente equivalentes. En multiplicadores heterogéneos (<code>Schoolbook vs Wallace</code>), los árboles internos de reducción de productos parciales difieren estructuralmente, de modo que no quedan compuertas internas equivalentes que fusionar a nivel de cláusulas antes de la ramificación exponencial.</li>
+<li><strong>Verificación algebraica de multiplicadores:</strong> Kaufmann y Biere [2] (<em>AMulet 2.0</em>, <em>TACAS 2021</em>) verifican multiplicadores a nivel de compuertas mediante reescritura con bases de Gröbner y sustitución de sumadores sobre AIG, con registro de pruebas algebraicas <code>PAC</code>. Nuestro prototipo complementa esta línea operando directamente sobre 3-CNF permutada (sin entradas AIG) y registrando las refutaciones directamente en formato de planos de corte <code>VeriPB 3.0</code>.</li>
+<li><strong>Certificación pseudo-booleana y de paridad:</strong> Gocht y Nordström [3] (<em>AAAI 2021</em>) introdujeron la certificación eficiente de paridad en <code>VeriPB</code> con variables de extensión, y Koops et al. [4] (<em>CP 2025</em>) demostraron registro práctico de pruebas LP/Farkas y planos de corte para optimización pseudo-booleana (<code>RoundingSat</code> / <code>Sat4j</code> + <code>VeriPB</code> / <code>CakePB</code>).</li>
+<li><strong>Recodificación sintáctica con variables auxiliares:</strong> Haberlandt, Green y Heule [5] (<em>SBVA</em>, <em>SAT 2023</em>) estabilizan la <em>Bounded Variable Addition</em> con desempates estructurados sobre patrones de bicliques de cláusulas, mientras que nuestra síntesis de aniquiladores duales apunta a restricciones locales no lineales cuyos patrones de cláusulas carecen de bicliques cartesianos limpios.</li>
+</ul>
+<hr />
+<h2>2. Descripción del pipeline</h2>
+<h3>2.1 Pseudocódigo de extracción de sumadores <code>3-CNF -&gt; VeriPB 3.0</code> (<code>veripb_emitter.py</code>)</h3>
+<pre><code class="language-text">Entrada: 3-CNF DIMACS anónima (n_vars, m cláusulas)
+1. Repetir hasta punto fijo:
+     a) Aplicar propagación unitaria, resolución binaria unitaria y equivalencias 2-XOR (`rup` + sync).
+     b) Escanear tripletas de 3 variables buscando compuertas deterministas de 2 entradas o = g(u, w).
+     c) Fusionar salidas de compuertas congruentes (o1 == +/- o2) con RUP de cubo de 2 variables (`pol ... 2 d`).
+2. Extraer ecuaciones aritméticas en Z a partir de las compuertas residuales:
+     a) Pares de semisumador (u, w) -&gt; (s, c): derivar u + w - s - 2c = 0 con 7 cláusulas RUP de cubo acotado + `d`.
+     b) Compuertas OR de sumador completo con acarreo disjunto (c1, c2) -&gt; cout con !(c1 &amp; c2): derivar c1 + c2 - cout = 0.
+3. Una sola RREF racional dispersa sobre Q (priorizando cables internos con occ &gt;= 2 como pivotes):
+     Seguir las combinaciones lineales racionales exactas `lambda_e` sobre las ecuaciones base.
+4. *Bit-peeling* incremental 2-ádico / GCD sobre filas pivote de bajo soporte:
+     Limpiar denominadores -&gt; calcular g = gcd(coeficientes).
+     - Si g &gt; 1 y g no divide el lado derecho:
+         Emitir `pol &lt;comb_ge&gt; &lt;g&gt; d`, `pol &lt;comb_le&gt; &lt;g&gt; d`, y la suma -&gt; `0 &gt;= 1` (`veripb` UNSAT).
+     - Si no, si quedan 1 o 2 coeficientes impares:
+         Derivar la unidad o 2-XOR implicada con `pol ... + 2 d` y propagar hasta la contradicción.
+Salida: prueba `.pbp` completa que termina en `output NONE ; conclusion UNSAT : &lt;cid&gt; ;`
+</code></pre>
+<h3>2.2 Síntesis de aniquiladores duales de Reed–Muller (<code>veronese_annihilator.py</code>)</h3>
+<p>Para bloques locales de cláusulas no lineales con soporte $U$ ($|U| \le 12$), sea $F_{\mathrm{bad}} \subseteq {0,1}^{|U|}$ el conjunto de puntos falsificados de la tabla de verdad. Al elevar $F_{\mathrm{bad}}$ a la base de coordenadas de Reed–Muller / Veronese de grado $d$, $\nu_d$, e intersectar aniquiladores duales proyectados mediante eliminación de Zassenhaus a nivel de bits, se obtienen subespacios polinomiales candidatos. Cuando una definición cuasi-lineal $q = P(z \setminus {u}) \oplus u$ queda oculta por múltiplos de sicigias $f \cdot q$, su derivada booleana direccional cumple $\Delta_u(f \cdot q) = f$ de forma idéntica; proyectar fuera los monomios de grado $\ge 2$ que contienen $u$ impone $\Delta_u P \equiv 1$ y aísla $P = q$ en $O(|V| \cdot \dim^2)$ operaciones, sin enumeración $2^{\dim}$.</p>
+<h3>2.3 Macaulay disperso acoplado y planos de corte con guardas (<code>macaulay_cp.py</code>)</h3>
+<p>Dos 3-cláusulas distintas sobre la misma tripleta de variables comparten el mismo monomio cúbico líder $x_1 x_2 x_3$ en $\mathbb{F}_2[x_1, x_2, x_3]/(x_i^2 - x_i)$, por lo que su diferencia cancela el término cúbico y produce una ecuación cuadrática exacta en $\mathrm{RM}(2, 3)$. Nuestro lazo híbrido acopla resolución de diamante de ancho 3 priorizada por colisiones, ideales de anulación de pétalos de 4 variables y RREF dispersa $O(\mathrm{nnz})$ sobre $\mathbb{F}_2$, con hiperplanos modulares monótonos ($\mathbb{F}_2, \mathbb{F}_3, \mathbb{F}_5$), planos de corte de cliques con guardas, redondeo LP de acarreo de pares/2-XOR y descomposición por cortes de vértices primales para fórmulas disyuntivas con cables eliminados.</p>
+<h3>2.4 Alcance de la verificación en dos capas</h3>
+<ul>
+<li><strong>Solidez finita de reglas (<code>proofs/rule_soundness.lean</code>):</strong> 30 teoremas verificados en Lean 4.36.0 (<code>decide +revert</code>, <code>0</code> axiomas externos, <code>0 sorryAx</code>) confirman la validez booleana/entera finita exacta de las identidades locales de reescritura algebraica y de planos de corte.</li>
+<li><strong>Certificación extremo a extremo por instancia (<code>veripb 3.0.2</code>):</strong> como el solver en Python y el motor RREF disperso no están formalizados en Lean, cada refutación de <em>miter</em> aritmético se verifica de forma independiente, desde el <code>.cnf</code> DIMACS original, con el verificador externo en Rust <code>veripb 3.0.2</code>.</li>
+</ul>
+<hr />
+<h2>3. Evaluación experimental (presupuesto de 300 s de reloj)</h2>
+<p>Todos los experimentos se ejecutaron en una máquina Linux de 4 núcleos (<code>Python 3.12</code>, <code>numpy</code>, <code>scipy</code> HiGHS, <code>python-sat</code>, <code>pycryptosat</code>, <code>Kissat 4.0.4</code> compilado con <code>-O3</code>, <code>veripb 3.0.2</code>). Todos los benchmarks se generaron sintéticamente y se sometieron a permutación aleatoria de variables, inversión de polaridad y mezcla de cláusulas antes de resolverlos.</p>
+<h3>Tabla 1: certificación extremo a extremo con <code>VeriPB 3.0.2</code> (miters <code>Schoolbook vs Wallace</code> en 3-CNF permutada)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia permutada</th>
+<th style="text-align: center;">Vars</th>
+<th style="text-align: center;">Cláusulas</th>
+<th style="text-align: center;">Líneas <code>.pbp</code></th>
+<th style="text-align: center;">Resolver + emitir (Python)</th>
+<th style="text-align: center;">Verificación <code>veripb 3.0.2</code></th>
+<th style="text-align: left;">Veredicto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Scrambled_Miter_06x06</code></td>
+<td style="text-align: center;"><code>369</code></td>
+<td style="text-align: center;"><code>1,174</code></td>
+<td style="text-align: center;"><code>6,135</code></td>
+<td style="text-align: center;"><code>532.4 ms</code></td>
+<td style="text-align: center;"><strong><code>37.2 ms</code></strong></td>
+<td style="text-align: left;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Scrambled_Miter_08x08</code></td>
+<td style="text-align: center;"><code>685</code></td>
+<td style="text-align: center;"><code>2,206</code></td>
+<td style="text-align: center;"><code>11,872</code></td>
+<td style="text-align: center;"><code>1,641.2 ms</code></td>
+<td style="text-align: center;"><strong><code>43.9 ms</code></strong></td>
+<td style="text-align: left;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Scrambled_Miter_10x10</code></td>
+<td style="text-align: center;"><code>1,097</code></td>
+<td style="text-align: center;"><code>3,558</code></td>
+<td style="text-align: center;"><code>19,406</code></td>
+<td style="text-align: center;"><code>3,524.4 ms</code></td>
+<td style="text-align: center;"><strong><code>87.8 ms</code></strong></td>
+<td style="text-align: left;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Scrambled_Miter_12x12</code></td>
+<td style="text-align: center;"><code>1,605</code></td>
+<td style="text-align: center;"><code>5,230</code></td>
+<td style="text-align: center;"><code>28,793</code></td>
+<td style="text-align: center;"><code>6,483.2 ms</code></td>
+<td style="text-align: center;"><strong><code>213.8 ms</code></strong></td>
+<td style="text-align: left;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Scrambled_Miter_16x16</code></td>
+<td style="text-align: center;"><code>2,909</code></td>
+<td style="text-align: center;"><code>9,534</code></td>
+<td style="text-align: center;"><code>53,042</code></td>
+<td style="text-align: center;"><code>28,230.8 ms</code></td>
+<td style="text-align: center;"><strong><code>400.9 ms</code></strong></td>
+<td style="text-align: left;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 2: comparación de 300 s de reloj contra <code>Kissat 4.0.4</code> y <code>CryptoMiniSat 5</code></h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Benchmark permutado (<code>.cnf</code>)</th>
+<th style="text-align: center;">Vars / Cláusulas</th>
+<th style="text-align: center;">Nuestro (Python, 0 ramas)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code> (C, <code>-O3</code>)</th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code> (C++)</th>
+<th style="text-align: center;"><code>RoundingSat</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_12x12_Scrambled</code></td>
+<td style="text-align: center;"><code>1,605 / 5,230</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>6,722.8 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_16x16_Scrambled</code></td>
+<td style="text-align: center;"><code>2,909 / 9,534</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>12,999.4 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_20x20_Scrambled</code></td>
+<td style="text-align: center;"><code>4,597 / 15,118</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>27,786.8 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WireElim_OR_s1s2_PHP13_12_Tseitin28</code></td>
+<td style="text-align: center;"><code>3,157 / 5,196</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>2,874.7 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>209,745.2 ms</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Lifted_PHP65_o_Keccak4L_Scrambled</code></td>
+<td style="text-align: center;"><code>17,373 / 21,284</code></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>3,885.2 ms</code>)</td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>151.6 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>213.4 ms</code>)</td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Shifted_Cubic_Sponge_Miter_Scrambled</code></td>
+<td style="text-align: center;"><code>2,615 / 3,264</code></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>235.3 ms</code>)</td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>144.7 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>252.7 ms</code>)</td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_XORMAJ3_n28_m36_Scrambled</code></td>
+<td style="text-align: center;"><code>1,180 / 1,728</code></td>
+<td style="text-align: center;"><code>FEASIBLE</code> <em>(tope)</em></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>51.5 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>116.4 ms</code>)</td>
+<td style="text-align: center;"><code>N/A</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Limitaciones y transparencia</h2>
+<ol>
+<li><strong>Solo benchmarks sintéticos:</strong> todos los benchmarks de las Tablas 1 y 2 provienen de los generadores sintéticos de <code>benchmarks.py</code>. La evaluación sobre benchmarks externos de la SAT Competition o de miters de hardware industrial queda como trabajo futuro.</li>
+<li><strong>Donde ganan los solvers CDCL nativos en C:</strong> en núcleos de palomar elevados más pequeños (<code>PHP_6^5</code>), miters cúbicos de anillo pequeños y <code>Goldreich XOR-MAJ3</code> con $n=28$ (donde nuestro pre-paso desenrollado <code>(1,1)</code> llega a su tope <code>max_active_vars=48</code> y el lazo externo omite circuitos de más de 500 variables), <code>Kissat 4.0.4</code> y <code>CryptoMiniSat 5</code> resuelven las instancias en <code>51</code>–<code>253 ms</code>. Esto motiva posicionar nuestro motor como <strong>preprocesador certificado de vía rápida / componente de portafolio</strong> previo al CDCL, y no como reemplazo independiente.</li>
+<li><strong>Disponibilidad de <code>RoundingSat</code>:</strong> no se pudo compilar <code>RoundingSat</code> en este entorno por falta de <code>cmake</code> y <code>Boost &gt;= 1.70</code>; <code>benchmark_solvers.py</code> admite <code>--roundingsat-bin</code> cuando está instalado.</li>
+<li><strong>Alcance de <code>rule_soundness.lean</code> frente a <code>VeriPB</code>:</strong> los 30 teoremas de Lean 4 verifican reglas locales finitas de reescritura mediante <code>decide +revert</code>, no la corrección asintótica $\forall n$ de la implementación en Python; la solidez de la refutación extremo a extremo la garantiza, instancia por instancia, <code>veripb 3.0.2</code>.</li>
+<li><strong>Observación a pequeña escala en 3-SAT aleatorio:</strong> en ejecuciones exploratorias anteriores sobre 3-SAT aleatorio UNSAT ($\alpha = 6.2$, $n=64$), acoplar Macaulay disperso de grado 3 con planos de corte con guardas produjo <code>8/8</code> refutaciones sin ramificación (<code>13.6 s</code>), donde cada componente por separado logró <code>0/8</code> (<code>16/16</code> chequeos SAT superados). Se anota estrictamente como observación empírica de $n$ pequeño; el CDCL estándar resuelve $n=64$ en milisegundos y las cotas inferiores asintóticas de expansión aplican al crecer $n$.</li>
+<li><strong>Nota de desarrollo asistido por IA:</strong> este prototipo de investigación, la suite de solidez de reglas en Lean 4 y la documentación se desarrollaron con flujos de programación y búsqueda asistidos por IA, y se verificaron directamente mediante la ejecución local de <code>lean</code>, <code>veripb 3.0.2</code>, <code>kissat 4.0.4</code> y <code>pycryptosat</code>.</li>
+</ol>
+<hr />
+<h2>5. Comandos portables de reproducibilidad</h2>
+<pre><code class="language-bash"># 1. Verificar las 30 reglas locales finitas de reescritura en Lean 4 (0 axiomas)
+lean proofs/rule_soundness.lean
+
+# 2. Emitir y verificar pruebas VeriPB 3.0.2 para miters de multiplicador permutados 6x6..16x16
+uv run --with-editable . python -m certified_arith_preproc.veripb_emitter --bits 6 8 10 12 16
+
+# 3. Ejecutar la comparación de 300 s contra Kissat 4.0.4 y CryptoMiniSat 5
+uv run --with-editable '.[benchmarks]' python -m certified_arith_preproc.benchmark_solvers --timeout 300
+
+# O ejecutar los tres pasos con:
+./scripts/reproduce.sh --timeout 300
+</code></pre>
+<hr />
+<h2>Referencias</h2>
+<ol>
+<li>Armin Biere, Katalin Fazekas, Mathias Fleury y Nils Froleyks. <em>Clausal Congruence Closure</em>. 27th International Conference on Theory and Applications of Satisfiability Testing (SAT 2024), LIPIcs Vol. 305, pp. 6:1–6:25. DOI: <code>10.4230/LIPIcs.SAT.2024.6</code>.</li>
+<li>Daniela Kaufmann y Armin Biere. <em>AMulet 2.0 for Verifying Multiplier Circuits</em>. Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2021), LNCS, pp. 357–364. DOI: <code>10.1007/978-3-030-72013-1_19</code>.</li>
+<li>Stephan Gocht y Jakob Nordström. <em>Certifying Parity Reasoning Efficiently Using Pseudo-Boolean Proofs</em>. Proceedings of the AAAI Conference on Artificial Intelligence (AAAI 2021), Vol. 35(5), pp. 3768–3777. DOI: <code>10.1609/aaai.v35i5.16494</code>.</li>
+<li>Wietze Koops, Daniel Le Berre, Magnus O. Myreen, Jakob Nordström, Andy Oertel, Yong Kiam Tan y Marc Vinyals. <em>Practically Feasible Proof Logging for Pseudo-Boolean Optimization</em>. 31st International Conference on Principles and Practice of Constraint Programming (CP 2025), LIPIcs, Art. 21. DOI: <code>10.4230/LIPIcs.CP.2025.21</code>.</li>
+<li>Andrew Haberlandt, Harrison Green y Marijn J. H. Heule. <em>Effective Auxiliary Variables via Structured Reencoding</em>. 26th International Conference on Theory and Applications of Satisfiability Testing (SAT 2023), LIPIcs, Art. 11. DOI: <code>10.4230/LIPIcs.SAT.2023.11</code>.</li>
+</ol>
