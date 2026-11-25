@@ -44,6 +44,7 @@ const papers = [
   'cockpit-resilience-fingerprinting',
   'cockpit-rtk-telemetry-pipelines',
   'meson-nosql-to-sql',
+  'certified-arith-preproc',
 ];
 
 const mimeTypes = {
