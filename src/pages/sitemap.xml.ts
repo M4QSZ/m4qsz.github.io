@@ -4,6 +4,7 @@ import { labSamples } from '../data/labSamples';
 
 const labPaperSlugs = [
   'cockpit-paper',
+  'certified-arith-preproc',
   'cockpit-zero-vision',
   'cockpit-distributed',
   'cockpit-algebraic-compression',
