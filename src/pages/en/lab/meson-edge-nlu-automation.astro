@@ -1,0 +1,172 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 15: Self-Calibrating Zero-LLM Edge NLU (Online Platt Scaling, SIF, Adaptive ONNX) & Semantic Flutter UI Automation | Miguel Quevedo"
+  description="Technical Report v1.0 — Offline-first Rust NLU engine (meson_ai: 153 files, 16,006 LOC, 300/300 live cargo tests): per-intent online Platt scaling, PC1-removed SIF embeddings, adaptive-RAM tract-onnx, panic fault barriers, and semantic Flutter UI AutomationEngine."
+  pageLabel="Paper 15 · Edge NLU & UI Automation"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Self-Calibrating Zero-LLM Edge NLU (Online Platt Scaling, SIF PC1, Adaptive ONNX &amp; Panic Fault Barriers) and Semantic Flutter UI Automation</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Full architecture of Meson's hybrid operational assistant (<code>crates/meson_ai</code> + <code>services/automation/</code>): sub-millisecond bilingual NLU with Spanish phonetic hashing and slang normalization, online per-intent probabilistic calibration, circuit-breaking panic isolation, and vision-free Flutter widget automation.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited codebase</span><strong><code>crates/meson_ai</code> (153 files · 16,006 Rust LOC) · <code>crates/meson_speech_worker</code> (472 LOC) · <code>services/automation/</code> (1,166 Dart LOC)</strong></div>
+      <div><span>Verifiable evidence</span><strong>Live <code>cargo test -p meson_ai</code> execution: 300/300 passing tests (0 failures in 9.62 s)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-edge-nlu-automation/">Leer reporte en Español ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-rust-edge/">Paper 8: Rust FFI &amp; Engines ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/projects/suite-rust-nativa/">Rust Suite Case ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Verified metrics for meson_ai and UI automation">
+        <div class="paper-kpi"><strong>300 / 300 Tests</strong><span>Live <code>cargo test -p meson_ai</code> (153 files · 16,006 LOC)</span></div>
+        <div class="paper-kpi"><strong>Online Platt</strong><span>Logistic sigmoid <code>(a, b)</code> + FP/FN threshold adaptation</span></div>
+        <div class="paper-kpi"><strong>128d SIF + ONNX</strong><span>PC1 removal + adaptive RAM <code>tract-onnx</code> unloading</span></div>
+        <div class="paper-kpi"><strong>Fault Barrier</strong><span><code>catch_unwind</code> circuit breaker + Flutter <code>AutomationEngine</code></span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (7 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#problem">1. Why offline POS operations cannot rely on cloud LLMs per command</a>
+        <a href="#pipeline">2. Deterministic NLU pipeline: Spanish phonetics, 128d SIF &amp; multi-intent</a>
+        <a href="#calibration">3. Online Platt calibration, hybrid Local/Cloud routing &amp; ONNX RAM tiers</a>
+        <a href="#resilience">4. Circuit-breaking panic fault barriers &amp; 300 s slot-filling automaton</a>
+        <a href="#ui-automation">5. Semantic Flutter UI automation (<code>AutomationEngine</code> + <code>dryRun</code>)</a>
+        <a href="#evolution">6. Architectural pivot: retiring in-process Candle (Qwen2.5 GGUF + Whisper) for legacy POS hardware</a>
+        <a href="#validity">7. Live test audit (300/300) &amp; threats to validity</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#problem">1. Problem</a>
+        <a href="#pipeline">2. NLU Pipeline</a>
+        <a href="#calibration">3. Platt &amp; ONNX</a>
+        <a href="#resilience">4. Barriers &amp; Slots</a>
+        <a href="#ui-automation">5. UI Automation</a>
+        <a href="#evolution">6. Candle Pivot</a>
+        <a href="#validity">7. Tests &amp; Limits</a>
+      </aside>
+      <div class="case-content">
+        <section id="problem">
+          <h2>1. Why offline POS operations cannot rely on cloud LLMs per command</h2>
+          <p>
+            During peak commercial shifts, routine operational commands such as opening inventory, adding stock quantities, or checking daily sales require instant execution with $0 marginal API cost even when Internet drops. Routing every command to a cloud LLM introduces network latency and outage failures, whereas pinning heavy neural weights in RAM can destabilize budget POS tablets.
+          </p>
+          <p>
+            <code>crates/meson_ai</code> (<strong>153 files, 16,006 Rust LOC</strong>) solves this trade-off via a deterministic local-first NLU engine that resolves operational intents on-device, escalates only open-ended or low-confidence queries to cloud models, and drives verified Flutter UI sequences through semantic widget IDs.
+          </p>
+        </section>
+
+        <section id="pipeline">
+          <h2>2. Deterministic NLU pipeline: Spanish phonetics, 128d SIF &amp; multi-intent</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p15-stages">
+            <table class="paper-table">
+              <caption id="en-p15-stages">Table 1 · Processing stages inside <code>crates/meson_ai/src/</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Stage / Module</th>
+                  <th scope="col">Implemented mechanism</th>
+                  <th scope="col">Verified coverage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Normalization &amp; phonetics (<code>spell_phonetic.rs</code>, <code>normalizer.rs</code>, <code>slang.rs</code>)</th>
+                  <td data-label="Mechanism">Spanish phonetic folding (<code>b/v→b</code>, <code>m/n→n</code>, <code>c/s/z→s</code>, <code>g/j/x→j</code>, silent <code>h</code>, 4-char signature) + bounded Levenshtein + Spanish verb conjugation &amp; slang normalization (<code>xfa</code>, <code>xq</code>).</td>
+                  <td data-label="Coverage">Recovers <code>"imbentario" → "inventario"</code>, <code>"serdo" → "cerdo"</code>, and <code>"baca" ≡ "vaca"</code> with zero external dictionaries.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Multi-intent decomposition (<code>multi_intent.rs</code>)</th>
+                  <td data-label="Mechanism">Categorizes queries into <code>Simple</code>, <code>Compound</code>, <code>Comparative</code>, <code>Conditional</code>, and <code>Chained</code> by splitting on connectors (<code>" y luego "</code>, <code>" vs "</code>, <code>", "</code>) enforcing ≥ 2 words per clause.</td>
+                  <td data-label="Coverage">Scores each segment and retains the highest-confidence intent without penalizing simple inputs.</td>
+                </tr>
+                <tr>
+                  <th scope="row">128d SIF embeddings + TF-IDF (<code>sif.rs</code>, <code>tfidf.rs</code>)</th>
+                  <td data-label="Mechanism"><code>128</code>-dimensional Smooth Inverse Frequency vectors (<code>a = 10⁻³</code>) with first principal component estimation and subtraction (<code>remove_pc1</code>) across intent centroids.</td>
+                  <td data-label="Coverage">Strips common-direction bias across domain vocabulary at zero GPU cost.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Memory &amp; entity extraction (<code>entity/extractor/</code>, <code>session_memory.rs</code>)</th>
+                  <td data-label="Mechanism">Typed extractors for prices, quantities/units (kg, boxes, liters), relative dates, phones, emails, and implicit cross-turn reference resolution.</td>
+                  <td data-label="Coverage">Persisted in SQLite (<code>core/db.rs</code>) with LRU caching and per-user vocabulary boosting.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="calibration">
+          <h2>3. Online Platt calibration, hybrid Local/Cloud routing &amp; ONNX RAM tiers</h2>
+          <ul>
+            <li><strong>Per-intent online Platt scaling (<code>core/auto_calibrate.rs</code>, 246 LOC):</strong> tracks true positives, false positives, and false negatives per intent, computes precision/recall/F1, and updates logistic parameters <code>(platt_a, platt_b)</code> once <code>≥ 10</code> samples accrue: <code>σ(z) = 100 / (1 + e⁻ᶻ)</code> where <code>z = a·(score/50 − 1) + b</code>, adapting acceptance thresholds in <code>[30, 100]</code> from observed FP/FN ratios.</li>
+            <li><strong>Four-way hybrid router (<code>core/router.rs</code>):</strong> emits <code>Local</code>, <code>Cloud</code>, <code>LocalWithCloudFallback</code>, or <code>Ambiguous</code>. Open-ended advisory questions or queries with effective confidence <code>&lt; 50.0</code> route to cloud LLMs, whereas learned overrides (<code>learned_override</code>) and high-certainty operational intents (<code>&gt; 70.0</code>) resolve locally in sub-millisecond time.</li>
+            <li><strong>Adaptive-RAM <code>tract-onnx</code> inference (<code>nlp/embeddings.rs</code>):</strong> loads ONNX models and HuggingFace <code>tokenizers 0.23.1</code> from Flutter asset bytes and precomputes intent centroids; when <code>PERFORMANCE_MODE</code> drops to Basic (<code>1</code>) on memory-constrained hardware, <code>free_model()</code> unloads ONNX weights immediately while lexical/SIF classification stays live.</li>
+          </ul>
+        </section>
+
+        <section id="resilience">
+          <h2>4. Circuit-breaking panic fault barriers &amp; 300 s slot-filling automaton</h2>
+          <ul>
+            <li><strong>Per-component panic isolation (<code>core/fault_barrier.rs</code>, 139 LOC):</strong> wraps execution inside <code>catch_unwind(AssertUnwindSafe(...))</code> paired with a global atomic circuit-breaker registry (<code>COMPONENT_STATE</code> using <code>AtomicBool</code>). A panicking component automatically trips to disabled, logs the failure, and returns a safe fallback instead of crashing the POS host; <code>reset_component()</code> enables controlled recovery.</li>
+            <li><strong>Typed slot-filling state machine (<code>context/slot_state.rs</code>, 337 LOC):</strong> drives multi-turn dialogs (<code>Idle</code> → <code>GatheringInfo</code> → <code>AwaitingConfirmation</code> / <code>Suspended</code>) with automatic expiry after <code>SLOT_TIMEOUT_SECS = 300</code> and field validators (numeric <code>precio</code>, non-negative <code>stock</code>, positive <code>personas</code>, 7–15 digit <code>telefono</code>, and <code>email</code> checks).</li>
+          </ul>
+        </section>
+
+        <section id="ui-automation">
+          <h2>5. Semantic Flutter UI automation (<code>AutomationEngine</code> + <code>dryRun</code>)</h2>
+          <p>
+            To turn resolved intents into real UI execution without brittle pixel coordinates or screenshot loops, <code>apps/meson_business/lib/services/automation/</code> (1,166 LOC) exposes a semantic widget layer:
+          </p>
+          <ul>
+            <li><strong>Semantic ID registry (<code>AutomationRegistry</code> + <code>AutomationID</code>):</strong> interactive controls (navigation tabs, product name/cost inputs, save/confirm buttons) register their <code>GlobalKey</code>, live global <code>Rect</code>, <code>onTap</code> callback, or <code>TextEditingController</code>.</li>
+            <li><strong>Pre-flight sequence validator (<code>AutomationValidator</code>):</strong> verifies before execution that all <code>targetId</code> entries referenced by an <code>AutomationSequence</code> are registered or expected, surfacing missing bindings deterministically.</li>
+            <li><strong>Observable executor with <code>dryRun</code> mode (<code>AutomationEngine</code> + <code>AutomationOverlay</code>):</strong> executes <code>navigate</code>, <code>tap</code>, character-by-character <code>input</code>, <code>scroll</code>, and <code>wait</code> steps with <code>&#123;param&#125;</code> interpolation, visual highlight overlays, and <code>dryRun: true</code> trace inspection without mutating state.</li>
+          </ul>
+        </section>
+
+        <section id="evolution">
+          <h2>6. Architectural pivot: retiring in-process Candle (Qwen2.5 GGUF + Whisper) for legacy POS hardware</h2>
+          <p>
+            Before settling on the current lightweight architecture, <code>meson_business</code> git history (commits <code>644a466a</code> → <code>64dba323</code>, June 2026) implemented a full pure-Rust generative LLM and STT stack atop <strong>HuggingFace Candle (<code>candle-core/nn/transformers 0.10.2</code>)</strong> totaling <strong>1,130 LOC</strong>:
+          </p>
+          <ul>
+            <li><strong>Quantized local LLM (<code>nlp/generative.rs</code>, 298 LOC):</strong> loaded <code>Q4_K_M</code> GGUF weights for <strong>Qwen2.5-0.5B, 1.5B, and 3B-Instruct</strong> via <code>quantized_qwen2::ModelWeights::from_gguf</code> with automatic <code>CUDA → CPU</code> fallback, <code>LogitsProcessor</code>, streamed downloads over <code>StreamSink&lt;f32&gt;</code>, token streaming (<code>StreamSink&lt;String&gt;</code>), and explicit RAM unloading below <code>PERFORMANCE_MODE == 3</code>.</li>
+            <li><strong>In-process Candle Whisper (<code>whisper.rs</code> 167 LOC + <code>whisper_decoder.rs</code> 526 LOC + <code>whisper_multilingual.rs</code> 139 LOC):</strong> mapped <code>PERFORMANCE_MODE</code> tiers to <code>whisper-tiny / base / small</code> via <code>VarBuilder::from_mmaped_safetensors</code>, embedded 80- and 128-bin mel filters, 16 kHz PCM decoding (<code>hound</code>), and 99-language decoding with forced Spanish (<code>&lt;|es|&gt;</code>).</li>
+            <li><strong>Why it was retired in <code>64dba323</code> (legacy hardware constraint):</strong> bundling Candle GGUF LLMs and in-process safetensors Whisper exceeded RAM limits and broke compatibility on older storefront POS terminals lacking modern SIMD/CPU headroom. Rather than dropping local AI, Meson pivoted to three cleanly isolated tiers: (1) always-on zero-weight lexical/SIF/Platt NLU, (2) optional <code>tract-onnx</code> unloaded on Mode 1 hardware, and (3) out-of-process STT in <code>crates/meson_speech_worker</code> (<code>whisper-rs 0.16.0</code>) so speech memory spikes cannot crash the POS host.</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>7. Live test audit (300/300) &amp; threats to validity</h2>
+          <ul>
+            <li><strong>Live verification (November 2026):</strong> <code>cargo test -p meson_ai -- --test-threads=4</code> passed <strong>300 / 300 unit and integration tests (0 failures in 9.62 s)</strong> spanning Platt calibration, panic circuit-breakers, hybrid routing, multi-intent splitting, Spanish phonetic/verb/slang normalization, entity extractors, slots, SQLite persistence, rate limiting, and end-to-end query handlers.</li>
+            <li><strong>Threats to validity &amp; explicit limits:</strong> (1) test accuracy reflects deterministic unit/integration fixtures rather than a large labeled benchmark of live noisy storefront transcripts; (2) Dart's <code>services/automation/</code> currently lacks dedicated Flutter widget tests; and (3) following the Candle retirement in <code>64dba323</code>, the <code>PERFORMANCE_MODE == 3</code> hook remains inactive, falling back to deterministic responses or cloud routing.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/meson-edge-nlu-automation/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-rust-edge/">Paper 8: Rust FFI &amp; Engines ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

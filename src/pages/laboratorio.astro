@@ -27,8 +27,8 @@ import { publicCrates } from '../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Investigación y Papers (14 reportes técnicos · todos con PDF)</h2>
-      <span>Reportes técnicos bilingües de Cockpit v2.2, Meson y SAT certificado con arquitectura verificada, pruebas reales, migraciones SQL y PDF descargable</span>
+      <h2>Investigación y Papers (17 reportes técnicos · todos con PDF)</h2>
+      <span>Reportes técnicos bilingües de Cockpit v2.2 (6), Meson / Sistemas &amp; Juegos (8) y verificación formal SAT en Lean 4 + VeriPB 3.0.2 (3), todos con pruebas verificadas y PDF descargable</span>
     </div>
     <div class="lab-grid">
       <article>
@@ -88,10 +88,10 @@ import { publicCrates } from '../data/profile';
         </div>
       </article>
       <article>
-        <span class="lab-card-label">Paper 6 · Meson Technical Report v1.0 · Nov 2026</span>
-        <h2>Gerencia Modular, ERP Multi-Tenant, BOM y Kiosco RRHH</h2>
-        <p>Gobernanza de 44 módulos con carga diferida (<code>deferred as</code>), guardias RBAC por operación, fórmulas de BOM anidado/rendimiento/merma/par-levels, kiosco de asistencia y nómina (Atelier), licencias HMAC anti-rollback de reloj y balanzas RS-232 anti-robo.</p>
-        <p class="lab-stack-line">44 Modules · RBAC · BOM/Shrinkage · Atelier HR · HMAC License · RS-232</p>
+        <span class="lab-card-label">Paper 6 · Meson Technical Report v1.1 · Nov 2026</span>
+        <h2>Gerencia Modular, ERP Multi-Tenant, Retail Rust y Device Hub</h2>
+        <p>44 módulos con carga diferida (<code>deferred as</code>), RBAC por operación, motores Rust verificados en vivo (<code>78/78</code> tests: BOM anidado anti-ciclos, FEFO, GS1 peso/precio, promociones BOGO/MultiBuy y KDS CRDT), Atelier RRHH, licencias HMAC anti-rollback y <code>device_hub</code> (mDNS/BLE, IoT Isar, failover de impresión, RS-232 y WebRTC).</p>
+        <p class="lab-stack-line">44 Modules · 78/78 Rust Tests · GS1/BOGO · Device Hub · Failover Print · WebRTC</p>
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/meson-management-erp/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/meson-management-erp/">English ↗</a>
@@ -110,10 +110,10 @@ import { publicCrates } from '../data/profile';
         </div>
       </article>
       <article>
-        <span class="lab-card-label">Paper 8 · Meson Technical Report v1.0 · Nov 2026</span>
-        <h2>Arenas FFI Generacionales, Motor DAG y RAG Edge en Rust</h2>
-        <p>Puente C-ABI / <code>dart:ffi</code> anti-pánico con handles <code>u64</code> generacionales (<code>ffi-arena-bridge</code>, smoke test C99 en CI), motor DAG de hojas de cálculo con detección de ciclos, IA offline SQLite RAG + TF-IDF/SIF + Whisper STT y parches binarios <code>qbsdiff</code>.</p>
-        <p class="lab-stack-line">u64 FFI Arena · catch_unwind · SheetDag · SQLite RAG · Whisper · qbsdiff</p>
+        <span class="lab-card-label">Paper 8 · Meson Technical Report v1.1 · Nov 2026</span>
+        <h2>Arenas FFI Generacionales, Office Sparse-Chunked y 3D en Rust</h2>
+        <p>Puente C-ABI / <code>dart:ffi</code> anti-pánico con handles <code>u64</code> (<code>ffi-arena-bridge</code>, smoke test C99 en CI), <code>ChunkedColumn</code> (16,384 filas/chunk, test 1M filas) + grafo DAG + roundtrip OOXML (<code>.xlsx/.docx/.pptx</code>), proyección 3D isométrica y snapping sobre Flame 2.5D, <code>qbsdiff</code>, <code>meson_gpui</code> (15 archivos) y <code>404/404</code> tests Rust en vivo.</p>
+        <p class="lab-stack-line">u64 FFI Arena · ChunkedColumn 1M · OOXML · 3D Isométrico · 404/404 Rust Tests</p>
         <div class="lab-links">
           <a class="text-link" style="margin-top:0" href="/laboratorio/meson-rust-edge/">Leer paper (ES) ↗</a>
           <a class="text-link" style="margin-top:0" href="/en/lab/meson-rust-edge/">English ↗</a>
@@ -189,6 +189,40 @@ import { publicCrates } from '../data/profile';
           <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </article>
+      <article>
+        <span class="lab-card-label">Paper 15 · Meson Technical Report v1.0 · Nov 2026</span>
+        <h2>NLU Edge Auto-Calibrado (Platt, SIF, ONNX) y Automatización de UI</h2>
+        <p>Motor NLU sin LLM en Rust (<code>crates/meson_ai</code>: 153 archivos, 16,006 LOC, <code>300/300</code> tests en vivo): calibración Platt online por FP/FN, embeddings SIF 128d con remoción PC1, <code>tract-onnx</code> con descarga RAM, fonética española, disyuntor <code>catch_unwind</code>, <code>AutomationEngine</code> en Flutter y pivote real desde Candle (<code>Qwen2.5</code> GGUF + Whisper) por compatibilidad en hardware POS legado.</p>
+        <p class="lab-stack-line">Rust · 300/300 Tests · Platt Scaling · SIF PC1 · tract-onnx · Candle Pivot · Flutter Automation</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-edge-nlu-automation/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-edge-nlu-automation/">English ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 16 · Game Engineering Report v1.0 · Nov 2026</span>
+        <h2>Simulación Desacoplada, Rig 2D por Malla y QA Multi-Runtime (Brasas)</h2>
+        <p>Mismo diseño en Flutter Canvas (21.1k LOC), Unity 6.3 LTS (<code>Core/</code> C# puro sin dependencia del motor, 40 reportes XML con <code>0</code> fallos hasta <code>142</code> EditMode + <code>8</code> PlayMode) y Roblox Luau (2.3k LOC): rig frontal <code>LiaControlRig</code> de <code>1,353</code> vértices y 13 controles, pactos verificados en 10,000 semillas y auditoría temporal MP4 a 30 fps con resultado negativo documentado.</p>
+        <p class="lab-stack-line">Unity 6.3 C# · Flutter Canvas · Roblox Luau · 142+8 Tests · 1,353-Vertex Rig</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-brasas-game-architecture/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-brasas-game-architecture/">English ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/meson-brasas-game-architecture.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="/proyectos/brasas/">Caso ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 17 · Systems &amp; Math Report v1.0 · Nov 2026</span>
+        <h2>Estimación Biomecánica Preacondicionada, Huber IRLS y Telemetría Raw Input</h2>
+        <p><em>Axion Mouse Lab</em> en Rust nativo (7,075 LOC, <code>39/41</code> tests en vivo con 100% de matemáticas en verde y 2 fallos de lint/copy reportados): LUT exacta <code>SO(2)</code> + FMA, remuestreo equidistante por arco de 64 puntos, separación parabólica vs. lineal, M-estimador Huber IRLS (compuerta de 12 trazos), <code>PollingAnalyzer&lt;64&gt;</code> inmune a Jensen (<code>1/E[Δt]</code>) e interlock CRC-32.</p>
+        <p class="lab-stack-line">Rust · Windows Raw Input · SO(2) · Huber IRLS · Jensen Immunity · 39/41 Tests</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/laboratorio/axion-biomechanical-input-telemetry/">Leer paper (ES) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/en/lab/axion-biomechanical-input-telemetry/">English ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+        </div>
+      </article>
     </div>
 
     <div class="lab-grid" style="margin-top:24px;">
@@ -209,6 +243,6 @@ import { publicCrates } from '../data/profile';
         </article>
       ))}
     </div>
-    <div class="lab-note"><strong>Qué demuestra este laboratorio</strong><p>Además del sitio en Astro y las interfaces de Meson, puedes auditar código en Rust, C99 (enlazado a librería dinámica), Dart / bindings FFI, ensamblador x64, C++, PHP y Swift con comandos reproducibles y estado explícito. Incluye 14 reportes técnicos con PDF: arquitectura de sistemas (orquestación multi-CLI y multi-dispositivo, sync local-first, migración NoSQL → SQL en producción, ERP multi-tenant) y tres notas técnicas de investigación en SAT con pruebas VeriPB 3.0.2 verificadas y 61 teoremas en Lean 4 (30 + 17 + 14 declaraciones, 0 sorryAx), con sus limitaciones documentadas.</p></div>
+    <div class="lab-note"><strong>Qué demuestra este laboratorio</strong><p>Además del sitio en Astro y las interfaces de Meson, puedes auditar código en Rust, C99 (enlazado a librería dinámica), Dart / bindings FFI, ensamblador x64, C++, PHP y Swift con comandos reproducibles y estado explícito. Incluye 17 reportes técnicos bilingües con PDF: 6 de orquestación IA/MCP (Cockpit), 8 de sistemas, ERP, NLU edge, videojuegos y telemetría de entrada (Meson/Brasas/Axion; 404/404 tests Rust + 142+8 tests Unity verificados) y 3 notas de investigación en SAT certificado con VeriPB 3.0.2 y 61 teoremas en Lean 4 (30 + 17 + 14, 0 sorryAx), con límites y resultados negativos documentados.</p></div>
   </main>
 </Base>

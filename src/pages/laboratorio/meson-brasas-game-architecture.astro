@@ -1,0 +1,205 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 16: Simulación Desacoplada, Rigging 2D por Malla y Verificación Multi-Runtime (Brasas) | Miguel Quevedo"
+  description="Technical Report v1.0 — Arquitectura multi-runtime del videojuego Brasas (Flutter Canvas, Unity 6.3 LTS C# y Roblox Luau): simulación desacoplada, rig 2D de 1,353 vértices y 13 controles, verificación temporal a 30 fps y 142 tests EditMode + 8 PlayMode en verde."
+  pageLabel="Paper 16 · Brasas Multi-Runtime"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Simulación Desacoplada, Rigging 2D por Malla y Verificación Multi-Runtime en Videojuegos: Arquitectura de Brasas (Flutter → Unity 6.3 LTS + Roblox)</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Diseño de un núcleo de combate y progresión independiente del motor gráfico, articulación continua de 13 controles sobre malla de 1,353 vértices en un único sprite frontal, evaluación temporal reproducible a 30 fps (con resultado negativo documentado) y verificación automatizada en Unity Test Framework.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Runtimes auditados</span><strong><code>packages/meson_brasas</code> (96 archivos · 21,107 LOC Dart) · <code>games/brasas-unity</code> (Unity 6.3 LTS <code>6000.3.12f1</code>) · <code>games/brasas-roblox</code> (11 archivos · 2,335 LOC Luau)</strong></div>
+      <div><span>Evidencia verificable</span><strong>40 artefactos XML de Unity Test Framework (0 fallos; hasta 142/142 EditMode y 8/8 PlayMode) + 7 suites Dart + revisión temporal MP4 a 30 fps</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-brasas-game-architecture.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-brasas-game-architecture/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/proyectos/brasas/">Caso Brasas ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Todos los papers ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Métricas verificadas de arquitectura y QA en Brasas">
+        <div class="paper-kpi"><strong>3 Runtimes</strong><span>Flutter Canvas (21.1k LOC) · Unity 6.3 C# · Roblox Luau (2.3k LOC)</span></div>
+        <div class="paper-kpi"><strong>142 + 8 Tests</strong><span>40 reportes XML Unity (<code>0</code> fallos) + 10,000 semillas en pactos RNG</span></div>
+        <div class="paper-kpi"><strong>1,353 Vértices</strong><span><code>LiaControlRig</code>: 13 controles sobre malla 32×40 · 0 triángulos invertidos</span></div>
+        <div class="paper-kpi"><strong>390 Frames/Run</strong><span>Clips 30 fps antes/después (<code>comparacion-*.mp4</code>) + resultado negativo</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#problema">1. El problema: acoplamiento de motor y QA ciego en juegos 2D/2.5D</a>
+        <a href="#multiruntime">2. Arquitectura multi-runtime: Flutter Canvas, Unity 6.3 LTS y Roblox</a>
+        <a href="#simulacion">3. Ensamblado de simulación puro, determinismo por semilla y defensa de Tilo</a>
+        <a href="#rigging">4. Articulación continua sobre malla 2D (1,353 puntos) y resultado negativo documentado</a>
+        <a href="#qa">5. Verificación automatizada: 40 logs XML, flora reactiva y revisión temporal a 30 fps</a>
+        <a href="#limites">6. Límites técnicos explícitos y trabajo pendiente</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#problema">1. Problema</a>
+        <a href="#multiruntime">2. 3 Runtimes</a>
+        <a href="#simulacion">3. Core C# puro</a>
+        <a href="#rigging">4. Rig 2D &amp; Fallo</a>
+        <a href="#qa">5. QA 142+8 Tests</a>
+        <a href="#limites">6. Límites</a>
+      </aside>
+      <div class="case-content">
+        <section id="problema">
+          <h2>1. El problema: acoplamiento de motor y QA ciego en juegos 2D/2.5D</h2>
+          <p>
+            En videojuegos independientes de acción, mezclar reglas de combate, generación por semilla, colisiones y persistencia dentro de componentes ligados al bucle gráfico (<code>MonoBehaviour</code> o widgets de UI) vuelve costoso probar mecánicas sin ejecutar toda la escena y bloquea la portabilidad entre runtimes. Al mismo tiempo, las regresiones visuales en sprites deformados o animaciones generadas pasan desapercibidas si solo existen pruebas lógicas sin captura temporal comparable.
+          </p>
+          <p>
+            <strong>Brasas</strong> aborda ambos problemas aislando la simulación determinista en un ensamblado sin dependencias del motor, probando la lógica en lotes de miles de semillas y complementando las pruebas unitarias con arneses reproducibles de captura GPU y vídeo cuadro a cuadro.
+          </p>
+        </section>
+
+        <section id="multiruntime">
+          <h2>2. Arquitectura multi-runtime: Flutter Canvas, Unity 6.3 LTS y Roblox</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p16-runtimes">
+            <table class="paper-table">
+              <caption id="es-p16-runtimes">Tabla 1 · Implementaciones de Brasas auditadas en el monorepo</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Runtime / Paquete</th>
+                  <th scope="col">Escala verificada</th>
+                  <th scope="col">Arquitectura y rol</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>packages/meson_brasas</code> (Flutter/Dart)</th>
+                  <td data-label="Escala">96 archivos · 21,107 LOC · 7 archivos de test</td>
+                  <td data-label="Arquitectura">Motor 2D procedural sobre Canvas, backend de audio desacoplado (nativo 8 voces con watchdog + Web Audio bindings) embebible en <code>meson_pause</code> y app standalone.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>games/brasas-unity</code> (Unity 6.3 LTS <code>6000.3.12f1</code>)</th>
+                  <td data-label="Escala"><code>Core/</code> puro C# + <code>Runtime/</code> + <code>Editor/</code> + 40 suites de test</td>
+                  <td data-label="Arquitectura">Simulación de región abierta (7 lugares conectados), 6 armas, 4 familias enemigas, santuarios con pactos de riesgo y rig de malla 2D con revisión GPU/MP4.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>games/brasas-roblox</code> (Luau / Rojo)</th>
+                  <td data-label="Escala">11 archivos · 2,335 LOC Luau</td>
+                  <td data-label="Arquitectura">Separación cliente/servidor (<code>Simulation.luau</code>, <code>WorldView.luau</code>, <code>SessionServer.luau</code>, <code>Commerce.luau</code>) como prototipo exploratorio fuera de entrega Unity.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            En <code>games/brasas-unity</code>, tres scripts Python/PowerShell (<code>Tools/prepare_content.ps1</code>, <code>Tools/generate_meta.py</code> y <code>Tools/verify_sources.py</code>) verifican estáticamente manifiestos de audio, estabilidad de GUIDs y que <code>Assets/Brasas/Core/</code> no introduzca referencias hacia <code>UnityEngine</code>.
+          </p>
+        </section>
+
+        <section id="simulacion">
+          <h2>3. Ensamblado de simulación puro, determinismo por semilla y defensa de Tilo</h2>
+          <ul>
+            <li><strong>Núcleo C# sin dependencia de Unity (<code>Assets/Brasas/Core/</code>):</strong> contiene 27 módulos de dominio puro (<code>RunSimulation.cs</code>, <code>RegionSimulation.cs</code>, <code>EncounterDirector.cs</code>, <code>SecretPacts.cs</code>, <code>LanternTrial.cs</code>, <code>DashTechniques.cs</code>, <code>TiloActing.cs</code>, <code>Vec2.cs</code>) ejecutables en milisegundos dentro de EditMode.</li>
+            <li><strong>Encuentros y pactos deterministas por semilla:</strong> los encuentros escalan el radio del sello entre <code>88%</code> y <code>112%</code> con 4 formaciones y topes estrictos por oleada (3–6 enemigos; máx. 2 tiradores, 2 cargadores y 1 Carcelero). Los santuarios reparten 4 pactos sin duplicación mediante RNG determinista por <code>(semilla, santuario, oferta)</code> y persisten el resultado en el guardado versionado <code>brasas-unity</code> para impedir <em>save-scumming</em>; las distribuciones fueron verificadas sobre <strong>10,000 semillas</strong>.</li>
+            <li><strong>Sub-arena de defensa de Tilo (<code>LanternTrial.cs</code>):</strong> al completarse el ritual del Carcelero se abre una secuencia de <code>9–11 s</code> con desplazamiento a <code>3.6 u/s</code>, microesquiva de <code>6.8 u/s</code> (<code>0.12 s</code>), destello defensivo de radio <code>0.88 u</code> (recarga <code>2.4 s</code>), 5 patrones de amenazas acotados a <code>64</code> entidades simultáneas y pasillos seguros garantizados.</li>
+            <li><strong>Esquiva combinable sin invulnerabilidad infinita (<code>DashTechniques.cs</code>):</strong> compone dos cargas (<em>Viento</em>), daño único por enemigo y uso (<em>Brasa</em>) y teletransporte <em>Paso umbral</em> validado contra agua, muros y límites de arena.</li>
+          </ul>
+        </section>
+
+        <section id="rigging">
+          <h2>4. Articulación continua sobre malla 2D (1,353 puntos) y resultado negativo documentado</h2>
+          <ul>
+            <li><strong>Resultado negativo documentado (ciclos generados rechazados):</strong> la iteración con 8 cuadros generados de marcha y 8 de reposo (<code>LiaIdleDrawn-v2</code> y <code>LiaWalkDrawn-v2</code>) fue <strong>descartada</strong> tras la inspección cuadro a cuadro al presentar doble contorno de botas, fluctuación de volumen de la capa y desplazamiento aparente del bolso. Los artefactos se conservan desconectados como línea base negativa.</li>
+            <li><strong>Solución implementada (<code>LiaControlRig</code>):</strong> sobre el dibujo frontal aprobado (<code>LiaWalkNoEyes.png</code>) se construye una malla procedural de <code>32 × 40</code> segmentos (<strong>1,353 vértices</strong>) articulada por <strong>13 controles ponderados</strong> (pies, rodillas, cadera, 4 zonas del bajo de capa, 3 de bufanda y bolso) sin instalar el paquete externo Unity 2D Animation.</li>
+            <li><strong>Invariantes geométricos verificados en tests:</strong> apoyo y balanceo alterno con continuidad de posición y velocidad, compensación de respiración en los pies apoyados, capucha rígida, ojos en capa independiente, sombras vinculadas a vértices animados y detección automática de triángulos invertidos (que capturó y corrigió un triángulo invertido durante la verificación).</li>
+            <li><strong>Vegetación reactiva sin asignaciones por cuadro:</strong> árboles, helechos y flores usan mallas flexibles con raíces ancladas y UVs intactas que reaccionan al paso de Lía, proyectiles de Tilo y ondas de calor con amortiguación elástica, respetando el modo de movimiento reducido.</li>
+          </ul>
+        </section>
+
+        <section id="qa">
+          <h2>5. Verificación automatizada: 40 logs XML, flora reactiva y revisión temporal a 30 fps</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p16-tests">
+            <table class="paper-table">
+              <caption id="es-p16-tests">Tabla 2 · Selección de corridas registradas en <code>games/brasas-unity/Logs/*.xml</code> (Unity Test Framework 1.6.0, 0 fallos en los 40 archivos)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Artefacto XML</th>
+                  <th scope="col">Modo</th>
+                  <th scope="col">Resultado</th>
+                  <th scope="col">Cobertura verificada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>lia-articulated-tests.xml</code></th>
+                  <td data-label="Modo">EditMode</td>
+                  <td data-label="Resultado"><strong>142 / 142</strong></td>
+                  <td data-label="Cobertura">Articulación de malla, integridad de triángulos y simulación completa.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>lia-rig-tests.xml</code> + <code>lia-rig-play.xml</code></th>
+                  <td data-label="Modo">Edit + Play</td>
+                  <td data-label="Resultado"><strong>141 + 8</strong></td>
+                  <td data-label="Cobertura">Continuidad apoyo/balanceo, capucha rígida, compensación de respiración y escena en vivo.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>living-world-tests.xml</code> + <code>living-world-play.xml</code></th>
+                  <td data-label="Modo">Edit + Play</td>
+                  <td data-label="Resultado"><strong>136 + 8</strong></td>
+                  <td data-label="Cobertura">Deformación de vegetación reactiva, tinte térmico y movimiento reducido.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>tilo-tests.xml</code> + <code>tilo-play.xml</code></th>
+                  <td data-label="Modo">Edit + Play</td>
+                  <td data-label="Resultado"><strong>132 + 8</strong></td>
+                  <td data-label="Cobertura">10 estados de actuación de Tilo, retrato HUD y defensa de la llama.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>narrative-tests.xml</code> + <code>narrative-play.xml</code></th>
+                  <td data-label="Modo">Edit + Play</td>
+                  <td data-label="Resultado"><strong>127 + 7</strong></td>
+                  <td data-label="Cobertura">Introducción de 24 s (4 planos), tutorial jugable y variación de encuentros.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>abilities-tests.xml</code> + <code>pacts-tests.xml</code></th>
+                  <td data-label="Modo">Edit + Play</td>
+                  <td data-label="Resultado"><strong>114+5 · 108+4</strong></td>
+                  <td data-label="Cobertura">Esquivas combinables, 10,000 semillas de pactos, guardado y lectura táctil.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Auditoría temporal a 30 fps (<code>LiaTemporalReview</code> + <code>Tools/analyze_lia_motion.py</code>):</strong> cada pasada captura <code>120</code> cuadros de reposo, <code>120</code> de marcha y <code>150</code> de arranque/frenado/cambio lateral (<strong>390 cuadros</strong>), generando vídeos lado a lado antes/después (<code>comparacion-*.mp4</code>) sobre exactamente los mismos PNG codificados y métricas entre cuadros para detectar discontinuidades.
+          </p>
+        </section>
+
+        <section id="limites">
+          <h2>6. Límites técnicos explícitos y trabajo pendiente</h2>
+          <ul>
+            <li><strong>Animación direccional incompleta:</strong> la malla de 1,353 puntos aporta continuidad sobre la vista frontal pero <em>no</em> genera perfiles ni espalda; el cambio lateral sigue usando espejo horizontal (con discontinuidad registrada en el cuadro 99 del clip de cambio lateral).</li>
+            <li><strong>Alcance de campaña y jefe de prueba:</strong> solo está implementada la primera región (7 lugares); <em>El Custodio</em> reutiliza <code>EnemyKind.Charger</code> escalado como jefe de prueba y el cooperativo de 4–5 jugadores permanece aplazado (el núcleo actual modela un único <code>PlayerState</code>).</li>
+            <li><strong>Validación de dispositivo final pendiente:</strong> las pruebas y capturas GPU fueron ejecutadas en el editor de PC; no se han exportado APK/ejecutables comerciales ni medido FPS sostenido, temperatura o consumo de batería en teléfonos físicos. El prototipo <code>games/brasas-roblox</code> sigue fuera de la entrega principal.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/meson-brasas-game-architecture/">Read in English ↗</a>
+      <a class="button button-outline" href="/papers/meson-brasas-game-architecture.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/proyectos/brasas/">Ver caso Brasas ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

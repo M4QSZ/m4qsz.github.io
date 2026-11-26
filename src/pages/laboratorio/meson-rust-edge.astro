@@ -2,39 +2,39 @@
 import Base from '../../layouts/Base.astro';
 ---
 <Base
-  title="Paper 8: Arenas FFI Generacionales, Motor DAG y RAG Edge en Rust | Miguel Quevedo"
-  description="Technical Report v1.0 — Puente C-ABI/dart:ffi anti-pánico con handles u64 generacionales (ffi-arena-bridge), motor DAG de hojas de cálculo, SQLite RAG + Whisper offline y qbsdiff."
-  pageLabel="Paper 8 · Rust FFI & Edge AI"
+  title="Paper 8: Arenas FFI Generacionales, Suite Office Sparse-Chunked y Motores 3D/Espaciales en Rust | Miguel Quevedo"
+  description="Technical Report v1.1 — Puente C-ABI/dart:ffi anti-pánico con handles u64 generacionales (ffi-arena-bridge), hoja de cálculo DAG + ChunkedColumn (16,384 filas/chunk) y OOXML (XLSX/DOCX/PPTX), proyección isométrica 3D sobre Flame, parches qbsdiff y 404/404 tests Rust en vivo."
+  pageLabel="Paper 8 · Rust FFI & Native Engines"
 >
   <main id="contenido" class="detail-main wrap paper-wide">
     <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
 
     <div class="detail-hero">
-      <h1 class="long-title">Arenas FFI Generacionales Anti-Pánico, Motor DAG de Hojas de Cálculo e IA Edge Sin Nube en Rust</h1>
+      <h1 class="long-title">Arenas FFI Generacionales Anti-Pánico, Suite Office Sparse-Chunked (DAG/OOXML) y Motores Espaciales 3D en Rust</h1>
       <p class="detail-lede">
-        Technical Report v1.0 (Noviembre 2026) — Diseño de frontera de memoria segura entre Rust y Dart/C99 (<code>ffi-arena-bridge</code>) junto a motores nativos de cómputo intensivo (grafo DAG de fórmulas, SQLite RAG + TF-IDF/SIF, Whisper STT offline y parches binarios <code>qbsdiff</code>).
+        Technical Report v1.1 (Noviembre 2026) — Frontera de memoria segura entre Rust y Dart/C99 (<code>ffi-arena-bridge</code>) combinada con motores nativos fuera del isolate UI: hojas de cálculo <code>ChunkedColumn</code> + grafo DAG + exportación OOXML (<code>.xlsx</code>/<code>.docx</code>/<code>.pptx</code>), proyección 3D isométrica y snapping espacial sobre Flame 2.5D, parches <code>qbsdiff</code> y exploración <code>meson_gpui</code>.
       </p>
     </div>
 
     <div class="detail-meta">
-      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
-      <div><span>Módulos auditados</span><strong><code>public-oss/ffi-arena-bridge</code> · <code>sheets_engine.rs</code> · <code>local_ai_engine.rs</code> · <code>crates/meson_ai</code> · <code>crates/meson_speech_worker</code> · <code>meson_gpui</code></strong></div>
-      <div><span>Evidencia verificable</span><strong>Repo público MIT con smoke test C99 enlazado a <code>cdylib</code> (CI Ubuntu+Windows) + ~155 tests Rust en workspace Meson</strong></div>
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.1)</strong></div>
+      <div><span>Módulos auditados</span><strong><code>public-oss/ffi-arena-bridge</code> · <code>crates/meson_tools</code> (3,407 LOC) · <code>crates/meson_shell</code> · <code>procedural_3d_engine.rs</code> · <code>table_layout_engine.rs</code> · <code>meson_gpui</code> (15 archivos · 2,922 LOC)</strong></div>
+      <div><span>Evidencia verificable</span><strong>Repo público MIT con smoke test C99 en CI (Ubuntu+Windows) + <code>cargo test</code> en vivo en Meson: 404/404 tests en verde (<code>meson_ai</code> 300, <code>meson_features</code> 78, <code>meson_tools</code> 21, <code>meson_shell</code> 5)</strong></div>
     </div>
 
     <div class="cv-actions">
       <a class="button button-outline" href="/papers/meson-rust-edge.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
       <a class="button button-primary" href="/en/lab/meson-rust-edge/">Read full report in English ↗</a>
       <a class="button button-outline" href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">Repo público ffi-arena-bridge ↗</a>
-      <a class="text-link" style="margin-top:0" href="/proyectos/suite-rust-nativa/">Caso Suite Rust ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-edge-nlu-automation/">Paper 15: Edge NLU (300 tests) ↗</a>
     </div>
 
     <div class="paper-kpis-wrap">
-      <div class="paper-kpis" aria-label="Invariantes de Rust FFI y motores Edge">
-        <div class="paper-kpi"><strong>Handles u64</strong><span>Arena generacional · cero <em>use-after-free</em> ni <em>double-free</em></span></div>
-        <div class="paper-kpi"><strong>catch_unwind</strong><span>Escudo anti-pánico en cada frontera <code>extern "C"</code></span></div>
-        <div class="paper-kpi"><strong>SheetDag</strong><span>Orden topológico + detección de ciclos Tarjan/DFS</span></div>
-        <div class="paper-kpi"><strong>Zero-Cloud AI</strong><span>SQLite RAG + TF-IDF/SIF + Whisper STT 100% local</span></div>
+      <div class="paper-kpis" aria-label="Invariantes de Rust FFI y motores nativos">
+        <div class="paper-kpi"><strong>Handles u64</strong><span>Arena generacional + <code>catch_unwind</code> en cada frontera <code>extern "C"</code></span></div>
+        <div class="paper-kpi"><strong>16,384 / Chunk</strong><span><code>ChunkedColumn</code> bitmask <code>0x3FFF</code> + test de 1M filas + OOXML</span></div>
+        <div class="paper-kpi"><strong>3D + Snap 2.5D</strong><span><code>procedural_3d_engine</code> + <code>table_layout_engine</code> sobre Flame</span></div>
+        <div class="paper-kpi"><strong>404 / 404 Tests</strong><span><code>cargo test</code> verificado en vivo (0 fallos en 4 crates núcleo)</span></div>
       </div>
     </div>
 
@@ -43,10 +43,10 @@ import Base from '../../layouts/Base.astro';
       <nav aria-label="Secciones del reporte">
         <a href="#resumen">1. Por qué sacar el cómputo pesado del isolate de UI</a>
         <a href="#ffi">2. Arenas FFI generacionales (<code>ffi-arena-bridge</code>) y escudo anti-pánico</a>
-        <a href="#dag">3. Motor de hojas de cálculo con grafo DAG y evaluación incremental</a>
-        <a href="#ai">4. Pipeline de IA Edge sin nube: SQLite RAG, TF-IDF/SIF y Whisper STT</a>
-        <a href="#nativo">5. Actualizaciones delta (<code>qbsdiff</code>), SIMD y shell <code>meson_gpui</code></a>
-        <a href="#validez">6. Verificación CI y trabajo futuro</a>
+        <a href="#dag">3. Suite Office nativa: <code>ChunkedColumn</code> (1M filas), grafo DAG y roundtrip OOXML</a>
+        <a href="#espacial">4. Proyección isométrica 3D en Rust y motor espacial sobre Flame 2.5D</a>
+        <a href="#nativo">5. Parches delta (<code>qbsdiff</code>), SIMD, puente IA Edge (Paper 15) y <code>meson_gpui</code></a>
+        <a href="#validez">6. Verificación CI / <code>cargo test</code> en vivo y límites</a>
       </nav>
     </details>
 
@@ -54,66 +54,67 @@ import Base from '../../layouts/Base.astro';
       <aside aria-label="Navegación del reporte">
         <a href="#resumen">1. Motivación</a>
         <a href="#ffi">2. Arenas FFI u64</a>
-        <a href="#dag">3. Motor DAG</a>
-        <a href="#ai">4. IA Edge offline</a>
+        <a href="#dag">3. Office &amp; DAG</a>
+        <a href="#espacial">4. 3D &amp; Flame 2.5D</a>
         <a href="#nativo">5. qbsdiff &amp; GPUI</a>
-        <a href="#validez">6. CI y alcance</a>
+        <a href="#validez">6. Verificación</a>
       </aside>
       <div class="case-content">
         <section id="resumen">
           <h2>1. Por qué sacar el cómputo pesado del isolate de UI</h2>
           <p>
-            En aplicaciones multiplataforma (Flutter/Dart o clientes C/C++), ejecutar indexación de texto, recálculo de hojas de cálculo con miles de celdas, reconocimiento de voz o redimensionado SIMD dentro del hilo principal produce saltos de fotogramas, mientras que exponer punteros crudos por FFI introduce corrupción de memoria (<em>use-after-free</em>, <em>double-free</em> y <em>undefined behavior</em> ante pánicos de Rust).
+            En clientes multiplataforma Flutter/Dart o C/C++, recalcular hojas de cálculo masivas, proyectar geometría 3D en tiempo real, procesar imágenes o ejecutar inferencia NLU en el hilo de UI degrada la tasa de fotogramas, mientras exponer punteros crudos por FFI introduce <em>use-after-free</em>, <em>double-free</em> y <em>undefined behavior</em> ante pánicos de Rust.
           </p>
           <p>
-            Meson resuelve esta tensión aislando 49 APIs nativas en Rust (8 sub-crates internos) respaldadas por un patrón de arena generacional sin dependencias externas publicado abiertamente en <code>ffi-arena-bridge</code>.
+            Meson aísla <strong>49 APIs nativas en Rust</strong> distribuidas en <strong>8 crates de workspace</strong> (50,270 LOC) respaldadas por el patrón de arena generacional sin dependencias publicado en <code>ffi-arena-bridge</code>.
           </p>
         </section>
 
         <section id="ffi">
           <h2>2. Arenas FFI generacionales (<code>ffi-arena-bridge</code>) y escudo anti-pánico</h2>
           <ul>
-            <li><strong>Handles opacos <code>u64</code> en lugar de punteros crudos (<code>abi.rs</code>, <code>engine.rs</code>):</strong> <code>ArenaBridge</code> empaqueta índice de ranura + contador de generación (<code>GenerationId</code>) en un <code>OpaqueHandle</code> de 64 bits. Si el cliente Dart o C99 intenta leer o liberar un handle obsoleto, la generación no coincide y la llamada retorna un código de error determinista en lugar de corromper el heap.</li>
-            <li><strong>Protección <code>catch_unwind</code> obligatoria:</strong> ningún <em>panic</em> de Rust atraviesa jamás la frontera <code>extern "C"</code>; cada punto de entrada captura el unwind y devuelve estado estructurado.</li>
-            <li><strong>Vistas acotadas e índice de trigramas (<code>trigram.rs</code>):</strong> <code>SafeSliceView</code> expone buffers con longitud explícita y el motor incluye búsqueda determinista por trigramas verificada en <code>tests/integration_ffi.rs</code> y el binario C99 <code>tests/c_smoke.c</code> enlazado contra el <code>cdylib</code>.</li>
+            <li><strong>Handles opacos <code>u64</code> en lugar de punteros crudos (<code>abi.rs</code>, <code>engine.rs</code>):</strong> <code>ArenaBridge</code> empaqueta índice de ranura + contador <code>GenerationId</code> en un <code>OpaqueHandle</code> de 64 bits. Lecturas o liberaciones sobre handles obsoletos fallan la comprobación generacional y retornan un error determinista.</li>
+            <li><strong>Protección <code>catch_unwind</code> obligatoria:</strong> ningún pánico atraviesa la frontera <code>extern "C"</code>; cada entrada captura el unwind y devuelve estado estructurado.</li>
+            <li><strong>Vistas acotadas e índice de trigramas (<code>trigram.rs</code>):</strong> <code>SafeSliceView</code> impone longitudes explícitas y el motor incluye búsqueda determinista por trigramas verificada en <code>tests/integration_ffi.rs</code> y el cliente C99 <code>tests/c_smoke.c</code> enlazado al <code>cdylib</code>.</li>
           </ul>
         </section>
 
         <section id="dag">
-          <h2>3. Motor de hojas de cálculo con grafo DAG y evaluación incremental</h2>
+          <h2>3. Suite Office nativa: <code>ChunkedColumn</code> (1M filas), grafo DAG y roundtrip OOXML</h2>
           <p>
-            <code>apps/meson_business/rust/src/api/sheets_engine.rs</code> implementa un motor de hojas de cálculo nativo con exportación XLSX sin depender de runtimes externos:
+            <code>crates/meson_tools</code> (19 archivos · 3,407 LOC · <strong>21/21 tests en verde</strong>) implementa productividad ofimática nativa sin dependencias externas de Office:
           </p>
           <ul>
-            <li><strong>Grafo de dependencias acíclico (<code>SheetDag</code>, <code>DependencyGraph</code>):</strong> modela referencias entre celdas (<code>CellNode</code>) y valida referencias circulares mediante <code>CycleDetector</code> (DFS/Tarjan) antes de propagar cambios.</li>
-            <li><strong>Recálculo incremental y orden topológico:</strong> al editar una celda solo se re-evalúa su subgrafo dependiente en orden topológico (<code>FormulaEvaluator</code>), evitando recalcular toda la planilla y logrando actualizaciones amortizadas <em>O(1)</em> sobre celdas independientes.</li>
+            <li><strong>Almacenamiento columnar sparse (<code>chunked_store.rs</code>):</strong> particiona cada columna en bloques fijos de <code>CHUNK_SIZE = 16,384</code> filas indexados por desplazamiento de bits (<code>row &gt;&gt; 14</code>, máscara <code>0x3FFF</code>) con un vector paralelo <code>numeric_cache: Vec&lt;Vec&lt;Option&lt;f64&gt;&gt;&gt;</code>. Al calcular estadísticas (<code>count</code>, <code>sum</code>, <code>avg</code>, <code>min</code>, <code>max</code>) evita re-parsear texto; verificado por <code>test_chunked_million_row_stats</code> y <code>test_chunked_streaming_csv</code>.</li>
+            <li><strong>Grafo de dependencias DAG (<code>dependency_graph.rs</code>, <code>parser.rs</code>, <code>evaluator.rs</code>):</strong> detecta ciclos antes de propagar cambios y recalcula solo el subgrafo dependiente en orden topológico (<code>SUMIF</code>, <code>COUNTIF</code>, <code>VLOOKUP</code>, <code>IF</code>).</li>
+            <li><strong>Exportación/importación OOXML nativa:</strong> <code>xlsx.rs</code> (345 LOC, <code>sharedStrings.xml</code> + <code>ZipWriter</code>), <code>writer_engine.rs</code> (489 LOC, <code>.docx</code>) y <code>slides_engine.rs</code> (261 LOC, <code>.pptx</code>), verificados mediante <code>test_xlsx_export_and_import_roundtrip</code>, <code>test_generate_docx_bytes</code> y <code>test_pptx_generate_and_parse_roundtrip</code>.</li>
           </ul>
         </section>
 
-        <section id="ai">
-          <h2>4. Pipeline de IA Edge sin nube: SQLite RAG, TF-IDF/SIF y Whisper STT</h2>
-          <p>
-            Para asistentes operativos sin latencia ni costo de API en la nube, <code>local_ai_engine.rs</code>, <code>crates/meson_ai</code> y <code>crates/meson_speech_worker</code> combinan:
-          </p>
+        <section id="espacial">
+          <h2>4. Proyección isométrica 3D en Rust y motor espacial sobre Flame 2.5D</h2>
           <ul>
-            <li><strong>Recuperación híbrida sub-milisegundo:</strong> <code>LocalRagEngine</code> indexa catálogos y manuales operativos en <code>SqliteVectorStore</code> mezclando puntuación léxica <code>TfIdfIndex</code>, embeddings ligeros SIF (<em>Smooth Inverse Frequency</em>), corrector fonético/Levenshtein y diccionarios de jerga local.</li>
-            <li><strong>Voz 100% offline:</strong> <code>WhisperWorker</code> ejecuta transcripción local (STT) complementada con caché de prompts TTS pre-generados (<code>generate_tts_cache</code>) durante caídas de red.</li>
+            <li><strong>Micro-rasterizador isométrico en Rust (<code>api/procedural_3d_engine.rs</code>, 335 LOC):</strong> expuesto síncronamente vía <code>#[frb(sync)]</code> (<code>process_3d_render</code>), aplica rotaciones X/Y sobre cajas y prismas, sombreado direccional ARGB por cara, proyección isométrica exacta (<code>cos 30° = 0.8660254</code>, <code>sin 30° = 0.5</code>) y ordenamiento por profundidad (algoritmo del pintor) para renderizar volumen 3D sobre el canvas 2D de Flame sin montar un motor 3D completo.</li>
+            <li><strong>Motor de colisión, snap magnético y diff (<code>table_layout_engine.rs</code>, 485 LOC):</strong> implementa ajuste a grilla (<code>snap_to_grid</code>), colisión AABB (<code>check_collision</code>), bordes magnéticos de bloques de piso en 10 alineaciones X/Y (<code>snap_floor_block</code>) y cálculo de diff mínimo upsert/delete (<code>compute_layout_diff</code>), reutilizado tanto en el editor de salón de <code>meson_business</code> como en la selección visual de mesas de <code>meson_customer</code> (con más de 20 archivos de tests Dart en <code>test/features/tables/</code>).</li>
           </ul>
         </section>
 
         <section id="nativo">
-          <h2>5. Actualizaciones delta (<code>qbsdiff</code>), SIMD y shell <code>meson_gpui</code></h2>
+          <h2>5. Parches delta (<code>qbsdiff</code>), SIMD, puente IA Edge (Paper 15) y <code>meson_gpui</code></h2>
           <ul>
-            <li><strong>Parches binarios diferenciales:</strong> los binarios <code>meson_updater</code> y <code>meson_patcher</code> aplican parches <code>qbsdiff</code> para actualizar ejecutables pesados sobre conexiones lentas transfiriendo solo el delta binario.</li>
-            <li><strong>Procesamiento SIMD y recuperación Win32:</strong> <code>meson_media</code> acelera redimensionado de imágenes con instrucciones SIMD, mientras la capa Win32 nativa provee recuperación ante bloqueos de entrada del SO.</li>
-            <li><strong>Exploración de shell puro en Rust (<code>meson_gpui</code>):</strong> 33 archivos Rust en GPUI CE (<code>desktop_grid.rs</code>, <code>taskbar.rs</code>, <code>window_layer.rs</code>) demuestran la migración de escritorio hacia renderizado GPU directo sin capa web ni motor Dart.</li>
+            <li><strong>Parches binarios diferenciales (<code>crates/meson_shell</code> · 5/5 tests):</strong> <code>meson_updater</code> y <code>meson_patcher</code> aplican deltas <code>qbsdiff</code> con verificación de descarga y actualización escalonada (<code>test_delta_diffing_and_patching</code>, <code>test_apply_delta_update_staged</code>).</li>
+            <li><strong>Media SIMD y pipeline IA/Voz Edge:</strong> <code>meson_media</code> acelera redimensionado de imágenes con <code>fast_image_resize</code>; <code>crates/meson_speech_worker</code> (472 LOC, <code>whisper-rs</code>) provee STT local y el motor NLU completo (<code>crates/meson_ai</code>, 16,006 LOC, 300/300 tests) junto a la automatización de UI se detalla por separado en el <a href="/laboratorio/meson-edge-nlu-automation/">Paper 15</a>.</li>
+            <li><strong>Exploración de shell puro en Rust (<code>meson_gpui</code>):</strong> <strong>15 archivos Rust (2,922 LOC)</strong> sobre <code>gpui 0.2.2</code> (<code>desktop_grid.rs</code>, <code>taskbar.rs</code>, <code>window_layer.rs</code>, <code>widgets_panel.rs</code>) — corregido respecto a v1.0 — validan la ruta hacia escritorios nativos acelerados por GPU sin WebView ni motor Dart.</li>
           </ul>
         </section>
 
         <section id="validez">
-          <h2>6. Verificación CI y trabajo futuro</h2>
+          <h2>6. Verificación CI / <code>cargo test</code> en vivo y límites</h2>
           <p>
-            <a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> ejecuta pruebas Rust + compilación y ejecución real de un cliente C99 contra el <code>cdylib</code> en GitHub Actions (Ubuntu y Windows). Como trabajo futuro se prevé publicar un micro-benchmark reproducible de 1 millón de cruces FFI y latencia de consulta RAG sobre un corpus sintético de 50k documentos.
+            <a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> ejecuta pruebas Rust + enlazado y ejecución real de C99 contra <code>cdylib</code> en GitHub Actions (Ubuntu y Windows). En el workspace privado de Meson, una ejecución en vivo en noviembre 2026 de <code>cargo test -p meson_ai -p meson_features -p meson_tools -p meson_shell</code> aprobó <strong>404 / 404 pruebas (0 fallos)</strong>: 300 en <code>meson_ai</code>, 78 en <code>meson_features</code>, 21 en <code>meson_tools</code> y 5 en <code>meson_shell</code>.
+          </p>
+          <p>
+            <strong>Límites:</strong> siguen pendientes micro-benchmarks públicos reproducibles de 1 millón de cruces FFI y tiempos p95 de <code>process_3d_render</code> en dispositivos Android de gama baja.
           </p>
         </section>
       </div>
@@ -121,7 +122,7 @@ import Base from '../../layouts/Base.astro';
 
     <div class="detail-actions">
       <a class="button button-primary" href="/en/lab/meson-rust-edge/">Read in English ↗</a>
-      <a class="button button-outline" href="/laboratorio/meson-finance-erp/">Paper 5: Finanzas &amp; Fiscal ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-edge-nlu-automation/">Paper 15: Edge NLU &amp; UI Automation ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
     </div>
   </main>

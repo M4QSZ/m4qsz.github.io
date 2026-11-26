@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { profile } from '../data/profile';
 ---
-<Base title={`CV | ${profile.name}`} description="Currículum de Miguel Antonio Quevedo Simoza: Ingeniero de software multiplataforma (PC, móvil, web), Flutter, Rust, Unity C#, Next.js, SQL/NoSQL e IA.">
+<Base title={`CV | ${profile.name}`} description="Currículum de Miguel Antonio Quevedo Simoza: Ingeniero de Sistemas Rust, Infraestructura IA (MCP/GPUI), Verificación Formal (Lean 4 / VeriPB 3.0), Flutter/Dart, Unity C# y Web.">
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/">← Volver al portafolio</a>
     <div class="cv-actions">
@@ -11,7 +11,7 @@ import { profile } from '../data/profile';
     </div>
     <article class="cv-sheet">
       <h1>{profile.name}</h1>
-      <p class="cv-role">Ingeniero de Sistemas Rust e Infraestructura IA (MCP / GPUI) · Multiplataforma (Flutter · Dart · Kotlin · Unity C# · Web)</p>
+      <p class="cv-role">Ingeniero de Sistemas Rust, Infraestructura IA (MCP / GPUI) y Verificación Formal · Multiplataforma (Flutter · Dart · Kotlin · Unity C# · Web)</p>
       <p class="cv-meta">
         Estado Aragua, Venezuela (Remoto · Híbrido · Presencial · Jornada completa/media · Reubicación) ·
         <a href={`mailto:${profile.email}`}>{profile.email}</a> ·
@@ -22,51 +22,52 @@ import { profile } from '../data/profile';
       <section>
         <h2>Perfil profesional</h2>
         <p>
-          Construyo software multiplataforma de extremo a extremo (PC/escritorio, móvil y web): conceptualización de producto (0 a 1),
-          MVP validado con retroalimentación, fidelidad 1:1 a diseño («on-model»), arquitectura modular, persistencia local, lógica nativa en Rust,
-          aplicaciones Flutter, videojuegos en Unity (C#) y plataformas web. Estudiante de último año de Ingeniería en Sistemas,
-          mención Programación, en la Universidad Bicentenaria de Aragua (egreso estimado: julio 2027).
+          Construyo software multiplataforma e infraestructura de sistemas de extremo a extremo (PC/escritorio, móvil y web): conceptualización de producto (0 a 1),
+          MVP validado con retroalimentación, fidelidad 1:1 a diseño («on-model»), arquitectura modular offline-first, motores nativos en Rust, servidores MCP concurrentes,
+          verificación formal y certificación SAT (Lean 4 + VeriPB 3.0), aplicaciones Flutter, videojuegos en Unity (C#) y plataformas web. Estudiante de último año de
+          Ingeniería en Sistemas, mención Programación, en la Universidad Bicentenaria de Aragua (egreso estimado: julio 2027).
         </p>
       </section>
 
       <section>
         <h2>Experiencia y ecosistema principal</h2>
         <h3>Arquitecto y desarrollador principal multiplataforma en Meson (Ecosistema independiente)</h3>
-        <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (Windows/Desktop, Móvil y Web · 769/860 commits en rama activa · 912.888 líneas Dart + 50.270 Rust en <code>meson_business</code>)</p>
+        <p class="cv-sub">Septiembre 2025 – Actualidad · Remoto (Windows/Desktop, Móvil y Web · 769/860 commits en rama activa · 912.888 líneas Dart + 50.270 Rust en <code>meson_business</code> · 404/404 tests Rust en vivo)</p>
         <ul>
-          <li><strong>POS, doble Autopago y Periféricos (<code>meson_business</code> · 2.521 archivos Dart / 527 de prueba):</strong> arquitecturé suites POS gastronómico/retail, KDS cocina/barra, autopago restaurante y supermercado (<code>auto_pago</code> con validación anti-hurto en balanza RS-232/USB), editor CAD Flame 2.5D (+70 activos isométricos 360°), 18 suites por industria y <code>device_hub</code> (CFD, impresoras ESC/POS USB/LAN/BLE, NFC/RFID).</li>
-          <li><strong>ERP Industrial, Chat WebRTC y Atelier HR:</strong> contabilidad doble partida, producción BOM, conciliación 3 vías de compras, auditoría hash fiscal SENIAT, marketplace B2B (80 archivos), mensajería tipo WhatsApp (WebRTC VoIP/video, voz, pantalla compartida y enlace QR), Atelier RR.HH. + kiosco PIN, shell multiventana (176 archivos), WebView2 y calculadora de mermas/stock.</li>
-          <li><strong>49 APIs y 8 crates Rust (50.270 líneas vía <code>flutter_rust_bridge</code>):</strong> motor DAG de hojas de cálculo + XLSX (<code>meson_tools</code>), respaldo Whisper STT offline + caché TTS y RAG SQLite (<code>meson_ai</code>), parches binarios <code>qbsdiff</code>, media SIMD, licencias HMAC ligadas a hardware, LAN P2P HLC/CRDT AES-256-GCM + WAL, Deferred Components, perfiles de caché adaptativos y recuperación Win32 <code>user32.dll</code>.</li>
-          <li><strong>Apps satélites y web Astro:</strong> super-admin financiero y licenciamiento (<code>meson_central</code>), logística mesh relay QR/NFC (<code>meson_delivery</code>), app social con backend Rust (<code>meson_customer</code>), <code>meson_pause</code> (15 tests), <code>meson_currency</code>, <code>BUCO</code> (22 tests), 10 paquetes internos y web Astro de 189 páginas en 19 idiomas (<a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">mesonapp.vercel.app</a>).</li>
-          <li><strong>Liderazgo técnico:</strong> arquitecto y autor principal del núcleo Rust/P2P, modelado NoSQL ↔ SQL (Firebase → Supabase/PostgreSQL) y Central; supervisé entregas UI puntuales de un colaborador Flutter (~10,6 % de commits).</li>
+          <li><strong>POS, doble Autopago, Retail Rust y Device Hub (<code>meson_business</code> · 2.521 archivos Dart / 521 de prueba):</strong> suites POS gastronómico/retail, KDS cocina/barra (CRDT), autopago con validación de peso en balanza RS-232/USB, editor espacial Flame 2.5D (+ proyección 3D isométrica y snap magnético en Rust), motores <code>meson_features</code> (78/78 tests: BOM anidado anti-ciclo, FEFO, GS1 peso/precio, promociones BOGO/MultiBuy) y <code>device_hub</code> (mDNS/BLE, IoT offline en Isar, colas de impresión con failover, CFD y WebRTC).</li>
+          <li><strong>ERP Financiero, Migración SQL y Atelier HR:</strong> aritmética exacta <code>BigInt</code>, partida doble, conciliación AP 3-vías, cadena hash fiscal SENIAT, migración completa Firestore → Supabase/PostgreSQL (502 archivos, 0 Firestore restantes, 59 políticas RLS, PN-Counter CRDT en PL/pgSQL y contrato <code>FOR UPDATE</code>), marketplace B2B, Atelier RR.HH. + kiosco PIN y shell multiventana.</li>
+          <li><strong>49 APIs y 8 crates Rust (50.270 LOC vía <code>flutter_rust_bridge</code> · 404/404 tests en vivo):</strong> motor NLU edge auto-calibrado (<code>meson_ai</code>, 16k LOC, 300/300 tests: Platt scaling online, SIF 128d PC1, <code>tract-onnx</code> con descarga RAM, fonética española, barreras <code>catch_unwind</code>, <code>AutomationEngine</code> Flutter y pivote documentado desde Candle GGUF <code>Qwen2.5</code> + Whisper por hardware legado), Suite Office sparse-chunked (<code>meson_tools</code>, 21/21 tests: <code>ChunkedColumn</code> 1M filas + DAG + roundtrip <code>.xlsx/.docx/.pptx</code>), respaldo Whisper STT aislado, parches delta <code>qbsdiff</code> (<code>meson_shell</code> 5/5), media SIMD, licencias HMAC anti-rollback, LAN P2P HLC/CRDT AES-256-GCM y exploración <code>meson_gpui</code> (15 archivos).</li>
+          <li><strong>Apps satélites, Telemetría y Web Astro:</strong> <code>meson_central</code> (super-admin/licencias), <code>meson_delivery</code> (mesh relay DTN), <code>meson_customer</code>, <code>meson_pause</code> (15 tests), <code>meson_currency</code>, <code>BUCO</code> (22 tests), <em>Axion Mouse Lab</em> (Rust Raw Input: <code>SO(2)</code>, Huber IRLS, inmunidad Jensen, 39/41 tests), 10 paquetes internos y web Astro de 189 páginas en 19 idiomas (<a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">mesonapp.vercel.app</a>).</li>
+          <li><strong>Liderazgo técnico:</strong> arquitecto y autor principal del núcleo Rust/P2P, modelado NoSQL → SQL y Central; supervisé entregas UI puntuales de un colaborador Flutter (~10,6 % de commits).</li>
         </ul>
       </section>
 
       <section>
-        <h2>Videojuegos, web e IA</h2>
+        <h2>Infraestructura IA, verificación formal, videojuegos y web</h2>
         <ul>
-          <li><strong>Brasas (Flutter y Unity C#):</strong> Paquete compartido Flutter (<code>meson_brasas</code> integrado en Meson Pausa) y versión independiente en Unity 6.3 LTS (C# desacoplado, pruebas EditMode/PlayMode y scripts Python).</li>
-          <li><strong>El Pueblo del Faro (Roblox Studio):</strong> Experiencia independiente en desarrollo con Luau cliente/servidor, Rojo y empaquetado Python (pendiente de pruebas en Studio).</li>
-          <li><strong>Alma (Next.js) y sitios Astro:</strong> E-commerce estilo marketplace Alma con Next.js, React, TypeScript y Supabase (catálogo, Fuse.js, roles, panel admin, Recharts, Resend, checkout demo) y dos proyectos Astro (servicios técnicos y prototipo QR/NFC).</li>
-          <li><strong>Cockpit v2.2 (Orquestador Multi-CLI en Rust + GPUI CE 0.3.0 + MCP · ~78k LOC Rust · 57 módulos runtime · 228 tests):</strong> Escritorio nativo y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode con cuotas 5h/7d, Auto-Failover en caliente + salud Pre-Flight, shims RTK automáticos (<code>PreToolUse</code> + <code>PATH</code>, −85% en vivo en <code>cargo test</code>), persistencia anti-apagón con <code>sync_all()</code> 15s + <code>/recover</code>, red P2P/4G (Iroh QUIC, Tailscale, Relay 4G, <code>wgproxyrs</code>, Android Kotlin) y pipelines $0 (Win32 UIA, 3D Cloud S→D + Blender, Unity 10 reglas, Roblox 14 reglas, FFmpeg, Math/Music Lab) (<a href="/proyectos/cockpit/">caso</a> · <a href="/laboratorio/">11 reportes técnicos bilingües con PDF</a> · <a href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF</a>).</li>
-          <li><strong>Meson IA y prototipos:</strong> Automatización aplicada con LLMs y flujos estructurados de prompts (Meson IA), más prototipo 2D en Rust con Bevy.</li>
+          <li><strong>Cockpit v2.2 (Orquestador Multi-CLI en Rust + GPUI CE 0.3.0 + MCP · ~78k LOC Rust · 57 módulos runtime · 228 tests):</strong> Escritorio nativo y servidor MCP concurrente para Claude Code, Codex CLI, Antigravity y OpenCode con cuotas 5h/7d, Auto-Failover en caliente, shims RTK automáticos (<code>PreToolUse</code> + <code>PATH</code>, −85% en vivo en <code>cargo test</code>), persistencia anti-apagón <code>sync_all()</code> 15s + <code>/recover</code>, red P2P/4G (Iroh QUIC, Tailscale, Relay 4G, <code>wgproxyrs</code>, Android Kotlin) y pipelines $0 (Win32 UIA, 3D Cloud S→D + Blender, Unity 10 reglas, Roblox 14 reglas, FFmpeg, Math/Music Lab) (<a href="/proyectos/cockpit/">caso</a> · <a href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF</a>).</li>
+          <li><strong>Investigación en Certificación SAT y Verificación Formal (Lean 4.36.0 + VeriPB 3.0.2 · <a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">repo público</a>):</strong> Tres notas técnicas (Papers 12–14) sobre extracción aritmética certificada, interpolantes disyuntivos (PHP ∨ Tseitin) y cálculo de Veronese grado 2 <code>RM(2, n)</code> + homología simplicial <code>F₂</code> para PRGs de Goldreich: <strong>61 teoremas en Lean 4</strong> (30 + 17 + 14, <code>0 sorryAx</code>), <code>31/31</code> pruebas validadas por <code>veripb 3.0.2</code> (hasta 41,160 cláusulas donde Kissat 4.0.4, CaDiCaL 1.9.5 y CryptoMiniSat 5 agotan tiempo) y controles SAT rechazados.</li>
+          <li><strong>Brasas (Flutter Canvas, Unity 6.3 LTS C# y Roblox Luau):</strong> Paquete compartido Flutter (<code>meson_brasas</code>, 21.1k LOC), versión independiente en Unity 6.3 LTS con ensamblado C# puro desacoplado (40 logs XML con 0 fallos hasta <strong>142 EditMode + 8 PlayMode</strong>), rig 2D de 1,353 vértices / 13 controles, revisión temporal MP4 a 30 fps y prototipo Luau (<a href="/laboratorio/meson-brasas-game-architecture/">Paper 16</a>).</li>
+          <li><strong>El Pueblo del Faro (Roblox Studio), Alma (Next.js) y sitios Astro:</strong> Base cliente/servidor Luau + Rojo/Python, e-commerce Alma (Next.js, TypeScript, Supabase, Fuse.js, Recharts, Resend) y sitios públicos en Astro.</li>
         </ul>
       </section>
 
       <section>
-        <h2>Código abierto y despliegues en vivo</h2>
+        <h2>Investigación, reportes técnicos (17 papers con PDF) y código abierto</h2>
         <ul>
-          <li><strong><a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> (Rust · CI verde):</strong> Crate independiente con relojes lógicos híbridos (HLC), mapa CRDT LWW, framing cifrado <code>ChaCha20-Poly1305</code> anti-replay y outbox acotado (7 tests de integración en Linux y Windows).</li>
-          <li><strong><a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> (Rust + C99 + <code>dart:ffi</code> · CI verde):</strong> Puente FFI seguro con handles generacionales <code>u64</code>, protección <code>catch_unwind</code>, índice trigrama determinista y prueba en vivo enlazada en C99 contra librería dinámica.</li>
-          <li><strong><a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> (Dart · CI verde):</strong> Outbox offline-first en Dart puro con coalescencia de mutaciones por entidad, backoff exponencial con jitter, confirmaciones parciales por lote y cuarentena (dead-letter).</li>
-          <li><strong>Webs públicas en Vercel:</strong> <a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">Meson OS</a> (189 páginas · 19 idiomas · CSS inline), <a href="https://set-ingenieria.vercel.app" target="_blank" rel="noopener noreferrer">SET Ingeniería</a> (Astro + Tailwind CSS) y <a href="https://pulsera-medica.vercel.app" target="_blank" rel="noopener noreferrer">MedPulse SOS</a> (Astro + TypeScript + Supabase).</li>
+          <li><strong><a href="/laboratorio/">Laboratorio Técnico (17 reportes bilingües ES/EN con PDF descargable)</a>:</strong> <strong>6 papers de Cockpit</strong> (orquestador Multi-CLI, Zero-Vision MCP, P2P/4G, leyes algebraicas KV-Cache, resiliencia anti-apagón/fingerprinting, RTK automático y pipelines $0), <strong>8 papers de Meson / Sistemas &amp; Juegos</strong> (finanzas/SENIAT, ERP/retail Rust/Device Hub, sync LAN HLC/CRDT/DTN, FFI arenas/Office sparse/3D, migración NoSQL→SQL, Edge NLU auto-calibrado + UI automation, arquitectura Brasas, telemetría biomecánica Raw Input) y <strong>3 notas de SAT certificado</strong> en Lean 4 + VeriPB 3.0.2.</li>
+          <li><strong><a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">certified-arith-preproc</a> (Python + Lean 4 + VeriPB 3.0.2):</strong> Certificación pseudo-booleana ciega con 61 teoremas en Lean 4 (<code>0 sorryAx</code>) y scripts reproducibles frente a Kissat, CaDiCaL y CryptoMiniSat.</li>
+          <li><strong><a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> (Rust · CI verde):</strong> Crate independiente con HLC, mapa CRDT LWW, framing <code>ChaCha20-Poly1305</code> anti-replay y outbox acotado (7 tests en Linux y Windows).</li>
+          <li><strong><a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> (Rust + C99 + <code>dart:ffi</code> · CI verde):</strong> Puente FFI con handles generacionales <code>u64</code>, <code>catch_unwind</code>, índice trigrama y smoke test C99 enlazado a <code>cdylib</code>.</li>
+          <li><strong><a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> (Dart · CI verde):</strong> Outbox transaccional offline-first en Dart puro con coalescencia, backoff con jitter, ACK parcial y cuarentena.</li>
+          <li><strong>Webs públicas en Vercel:</strong> <a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">Meson OS</a> (189 páginas · 19 idiomas), <a href="https://set-ingenieria.vercel.app" target="_blank" rel="noopener noreferrer">SET Ingeniería</a> (Astro + Tailwind) y <a href="https://pulsera-medica.vercel.app" target="_blank" rel="noopener noreferrer">MedPulse SOS</a> (Astro + TypeScript + Supabase).</li>
         </ul>
       </section>
 
       <section>
         <h2>Tecnologías y conocimientos</h2>
-        <p><strong>Principal (activo):</strong> Rust (GPUI CE 0.3.0, MCP stdio, Iroh QUIC, WireGuard userspace, <code>C-ABI</code> / <code>dart:ffi</code>), Flutter (Impeller / Skia / Deferred Components), Dart, Flame, WebRTC, HLC / CRDTs, AES-256-GCM / Argon2, C#, Unity, Kotlin, TypeScript, JavaScript, HTML, CSS, Next.js, React, Astro, Python, Luau/Lua (Rojo/Lune), Blender <code>bpy</code>, FFmpeg, PostgreSQL, Supabase, MySQL, SQLite, Cloud Firestore, Firebase, Isar, Git, Git LFS, CI/CD (GitHub Actions), Whisper STT / IA Local RAG, parches binarios <code>qbsdiff</code>, Win32 UIA / Interop, hardware RS-232 / ESC-POS, SEO técnico.</p>
-        <p><strong>Prácticas de ingeniería:</strong> Arquitectura modular / Clean Architecture, diseño offline-first, migración NoSQL ↔ SQL, pruebas automatizadas, perfilado de memoria y estabilidad, ciberseguridad de aplicaciones (AppSec), liderazgo técnico y coordinación multidisciplinaria, Godot y base en C, C++, Java, PHP, Laravel y Django.</p>
+        <p><strong>Principal (activo):</strong> Rust (GPUI CE 0.3.0, MCP stdio, Iroh QUIC, WireGuard userspace, <code>C-ABI</code> / <code>dart:ffi</code>, <code>tract-onnx</code>), Lean 4 / VeriPB 3.0 / SAT-SMT (Z3, Kissat, CaDiCaL, CryptoMiniSat), Flutter (Impeller / Skia / Deferred Components), Dart, Flame, WebRTC, HLC / CRDTs, ChaCha20-Poly1305 / AES-256-GCM / Argon2, C#, Unity 6.3 LTS, Kotlin, TypeScript, JavaScript, Next.js, React, Astro, Python, Luau/Lua (Rojo/Lune), Blender <code>bpy</code>, FFmpeg, PostgreSQL, Supabase (RLS / PL/pgSQL), MySQL, SQLite, Isar, Git, Git LFS, GitHub Actions CI, Whisper STT / Edge NLU (Platt/SIF/RAG), <code>qbsdiff</code>, Win32 UIA / Raw Input, hardware RS-232 / ESC-POS / mDNS.</p>
+        <p><strong>Prácticas de ingeniería:</strong> Arquitectura modular / Clean Architecture, diseño offline-first, migración NoSQL → SQL, verificación formal y pruebas automatizadas, perfilado de memoria y estabilidad, ciberseguridad de aplicaciones (AppSec), liderazgo técnico, Godot y base en C, C++, ensamblador x64 (NASM), Java, PHP/Laravel y Django.</p>
       </section>
 
       <section>

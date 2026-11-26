@@ -210,10 +210,12 @@ export const englishProjects: EnglishProject[] = [
   },
   {
     slug: 'suite-rust-nativa', number: '16', title: 'Native Rust Suite & Local AI', type: '8 Rust workspace crates · zero-copy FFI',
-    description: 'Production Rust engine behind flutter_rust_bridge: DAG spreadsheet + XLSX engine, local TF-IDF/RAG NLP assistant, qbsdiff delta updater, SIMD media and WebRTC.',
+    description: 'Production Rust engine behind flutter_rust_bridge: chunked DAG spreadsheet + XLSX engine, self-calibrating local NLU/RAG (Platt + SIF + tract-onnx), qbsdiff delta updater, SIMD media and WebRTC.',
     stack: ['Rust', 'FRB FFI', 'SQLite RAG', 'SIMD'],
     accent: 'orange',
     variant: 'rust-suite',
+    paperUrl: '/en/lab/meson-edge-nlu-automation/',
+    pdfUrl: '/papers/meson-edge-nlu-automation.pdf',
     repoUrl: 'https://github.com/M4QSZ/ffi-arena-bridge',
     sections: [
       ['Desktop office engines (meson_tools)', 'Implements sheets_engine from scratch in Rust with chunked cell storage, a DAG dependency graph, formula parser/evaluator and XLSX export, plus writer_engine, slides_engine, phone_link_engine, snipping and file explorer engines.'],
@@ -242,10 +244,12 @@ export const englishProjects: EnglishProject[] = [
   },
   {
     slug: 'brasas', number: '11', title: 'Brasas (Flutter & Unity)', type: 'Multiplatform game · two engines',
-    description: 'Action adventure built across two engines: a shared Flutter package embedded in Meson Pausa and a Unity 6.3 LTS (C#) adaptation with EditMode/PlayMode tests.',
+    description: 'Action adventure built across Flutter Canvas (21.1k LOC), Unity 6.3 LTS (C# engine-free core, 142 EditMode + 8 PlayMode tests, 1,353-vertex 2D mesh rig) and a Roblox Luau prototype.',
     stack: ['Unity', 'C#', 'Flutter', 'Python'],
     accent: 'orange',
     variant: 'screenshot',
+    paperUrl: '/en/lab/meson-brasas-game-architecture/',
+    pdfUrl: '/papers/meson-brasas-game-architecture.pdf',
     images: [
       {
         src: '/images/brasas-play.webp',
@@ -293,7 +297,7 @@ export const englishProjects: EnglishProject[] = [
   },
   {
     slug: 'cockpit', number: '18', title: 'Cockpit v2.2: Multi-CLI Orchestrator', type: 'Native Rust + GPUI desktop · MCP · 6 Technical Reports',
-    status: 'Private source · 6 Public Technical Reports (10 in Lab)',
+    status: 'Private source · 6 Cockpit Reports (17 Papers in Lab)',
     accent: 'orange',
     variant: 'rust-suite',
     paperUrl: '/en/lab/cockpit-paper/',

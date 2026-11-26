@@ -32,7 +32,7 @@ if (!browser) {
 }
 
 // Keep Paper 1's bespoke `cockpit-orchestrator-paper.pdf` untouched; generate crisp print-ready
-// A4 PDFs directly from the built English technical report pages for Papers 2..14.
+// A4 PDFs directly from the built English technical report pages for Papers 2..17.
 const papers = [
   'cockpit-zero-vision',
   'cockpit-distributed',
@@ -47,6 +47,9 @@ const papers = [
   'certified-arith-preproc',
   'certified-disjunctive-interpolants',
   'certified-veronese-homological-prg',
+  'meson-edge-nlu-automation',
+  'meson-brasas-game-architecture',
+  'axion-biomechanical-input-telemetry',
 ];
 
 const mimeTypes = {

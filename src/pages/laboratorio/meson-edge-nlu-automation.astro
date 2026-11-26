@@ -1,0 +1,171 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 15: NLU Edge Auto-Calibrado en Rust (Platt Scaling, SIF, ONNX Dinámico) y Automatización Semántica de UI | Miguel Quevedo"
+  description="Technical Report v1.0 — Motor NLU offline-first en Rust (meson_ai: 153 archivos, 16,006 LOC, 300/300 cargo test en vivo): calibración Platt online por intención, embeddings SIF con remoción PC1, tract-onnx con descarga RAM adaptativa, barreras anti-pánico y AutomationEngine semántico en Flutter."
+  pageLabel="Paper 15 · Edge NLU & UI Automation"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">NLU Edge Auto-Calibrado sin LLM (Platt Scaling Online, SIF PC1, ONNX Adaptativo y Barreras Anti-Pánico) + Automatización Semántica de UI en Flutter</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Arquitectura completa del asistente operativo híbrido de Meson (<code>crates/meson_ai</code> + <code>services/automation/</code>): comprensión determinista sub-milisegundo en español/inglés con jerga local y hashing fonético, calibración probabilística online por intención, aislamiento de fallos por componente y ejecución guiada de secuencias sobre el árbol de widgets Flutter sin scraping visual.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Código auditado</span><strong><code>crates/meson_ai</code> (153 archivos · 16,006 LOC Rust) · <code>crates/meson_speech_worker</code> (472 LOC) · <code>services/automation/</code> (1,166 LOC Dart)</strong></div>
+      <div><span>Evidencia verificable</span><strong><code>cargo test -p meson_ai</code> ejecutado en vivo: 300/300 tests aprobados (0 fallos en 9.62 s)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-edge-nlu-automation/">Read full report in English ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-rust-edge/">Paper 8: Rust FFI &amp; Engines ↗</a>
+      <a class="text-link" style="margin-top:0" href="/proyectos/suite-rust-nativa/">Caso Suite Rust ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Métricas verificadas de meson_ai y automatización de UI">
+        <div class="paper-kpi"><strong>300 / 300 Tests</strong><span><code>cargo test -p meson_ai</code> en vivo (153 archivos · 16,006 LOC)</span></div>
+        <div class="paper-kpi"><strong>Platt Online</strong><span>Sigmoide logística <code>(a, b)</code> + ajuste dinámico por FP/FN</span></div>
+        <div class="paper-kpi"><strong>SIF 128d + ONNX</strong><span>Remoción PC1 + descarga automática <code>tract-onnx</code> en RAM baja</span></div>
+        <div class="paper-kpi"><strong>Fault Barrier</strong><span><code>catch_unwind</code> + disyuntor atómico + <code>AutomationEngine</code></span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (7 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#problema">1. Por qué un POS offline no puede depender de LLMs en la nube para cada comando</a>
+        <a href="#pipeline">2. Pipeline NLU determinista: fonética española, SIF 128d y multi-intención</a>
+        <a href="#calibracion">3. Calibración Platt online, enrutamiento híbrido Local/Cloud y gestión de RAM ONNX</a>
+        <a href="#resiliencia">4. Barreras anti-pánico con circuit breaker y autómata de slots (TTL 300 s)</a>
+        <a href="#ui-automation">5. Automatización semántica de UI en Flutter (<code>AutomationEngine</code> + <code>dryRun</code>)</a>
+        <a href="#evolucion">6. Evolución histórica: retiro de Candle (Qwen2.5 GGUF + Whisper) por hardware POS legado</a>
+        <a href="#validez">7. Verificación en vivo (300/300) y amenazas a la validez</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#problema">1. Problema</a>
+        <a href="#pipeline">2. Pipeline NLU</a>
+        <a href="#calibracion">3. Platt &amp; ONNX</a>
+        <a href="#resiliencia">4. Barriers &amp; Slots</a>
+        <a href="#ui-automation">5. UI Automation</a>
+        <a href="#evolucion">6. Pivote Candle</a>
+        <a href="#validez">7. Tests y Límites</a>
+      </aside>
+      <div class="case-content">
+        <section id="problema">
+          <h2>1. Por qué un POS offline no puede depender de LLMs en la nube para cada comando</h2>
+          <p>
+            En un comercio en hora pico, comandos rutinarios como <em>"abre inventario"</em>, <em>"agrega 10 kilos de harina"</em> o <em>"cuánto vendimos hoy"</em> requieren respuesta instantánea incluso sin Internet y con costo $0 por consulta. Enviar cada frase a un LLM externo introduce latencia de red, facturación impredecible y fallo total durante caídas de conectividad; mientras tanto, cargar un modelo neuronal pesado en memoria puede colapsar tablets POS de gama baja.
+          </p>
+          <p>
+            <code>crates/meson_ai</code> (<strong>153 archivos, 16,006 LOC Rust</strong>) resuelve este espacio con un motor NLU híbrido local-first que resuelve comandos operativos deterministas en el dispositivo, delega a la nube únicamente consultas abiertas o de baja confianza y se acopla a un motor semántico de automatización de UI en Flutter.
+          </p>
+        </section>
+
+        <section id="pipeline">
+          <h2>2. Pipeline NLU determinista: fonética española, SIF 128d y multi-intención</h2>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p15-stages">
+            <table class="paper-table">
+              <caption id="es-p15-stages">Tabla 1 · Etapas de procesamiento en <code>crates/meson_ai/src/</code></caption>
+              <thead>
+                <tr>
+                  <th scope="col">Etapa / Módulo</th>
+                  <th scope="col">Mecanismo implementado</th>
+                  <th scope="col">Cobertura verificada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Normalización y fonética (<code>spell_phonetic.rs</code>, <code>normalizer.rs</code>, <code>slang.rs</code>)</th>
+                  <td data-label="Mecanismo">Colapso fonético español (<code>b/v→b</code>, <code>m/n→n</code>, <code>c/s/z→s</code>, <code>g/j/x→j</code>, <code>h</code> muda, firma de 4 caracteres) + Levenshtein acotado + conjugaciones verbales y jerga (<code>xfa</code>, <code>xq</code>).</td>
+                  <td data-label="Cobertura">Corrige <code>"imbentario" → "inventario"</code>, <code>"serdo" → "cerdo"</code> y <code>"baca" ≡ "vaca"</code> sin diccionario externo.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Descomposición multi-intención (<code>multi_intent.rs</code>)</th>
+                  <td data-label="Mecanismo">Clasifica consultas en <code>Simple</code>, <code>Compound</code>, <code>Comparative</code>, <code>Conditional</code> y <code>Chained</code> segmentando por conectores (<code>" y luego "</code>, <code>" vs "</code>, <code>", "</code>) con mínimo 2 palabras por segmento.</td>
+                  <td data-label="Cobertura">Evalúa cada segmento y conserva el de mayor confianza sin degradar frases simples.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Embeddings SIF 128d + TF-IDF (<code>sif.rs</code>, <code>tfidf.rs</code>)</th>
+                  <td data-label="Mecanismo">Vectores de <code>128</code> dimensiones ponderados por <em>Smooth Inverse Frequency</em> (<code>a = 10⁻³</code>) con estimación y sustracción del primer componente principal (<code>remove_pc1</code>) sobre centroides de intención.</td>
+                  <td data-label="Cobertura">Elimina sesgo de direcciones comunes de vocabulario con 0 dependencias GPU.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Memoria y entidades (<code>entity/extractor/</code>, <code>session_memory.rs</code>)</th>
+                  <td data-label="Mecanismo">Extractores tipados de precios, cantidades/unidades (kg, cajas, litros), fechas relativas, teléfonos, correos y resolución de referencias implícitas (<em>"eso"</em>) entre turnos.</td>
+                  <td data-label="Cobertura">Persistido en SQLite (<code>core/db.rs</code>) con caché LRU y perfiles de vocabulario por usuario.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="calibracion">
+          <h2>3. Calibración Platt online, enrutamiento híbrido Local/Cloud y gestión de RAM ONNX</h2>
+          <ul>
+            <li><strong>Calibración Platt online por intención (<code>core/auto_calibrate.rs</code>, 246 LOC):</strong> cada intención mantiene contadores reales de aciertos, falsos positivos y falsos negativos, calcula precisión/recall/F1 y ajusta los parámetros logísticos <code>(platt_a, platt_b)</code> tras <code>≥ 10</code> muestras: <code>σ(z) = 100 / (1 + e⁻ᶻ)</code> con <code>z = a·(score/50 − 1) + b</code> y umbral adaptativo acotado a <code>[30, 100]</code> según la diferencia entre tasas de FN y FP.</li>
+            <li><strong>Enrutamiento híbrido de 4 vías (<code>core/router.rs</code>):</strong> decide entre <code>Local</code>, <code>Cloud</code>, <code>LocalWithCloudFallback</code> y <code>Ambiguous</code>. Preguntas abiertas (<code>"como optimizar..."</code>, <code>"que estrategia..."</code>) o con confianza efectiva <code>&lt; 50.0</code> escalan a la nube, mientras comandos aprendidos (<code>learned_override</code>) o intenciones locales ciertas (<code>&gt; 70.0</code>) se ejecutan en <code>&lt; 1 ms</code> sin red.</li>
+            <li><strong>Inferencia <code>tract-onnx</code> con descarga adaptativa de RAM (<code>nlp/embeddings.rs</code>):</strong> carga embeddings ONNX + <code>tokenizers 0.23.1</code> desde bytes de assets de Flutter y precalcula centroides de intención; cuando <code>PERFORMANCE_MODE</code> desciende a modo Básico (<code>1</code>) en hardware limitado, <code>free_model()</code> libera el modelo ONNX inmediatamente de memoria manteniendo operativo el pipeline léxico/SIF.</li>
+          </ul>
+        </section>
+
+        <section id="resiliencia">
+          <h2>4. Barreras anti-pánico con circuit breaker y autómata de slots (TTL 300 s)</h2>
+          <ul>
+            <li><strong>Aislamiento de fallos por componente (<code>core/fault_barrier.rs</code>, 139 LOC):</strong> envuelve el procesador y submódulos en <code>catch_unwind(AssertUnwindSafe(...))</code> acoplado a un registro atómico global (<code>COMPONENT_STATE</code> con <code>AtomicBool</code>). Si un componente entra en pánico, el disyuntor lo deshabilita automáticamente, registra la traza y devuelve una respuesta de respaldo en vez de tumbar el proceso POS; <code>reset_component()</code> permite reactivarlo de forma controlada.</li>
+            <li><strong>Autómata de llenado de slots (<code>context/slot_state.rs</code>, 337 LOC):</strong> modela flujos multi-turno (<code>Idle</code> → <code>GatheringInfo</code> → <code>AwaitingConfirmation</code> / <code>Suspended</code>) con expiración automática tras <code>SLOT_TIMEOUT_SECS = 300</code> y validadores estrictos por campo (<code>precio</code> numérico, <code>stock ≥ 0</code>, <code>personas &gt; 0</code>, <code>telefono</code> 7–15 dígitos, formato <code>email</code>).</li>
+          </ul>
+        </section>
+
+        <section id="ui-automation">
+          <h2>5. Automatización semántica de UI en Flutter (<code>AutomationEngine</code> + <code>dryRun</code>)</h2>
+          <p>
+            Para que las intenciones resueltas operen realmente la interfaz sin coordenadas frágiles ni capturas de pantalla, <code>apps/meson_business/lib/services/automation/</code> (1,166 LOC) implementa un puente declarativo sobre el árbol de widgets:
+          </p>
+          <ul>
+            <li><strong>Registro por ID semántico (<code>AutomationRegistry</code> + <code>AutomationID</code>):</strong> widgets críticos (navegación, campos de nombre/costo, botones de guardar/confirmar) se registran con su <code>GlobalKey</code>, <code>Rect</code> global, callback <code>onTap</code> o <code>TextEditingController</code>.</li>
+            <li><strong>Validador previo de secuencias (<code>AutomationValidator</code>):</strong> audita antes de ejecutar si todos los <code>targetId</code> referenciados por una <code>AutomationSequence</code> están registrados o declarados como esperados, reportando faltantes explícitamente.</li>
+            <li><strong>Ejecutor observable con modo simulación (<code>AutomationEngine</code> + <code>AutomationOverlay</code>):</strong> ejecuta pasos <code>navigate</code>, <code>tap</code>, <code>input</code> (escritura carácter a carácter visible), <code>scroll</code> y <code>wait</code> con plantillas <code>&#123;param&#125;</code>, resaltado visual de foco y modo <code>dryRun: true</code> para auditar trazas sin mutar estado real.</li>
+          </ul>
+        </section>
+
+        <section id="evolucion">
+          <h2>6. Evolución histórica: retiro de Candle (Qwen2.5 GGUF + Whisper) por hardware POS legado</h2>
+          <p>
+            Antes de consolidarse en el diseño ligero actual, el historial git de <code>meson_business</code> (commits <code>644a466a</code> → <code>64dba323</code>, junio 2026) implementó una pila generativa y de voz completa en Rust puro sobre <strong>HuggingFace Candle (<code>candle-core/nn/transformers 0.10.2</code>)</strong> sumando <strong>1,130 LOC</strong> adicionales:
+          </p>
+          <ul>
+            <li><strong>LLM local cuantizado (<code>nlp/generative.rs</code>, 298 LOC):</strong> cargaba pesos GGUF <code>Q4_K_M</code> de <strong>Qwen2.5-0.5B, 1.5B y 3B-Instruct</strong> vía <code>quantized_qwen2::ModelWeights::from_gguf</code> con selección automática <code>CUDA → CPU</code>, <code>LogitsProcessor</code>, descarga con progreso por <code>StreamSink&lt;f32&gt;</code>, streaming token a token (<code>StreamSink&lt;String&gt;</code>) y liberación explícita de RAM al bajar de <code>PERFORMANCE_MODE == 3</code>.</li>
+            <li><strong>Whisper nativo en proceso (<code>whisper.rs</code> 167 LOC + <code>whisper_decoder.rs</code> 526 LOC + <code>whisper_multilingual.rs</code> 139 LOC):</strong> cargaba <code>whisper-tiny / base / small</code> según <code>PERFORMANCE_MODE</code> mediante <code>VarBuilder::from_mmaped_safetensors</code>, bancos de filtros mel embebidos (80 y 128 bins), decodificación PCM 16 kHz (<code>hound</code>) y soporte multilingüe (99 idiomas con forzado <code>&lt;|es|&gt;</code>).</li>
+            <li><strong>Por qué se retiró en <code>64dba323</code> (decisión de ingeniería por hardware real):</strong> ejecutar GGUF/Candle y Whisper dentro del proceso POS excedía la RAM disponible y rompía compatibilidad en equipos comerciales antiguos sin instrucciones modernas ni margen térmico. El pivote mantuvo 100% de la capacidad operativa offline separando tres niveles: (1) núcleo léxico/SIF/Platt siempre activo (<code>0</code> pesos neuronales), (2) <code>tract-onnx</code> opcional descargable en Modo 1 y (3) STT aislado fuera de proceso en <code>crates/meson_speech_worker</code> (<code>whisper-rs 0.16.0</code>) para que la memoria de voz nunca tumbe la caja.</li>
+          </ul>
+        </section>
+
+        <section id="validez">
+          <h2>7. Verificación en vivo (300/300) y amenazas a la validez</h2>
+          <ul>
+            <li><strong>Evidencia ejecutada en vivo (Noviembre 2026):</strong> <code>cargo test -p meson_ai -- --test-threads=4</code> aprobó <strong>300 / 300 pruebas unitarias y de integración (0 fallos en 9.62 s)</strong> cubriendo calibración Platt, barrera anti-pánico, router híbrido, segmentación multi-intención, normalización verbal/fonética/jerga, extracción de entidades, slots, base SQLite, rate limiter y consultas operativas completas.</li>
+            <li><strong>Límites y deuda honesta:</strong> (1) las pruebas verifican determinismo y precisión sobre casos unitarios/integrados, no un corpus anotado de miles de conversaciones reales de clientes en calle; (2) <code>services/automation/</code> no cuenta todavía con pruebas widget automatizadas dedicadas en Dart; y (3) tras el retiro de Candle en <code>64dba323</code>, el gancho <code>PERFORMANCE_MODE == 3</code> permanece desactivado y delega a <code>cloud_routing_response</code> o respuesta determinista.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/meson-edge-nlu-automation/">Read in English ↗</a>
+      <a class="button button-outline" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-rust-edge/">Paper 8: Rust FFI &amp; Engines ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

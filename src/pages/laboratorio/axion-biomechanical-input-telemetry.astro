@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 17: Estimación Biomecánica Preacondicionada, M-Estimadores de Huber y Telemetría Inmune a Jensen sobre Raw Input | Miguel Quevedo"
+  description="Technical Report v1.0 — Laboratorio nativo en Rust (Axion Mouse Lab, 7,075 LOC): base exacta SO(2), remuestreo equidistante por arco, separación parabólica vs. lineal, M-estimador Huber IRLS, analizador de intervalos inmune a la desigualdad de Jensen y aislamiento anti-cheat."
+  pageLabel="Paper 17 · Input Telemetry & Math"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Estimación Biomecánica Preacondicionada de Trayectorias, M-Estimadores de Huber y Telemetría de Polling Inmune a la Desigualdad de Jensen sobre Windows Raw Input</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Diseño matemático y de sistemas de <em>Axion Mouse Lab</em> (<code>Tools/mouse_angle_calibrator</code>, Rust nativo sin inyección de entrada): proyección isométrica exacta en <code>SO(2)</code>, remuestreo uniforme por distancia recorrida, separación de curvatura de muñeca vs. inclinación real, estimación robusta IRLS de Huber y análisis de frecuencia libre del sesgo de Jensen.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Código auditado</span><strong><code>Tools/mouse_angle_calibrator</code> (24 archivos Rust · 7,075 LOC: <code>math.rs</code>, <code>controller.rs</code>, <code>polling_radar.rs</code>, <code>keyboard.rs</code>, <code>aim_trainer.rs</code>)</strong></div>
+      <div><span>Evidencia verificable</span><strong><code>cargo test</code> ejecutado en vivo: 39/41 tests en verde (100% de los tests matemáticos, estadísticos y de telemetría; 2 fallos de lint/copy documentados)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/axion-biomechanical-input-telemetry/">Read full report in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Invariantes matemáticos y de telemetría de Axion Mouse Lab">
+        <div class="paper-kpi"><strong>SO(2) Exact LUT</strong><span>Base trigonométrica sin deriva axial + FMA (<code>mul_add</code>)</span></div>
+        <div class="paper-kpi"><strong>64-pt Arc Resample</strong><span>Desacopla densidad de paquetes <code>WM_INPUT</code> y velocidad de mano</span></div>
+        <div class="paper-kpi"><strong>Huber IRLS</strong><span>5 iteraciones · <code>δ = max(1.345 σ_θ, 0.5)</code> · cierre en 12 trazos</span></div>
+        <div class="paper-kpi"><strong>1 / E[Δt]</strong><span><code>PollingAnalyzer&lt;64&gt;</code> en <code>u128</code> ns · inmune a Jensen</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (6 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#problema">1. Por qué fallan los calibradores ingenuos de ángulo y frecuencia de mouse</a>
+        <a href="#so2">2. Isometría exacta SO(2) y remuestreo uniforme por longitud de arco</a>
+        <a href="#regresion">3. Preacondicionamiento numérico y separación parabólica vs. lineal</a>
+        <a href="#huber">4. Agregación robusta con M-estimador de Huber y compuerta de 12 trazos</a>
+        <a href="#jensen">5. Inmunidad a la desigualdad de Jensen en telemetría de polling e interlock CRC-32</a>
+        <a href="#validez">6. Verificación en vivo (39/41), límites de anti-cheat y amenazas a la validez</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#problema">1. Problema</a>
+        <a href="#so2">2. SO(2) &amp; Arco</a>
+        <a href="#regresion">3. OLS Preacond.</a>
+        <a href="#huber">4. Huber IRLS</a>
+        <a href="#jensen">5. Jensen &amp; CRC32</a>
+        <a href="#validez">6. Tests y Límites</a>
+      </aside>
+      <div class="case-content">
+        <section id="problema">
+          <h2>1. Por qué fallan los calibradores ingenuos de ángulo y frecuencia de mouse</h2>
+          <p>
+            Medir la inclinación natural del agarre de un ratón sobre <code>WM_INPUT</code> en Windows presenta cuatro sesgos numéricos y físicos que los calibradores simples suelen ignorar:
+          </p>
+          <ul>
+            <li><strong>Sesgo por densidad temporal de paquetes:</strong> Windows entrega lotes desiguales de deltas; una pausa o desaceleración al final de un trazo concentra más puntos en una zona y domina una regresión por mínimos cuadrados ordinaria.</li>
+            <li><strong>Confusión entre curvatura biomecánica e inclinación del sensor:</strong> el pivote de la muñeca describe un arco parabólico <code>v(u) = a·u² + b·u</code>; usar la tangente inicial <code>b</code> de la parábola como ángulo global del trazo sobre-corrige trazos curvos.</li>
+            <li><strong>Cancelación catastrófica y <code>R²</code> inflado:</strong> acumular sumas de potencias <code>Σu⁴</code> en coordenadas de miles de conteos pierde dígitos significativos, y dividir el residuo por <code>Σu²</code> mezcla ejes distintos ocultando malos ajustes.</li>
+            <li><strong>Sesgo de Jensen en tasas de polling:</strong> promediar frecuencias instantáneas <code>E[1/Δt]</code> sobre intervalos con jitter sobrestima sistemáticamente la frecuencia real porque <code>f(x) = 1/x</code> es estrictamente convexa en <code>x &gt; 0</code>.</li>
+          </ul>
+        </section>
+
+        <section id="so2">
+          <h2>2. Isometría exacta SO(2) y remuestreo uniforme por longitud de arco</h2>
+          <ul>
+            <li><strong>Tabla trigonométrica exacta por octante (<code>Octant::basis</code> en <code>src/math.rs</code>):</strong> proyecta cada desplazamiento sobre 8 sectores canónicos usando una LUT exacta <code>(1, 0)</code>, <code>(1/√2, 1/√2)</code>, <code>(0, 1)</code>, etc., combinada con <code>mul_add</code> (FMA). Esto elimina fugas numéricas entre ejes en barridos cardinales puros (verificado en <code>test_so2_isometry_and_zero_bleed</code>).</li>
+            <li><strong>Remuestreo espacial equidistante (<code>resample_by_distance(points, 64)</code>):</strong> integra la longitud de arco acumulada con <code>dx.hypot(dy)</code> y remuestrea la trayectoria en <strong>64 puntos equidistantes</strong> por interpolación lineal antes de cualquier ajuste. Así, la densidad de reportes USB/<code>WM_INPUT</code> y las variaciones de velocidad de la mano dejan de ponderar de forma desigual la geometría del trazo.</li>
+          </ul>
+        </section>
+
+        <section id="regresion">
+          <h2>3. Preacondicionamiento numérico y separación parabólica vs. lineal</h2>
+          <p>
+            <code>fit_projected_parabolic_arc</code> y <code>projected_linearity</code> desacoplan dos estimaciones sobre la misma trayectoria remuestreada:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p17-models">
+            <table class="paper-table">
+              <caption id="es-p17-models">Tabla 1 · Modelos preacondicionados en <code>src/math.rs</code> (escala característica <code>L = max(|u|)</code>, coordenadas normalizadas a <code>[-1, 1]</code>)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Modelo</th>
+                  <th scope="col">Ecuación y acondicionamiento</th>
+                  <th scope="col">Propósito en calibración</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Arco parabólico proyectado</th>
+                  <td data-label="Ecuación"><code>v(u) = a·u² + b·u</code> con <code>ũ = u/L</code>, determinante <code>D = s₄s₂ − s₃²</code> con guarda de singularidad <code>D &gt; 10⁻¹¹·s₄s₂</code> y evaluación de residuos por Horner + FMA.</td>
+                  <td data-label="Propósito">Cuantifica la curvatura de muñeca (<code>wrist_curvature = a</code>) independientemente de la escala del barrido.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Recta restringida al origen</th>
+                  <td data-label="Ecuación"><code>v(u) = b·u</code> con <code>b = Σ(ũṽ)/Σ(ũ²)</code>, ángulo <code>θ = atan(b)</code> y varianza total transversal <code>ss_tot</code> por algoritmo de Welford.</td>
+                  <td data-label="Propósito">Calcula la inclinación global (<code>slant_deg</code>) y el coeficiente <code>linearity_r_squared</code> (preservando valores negativos cuando el modelo empeora la media) para aceptar o rechazar el trazo.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="huber">
+          <h2>4. Agregación robusta con M-estimador de Huber y compuerta de 12 trazos</h2>
+          <p>
+            Un solo barrido contaminado por un tirón accidental distorsiona la media aritmética. <code>RobustCalibrator</code> (<code>src/controller.rs</code>) aplica un filtro en dos capas:
+          </p>
+          <ul>
+            <li><strong>Compuerta por trazo (<code>is_swipe_qualified</code>):</strong> descarta trazos finitos fuera de rango exigiendo <code>path_length ≥ 450</code> conteos, <code>linearity_r_squared ≥ 0.70</code> y <code>|θ| ≤ 32.0°</code>.</li>
+            <li><strong>M-estimador de Huber por IRLS (<code>compute_huber_location</code>):</strong> inicializa <code>μ₀</code> en la mediana de la ventana deslizante de hasta 12 trazos, fija el umbral adaptativo <code>δ = max(1.345 · σ_θ, 0.5)</code> y ejecuta 5 iteraciones ponderadas con <code>wᵢ = 1</code> si <code>|xᵢ − μ| ≤ δ</code> y <code>wᵢ = δ / |xᵢ − μ|</code> en caso contrario. En el test contaminado <code>[3.0, 3.1, 3.2, 3.3, 3.4, 25.0]</code>, la media se desvía a <code>6.83°</code> mientras Huber se mantiene en <code>~3.3°</code>.</li>
+            <li><strong>Criterio estricto de bloqueo (<code>auto_lock_ready</code>):</strong> solo marca la estimación como convergida cuando se cumplen simultáneamente <code>n ≥ 12</code> trazos calificados, <code>mean_R² ≥ 0.94</code> y dispersión muestral <code>σ_θ ≤ 1.15°</code>.</li>
+          </ul>
+        </section>
+
+        <section id="jensen">
+          <h2>5. Inmunidad a la desigualdad de Jensen en telemetría de polling e interlock CRC-32</h2>
+          <ul>
+            <li><strong>Analizador sin asignaciones (<code>PollingAnalyzer&lt;const N: usize = 64&gt;</code> en <code>src/polling_radar.rs</code>):</strong> mantiene un buffer circular fijo de 64 intervalos en nanosegundos, suma en entero <code>u128</code> para cero error de redondeo acumulado y calcula la tasa media armónica <code>f̄ = 10⁹ / E[Δt_ns]</code> en lugar de <code>E[10⁹ / Δt_ns]</code>.</li>
+            <li><strong>Prueba exacta de Jensen (<code>test_formula5_jensen_inequality_immunity</code>):</strong> ante 64 intervalos alternando <code>1.2 ms</code> y <code>0.8 ms</code> (media real <code>1.0 ms</code>, jitter poblacional <code>0.2 ms</code>), un estimador ingenuo reporta <code>(833.33 + 1250) / 2 = 1041.67 Hz</code> (+4.17% falso); <code>PollingAnalyzer&lt;64&gt;</code> devuelve exactamente <strong><code>1000.0 Hz</code></strong> (error <code>&lt; 10⁻⁹</code>), <code>mean = 1.0 ms</code> y <code>jitter = 0.2 ms</code>.</li>
+            <li><strong>Telemetría de teclado y conversión exacta de sensibilidad:</strong> <code>keyboard.rs</code> mide solapamientos/brechas A/D (counter-strafe) con interlock de modo torneo verificado por <strong>CRC-32</strong>, y <code>aim_trainer.rs</code> aplica conversión exacta <code>cm/360°</code> entre CS2 (<code>yaw = 0.022</code>) y Valorant (<code>yaw = 0.07</code>, razón racional exacta <code>35/11</code>).</li>
+          </ul>
+        </section>
+
+        <section id="validez">
+          <h2>6. Verificación en vivo (39/41), límites de anti-cheat y amenazas a la validez</h2>
+          <ul>
+            <li><strong>Resultado real de <code>cargo test</code> (Noviembre 2026):</strong> <strong>39 / 41 pruebas aprobadas</strong> en <code>0.90 s</code>. Pasan al 100% los tests de isometría <code>SO(2)</code>, separación parabólica (este/sur/oeste/diagonal), Huber IRLS, compuerta de 12 trazos, inmunidad de Jensen, conversión CS2/Valorant e interlock CRC-32. Los <strong>2 fallos existentes</strong> (reportados explícitamente sin maquillar) son: una guarda interna de estilo (<code>test_all_src_files_under_500_lines</code>, excedida por <code>app.rs</code> 821, <code>aim_trainer.rs</code> 560 y <code>math.rs</code> 501 líneas) y una aserción de cadena en español en <code>cpu_tuner::tests::test_master_hyper_gaming</code>.</li>
+            <li><strong>Honestidad de medición y postura anti-cheat:</strong> el README y el código documentan que los intervalos de <code>WM_INPUT</code> son cadencia de eventos de ventana, <em>no</em> tasa hardware del sensor USB; los ajustes de ángulo/teclado actúan como vista previa sin inyectar entrada ni instalar drivers; y la inspección de procesos excluye explícitamente <code>Valorant</code>, <code>CS</code>, <code>Steam</code> y <code>Vanguard</code> antes de abrir handles del SO.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/en/lab/axion-biomechanical-input-telemetry/">Read in English ↗</a>
+      <a class="button button-outline" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

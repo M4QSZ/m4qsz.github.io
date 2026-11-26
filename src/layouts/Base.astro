@@ -38,7 +38,9 @@ const personSchema = {
   '@type': 'Person',
   name: profile.name,
   alternateName: ['M4QSZ', 'Miguel Quevedo'],
-  jobTitle: isEnglish ? 'Multiplatform Software & Systems Engineer (Flutter · Rust · Web)' : 'Ingeniero de software multiplataforma y sistemas (Flutter · Rust · Web)',
+  jobTitle: isEnglish
+    ? 'Rust Systems, AI Infrastructure (MCP/GPUI) & Multiplatform Software Engineer (Flutter · Unity C# · Formal Verification)'
+    : 'Ingeniero de Sistemas Rust, Infraestructura IA (MCP/GPUI) y Software Multiplataforma (Flutter · Unity C# · Verificación Formal)',
   description,
   url: siteOrigin.toString(),
   image: new URL('/images/miguel-avatar.webp', siteOrigin).toString(),
@@ -48,17 +50,18 @@ const personSchema = {
     addressRegion: 'Aragua',
     addressCountry: 'VE',
   },
-  sameAs: [profile.github, profile.linkedin, 'https://set-ingenieria.vercel.app', 'https://pulsera-medica.vercel.app'].filter(Boolean),
+  sameAs: [profile.github, profile.linkedin, 'https://mesonapp.vercel.app', 'https://set-ingenieria.vercel.app', 'https://pulsera-medica.vercel.app'].filter(Boolean),
   alumniOf: {
     '@type': 'CollegeOrUniversity',
     name: 'Universidad Bicentenaria de Aragua',
   },
   knowsLanguage: ['es', 'en', 'pt', 'it', 'de', 'ja'],
   knowsAbout: [
-    'Flutter', 'Dart', 'Rust', 'C-ABI', 'dart:ffi', 'Offline-First Architecture',
-    'CRDT', 'P2P Sync', 'C#', 'Unity', 'TypeScript', 'Next.js',
-    'Astro', 'Python', 'Lua', 'Luau', 'Kotlin', 'Supabase', 'PostgreSQL',
-    'MySQL', 'SQLite', 'Isar', 'Cloud Firestore', 'Git', 'Git LFS', 'AI/LLM Tooling',
+    'Rust', 'GPUI', 'MCP', 'Iroh QUIC', 'C-ABI', 'dart:ffi', 'Flutter', 'Dart', 'Flame',
+    'Offline-First Architecture', 'HLC', 'CRDT', 'P2P Sync', 'ChaCha20-Poly1305', 'WebRTC',
+    'Lean 4', 'VeriPB 3.0', 'SAT/SMT Verification', 'Edge NLU', 'tract-onnx',
+    'C#', 'Unity', 'TypeScript', 'Next.js', 'Astro', 'Python', 'Lua', 'Luau', 'Kotlin',
+    'Supabase', 'PostgreSQL', 'MySQL', 'SQLite', 'Isar', 'Cloud Firestore', 'Git', 'Git LFS', 'AI/LLM Tooling',
   ],
 };
 ---

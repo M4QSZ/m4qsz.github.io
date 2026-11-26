@@ -17,6 +17,9 @@ const labPaperSlugs = [
   'cockpit-resilience-fingerprinting',
   'cockpit-rtk-telemetry-pipelines',
   'meson-nosql-to-sql',
+  'meson-edge-nlu-automation',
+  'meson-brasas-game-architecture',
+  'axion-biomechanical-input-telemetry',
 ];
 
 const staticRoutes = [

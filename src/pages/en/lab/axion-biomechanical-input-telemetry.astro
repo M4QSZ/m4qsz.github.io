@@ -1,0 +1,152 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 17: Preconditioned Biomechanical Trajectory Estimation, Huber M-Estimators & Jensen-Immune Polling Telemetry | Miguel Quevedo"
+  description="Technical Report v1.0 — Native Rust input telemetry lab (Axion Mouse Lab, 7,075 LOC): exact SO(2) basis LUT, 64-point arc-length resampling, parabolic vs. linear slant separation, IRLS Huber M-estimator, Jensen-immune PollingAnalyzer<64>, and anti-cheat process exclusion."
+  pageLabel="Paper 17 · Input Telemetry & Math"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">Preconditioned Biomechanical Trajectory Estimation, Huber M-Estimators, and Jensen-Immune Polling Telemetry on Windows Raw Input</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Mathematical and systems engineering behind <em>Axion Mouse Lab</em> (<code>Tools/mouse_angle_calibrator</code>, native Rust with zero input injection): exact <code>SO(2)</code> octant projection, uniform arc-length resampling, wrist-curvature vs. slant decoupling, IRLS Huber robust location estimation, and Jensen-unbiased harmonic event-rate analysis.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited codebase</span><strong><code>Tools/mouse_angle_calibrator</code> (24 Rust files · 7,075 LOC: <code>math.rs</code>, <code>controller.rs</code>, <code>polling_radar.rs</code>, <code>keyboard.rs</code>, <code>aim_trainer.rs</code>)</strong></div>
+      <div><span>Verifiable evidence</span><strong>Live <code>cargo test</code> run: 39/41 passing (100% of math, Huber, Jensen, and CRC-32 tests pass; 2 non-math lint/copy failures transparently reported)</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/axion-biomechanical-input-telemetry/">Leer reporte en Español ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Mathematical and telemetry invariants in Axion Mouse Lab">
+        <div class="paper-kpi"><strong>SO(2) Exact LUT</strong><span>Zero-bleed cardinal trigonometric basis + FMA (<code>mul_add</code>)</span></div>
+        <div class="paper-kpi"><strong>64-pt Arc Resample</strong><span>Decouples <code>WM_INPUT</code> batch density &amp; hand speed from fit</span></div>
+        <div class="paper-kpi"><strong>Huber IRLS</strong><span>5 iterations · <code>δ = max(1.345 σ_θ, 0.5)</code> · 12-swipe lock gate</span></div>
+        <div class="paper-kpi"><strong>1 / E[Δt]</strong><span>Zero-alloc <code>PollingAnalyzer&lt;64&gt;</code> in <code>u128</code> ns · Jensen-immune</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (6 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#problem">1. Why naive mouse-angle and polling-rate estimators fail</a>
+        <a href="#so2">2. Exact SO(2) isometry &amp; uniform arc-length resampling</a>
+        <a href="#regression">3. Numerical preconditioning &amp; parabolic vs. linear separation</a>
+        <a href="#huber">4. Robust aggregation via IRLS Huber M-estimator &amp; 12-swipe convergence gate</a>
+        <a href="#jensen">5. Jensen's inequality immunity in polling telemetry &amp; CRC-32 interlock</a>
+        <a href="#validity">6. Live test audit (39/41), anti-cheat boundaries &amp; threats to validity</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#problem">1. Problem</a>
+        <a href="#so2">2. SO(2) &amp; Arc</a>
+        <a href="#regression">3. Precond. OLS</a>
+        <a href="#huber">4. Huber IRLS</a>
+        <a href="#jensen">5. Jensen &amp; CRC32</a>
+        <a href="#validity">6. Tests &amp; Limits</a>
+      </aside>
+      <div class="case-content">
+        <section id="problem">
+          <h2>1. Why naive mouse-angle and polling-rate estimators fail</h2>
+          <p>
+            Estimating natural mouse grip rotation and movement cadence from Windows <code>WM_INPUT</code> streams exposes four numerical and physical biases routinely overlooked by ad-hoc calibrators:
+          </p>
+          <ul>
+            <li><strong>Temporal packet-density bias:</strong> Windows delivers movement events in uneven bursts; slowing down near the end of a swipe clusters samples and skews standard unweighted OLS regression.</li>
+            <li><strong>Wrist-arc vs. sensor-slant conflation:</strong> human wrist pivoting generates a parabolic arc <code>v(u) = a·u² + b·u</code>; adopting the parabola's origin tangent <code>b</code> as whole-stroke rotation systematically over-corrects curved strokes.</li>
+            <li><strong>Catastrophic cancellation &amp; inflated <code>R²</code>:</strong> accumulating raw quartic sums <code>Σu⁴</code> over thousands of counts loses precision, and dividing residual error by <code>Σu²</code> conflates orthogonal axes and reports false confidence.</li>
+            <li><strong>Jensen's inequality bias on polling rates:</strong> averaging instantaneous frequencies <code>E[1/Δt]</code> over jittery intervals strictly overestimates true rate because <code>f(x) = 1/x</code> is convex for <code>x &gt; 0</code>.</li>
+          </ul>
+        </section>
+
+        <section id="so2">
+          <h2>2. Exact SO(2) isometry &amp; uniform arc-length resampling</h2>
+          <ul>
+            <li><strong>Exact octant trigonometric basis (<code>Octant::basis</code> in <code>src/math.rs</code>):</strong> projects displacements onto 8 canonical sectors via an exact lookup table <code>(1, 0)</code>, <code>(1/√2, 1/√2)</code>, <code>(0, 1)</code>, etc., paired with hardware FMA (<code>mul_add</code>). This eliminates floating-point axis bleed on cardinal swipes (verified by <code>test_so2_isometry_and_zero_bleed</code>).</li>
+            <li><strong>Uniform spatial resampling (<code>resample_by_distance(points, 64)</code>):</strong> integrates cumulative arc length via <code>dx.hypot(dy)</code> and resamples every trace onto <strong>64 evenly spaced points</strong> before fitting, preventing USB/<code>WM_INPUT</code> burst clustering and variable hand velocity from biasing slope or <code>R²</code>.</li>
+          </ul>
+        </section>
+
+        <section id="regression">
+          <h2>3. Numerical preconditioning &amp; parabolic vs. linear separation</h2>
+          <p>
+            <code>fit_projected_parabolic_arc</code> and <code>projected_linearity</code> decouple curvature diagnostics from global slant over the same resampled trace:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p17-models">
+            <table class="paper-table">
+              <caption id="en-p17-models">Table 1 · Preconditioned models in <code>src/math.rs</code> (characteristic scale <code>L = max(|u|)</code>, normalized coordinates in <code>[-1, 1]</code>)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Model</th>
+                  <th scope="col">Formulation &amp; conditioning</th>
+                  <th scope="col">Calibration role</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Projected parabolic arc</th>
+                  <td data-label="Formulation"><code>v(u) = a·u² + b·u</code> with <code>ũ = u/L</code>, determinant <code>D = s₄s₂ − s₃²</code> guarded by <code>D &gt; 10⁻¹¹·s₄s₂</code>, and Horner + FMA residual evaluation.</td>
+                  <td data-label="Role">Quantifies biomechanical wrist curvature (<code>wrist_curvature = a</code>) independent of stroke length.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Origin-constrained line</th>
+                  <td data-label="Formulation"><code>v(u) = b·u</code> with <code>b = Σ(ũṽ)/Σ(ũ²)</code>, angle <code>θ = atan(b)</code>, and Welford online cross-track total variance <code>ss_tot</code>.</td>
+                  <td data-label="Role">Computes whole-stroke slant (<code>slant_deg</code>) and <code>linearity_r_squared</code> (preserving negative <code>R²</code> when worse than mean-only baseline) to accept or reject traces.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="huber">
+          <h2>4. Robust aggregation via IRLS Huber M-estimator &amp; 12-swipe convergence gate</h2>
+          <p>
+            A single accidental wrist twitch can pull an arithmetic mean off target. <code>RobustCalibrator</code> (<code>src/controller.rs</code>) enforces two-stage robust estimation:
+          </p>
+          <ul>
+            <li><strong>Per-swipe qualification gate (<code>is_swipe_qualified</code>):</strong> requires finite values, <code>path_length ≥ 450</code> counts, <code>linearity_r_squared ≥ 0.70</code>, and <code>|θ| ≤ 32.0°</code>.</li>
+            <li><strong>IRLS Huber location estimator (<code>compute_huber_location</code>):</strong> initializes <code>μ₀</code> at the sample median over a 12-swipe rolling window, sets adaptive cutoff <code>δ = max(1.345 · σ_θ, 0.5)</code>, and runs 5 IRLS iterations with weight <code>wᵢ = 1</code> when <code>|xᵢ − μ| ≤ δ</code> else <code>δ / |xᵢ − μ|</code>. On contaminated input <code>[3.0, 3.1, 3.2, 3.3, 3.4, 25.0]</code>, the sample mean shifts to <code>6.83°</code> while Huber remains near <code>3.3°</code>.</li>
+            <li><strong>Strict convergence lock (<code>auto_lock_ready</code>):</strong> locks the recommended angle only when <code>n ≥ 12</code> qualified swipes, <code>mean_R² ≥ 0.94</code>, and sample spread <code>σ_θ ≤ 1.15°</code> hold simultaneously.</li>
+          </ul>
+        </section>
+
+        <section id="jensen">
+          <h2>5. Jensen's inequality immunity in polling telemetry &amp; CRC-32 interlock</h2>
+          <ul>
+            <li><strong>Zero-allocation nanosecond ring buffer (<code>PollingAnalyzer&lt;const N: usize = 64&gt;</code> in <code>src/polling_radar.rs</code>):</strong> stores 64 nanosecond inter-arrival deltas on the stack, sums in <code>u128</code> without floating-point accumulation drift, and reports harmonic mean rate <code>f̄ = 10⁹ / E[Δt_ns]</code> rather than <code>E[10⁹ / Δt_ns]</code>.</li>
+            <li><strong>Exact Jensen immunity verification (<code>test_formula5_jensen_inequality_immunity</code>):</strong> given 64 alternating <code>1.2 ms</code> / <code>0.8 ms</code> intervals (true mean <code>1.0 ms</code>, population jitter <code>0.2 ms</code>), naive frequency averaging falsely reports <code>(833.33 + 1250)/2 = 1041.67 Hz</code> (+4.17% inflation); <code>PollingAnalyzer&lt;64&gt;</code> recovers exact <strong><code>1000.0 Hz</code></strong> (error <code>&lt; 10⁻⁹</code>), <code>mean = 1.0 ms</code>, and <code>jitter = 0.2 ms</code>.</li>
+            <li><strong>Keyboard counter-strafe &amp; sensitivity parity:</strong> <code>keyboard.rs</code> tracks A/D overlap and release gap timing under a <strong>CRC-32</strong>-verified tournament-safe interlock, while <code>aim_trainer.rs</code> preserves exact <code>cm/360°</code> parity between CS2 (<code>yaw = 0.022</code>) and Valorant (<code>yaw = 0.07</code>, exact ratio <code>35/11</code>).</li>
+          </ul>
+        </section>
+
+        <section id="validity">
+          <h2>6. Live test audit (39/41), anti-cheat boundaries &amp; threats to validity</h2>
+          <ul>
+            <li><strong>Live <code>cargo test</code> evidence (November 2026):</strong> <strong>39 / 41 tests pass</strong> in <code>0.90 s</code>, including 100% of <code>SO(2)</code> isometry, parabolic arc separation (east/south/west/diagonal), Huber IRLS, 12-swipe auto-lock, Jensen immunity, CS2/Valorant sensitivity parity, and CRC-32 interlock checks. The <strong>2 current failures</strong> are transparently reported: an internal 500-LOC style lint (<code>test_all_src_files_under_500_lines</code> exceeded by <code>app.rs</code> 821, <code>aim_trainer.rs</code> 560, and <code>math.rs</code> 501 LOC) and one status-string assertion in <code>cpu_tuner::tests::test_master_hyper_gaming</code>.</li>
+            <li><strong>Measurement honesty &amp; anti-cheat safety:</strong> documentation and code explicitly state that <code>WM_INPUT</code> intervals reflect Windows event cadence rather than hardware USB sensor polling rate; angle and keyboard views operate in read-only preview mode with zero input injection or drivers; and process inspection explicitly excludes <code>Valorant</code>, <code>CS</code>, <code>Steam</code>, and <code>Vanguard</code> before opening OS handles.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/laboratorio/axion-biomechanical-input-telemetry/">Leer en Español ↗</a>
+      <a class="button button-outline" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>
