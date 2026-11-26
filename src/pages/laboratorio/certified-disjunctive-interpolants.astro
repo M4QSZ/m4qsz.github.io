@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import paperHtml from '../../data/disjunctiveInterpolantPaper.es.html?raw';
+---
+<Base
+  title="Certificación VeriPB 3.0 Ciega para Interpolantes Disyuntivos (PHP ∨ Tseitin) | Miguel Quevedo"
+  description="Nota Técnica v0.2: descomposición por corte primal, planos de corte Chvátal-Gomory guardados y paridad Gocht-Nordström en VeriPB 3.0 para 3-CNF permutada; teoremas universales ∀n en Lean 4.36.0 (0 sorryAx) y 13/13 pruebas verificadas por veripb 3.0.2 frente a Kissat 4.0.4, CaDiCaL 1.9.5 y CryptoMiniSat 5."
+  pageLabel="Paper · Certified Disjunctive Interpolants"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Certificación VeriPB 3.0 Ciega para Interpolantes Disyuntivos (PHP ∨ Tseitin)</h1>
+      <p class="detail-lede">Nota Técnica / borrador de preprint v0.2 — sin revisión por pares. Todas las pruebas y tiempos provienen de ejecuciones reales validadas por Lean 4.36.0 y veripb 3.0.2.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v0.2)</strong></div>
+      <div><span>Verificación</span><strong>Lean 4.36.0: teoremas ∀n (0 sorryAx) · veripb 3.0.2: 13/13 VERIFIED UNSATISFIABLE</strong></div>
+      <div><span>Estado</span><strong>Prototipo de investigación · Nota Técnica v0.2</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/certified-disjunctive-interpolants.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repositorio + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/TECHNICAL_NOTE_DISJUNCTIVE_INTERPOLANTS.md" target="_blank" rel="noopener noreferrer">Fuente en Markdown (EN) ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>

@@ -1,0 +1,355 @@
+<blockquote>
+<p><strong>Status:</strong> Research prototype &amp; Technical Note (<code>v0.3</code>). Not peer-reviewed; every certificate, theorem, and wall-clock metric has been mechanically verified with <code>Lean 4.36.0</code> (<code>0 sorryAx</code>) and <code>veripb 3.0.2</code>.</p>
+</blockquote>
+<hr />
+<h2>Abstract</h2>
+<p>Technical Note <code>v0.2</code> left open <strong>Limitation #2</strong>: formulas whose unrolled primal graph forms a <strong>single high-expansion component without small vertex cuts (<code>|S| = 0</code>)</strong>—such as Goldreich 5-local pseudorandom generator (PRG) predicates (<code>TSA</code> = <code>XOR<sub>3</sub> &oplus; AND<sub>2</sub></code> and <code>XOR-MAJ<sub>3</sub></code>) coupled across 3-regular expanders—defeat primal-cut decomposition (<code>discover_primal_vertex_cut -&gt; None</code>), binary-clique Cutting Planes (<code>0</code> AMO cliques), and degree-1 parity extraction (<code>0</code> linear <strong>F</strong><sub>2</sub> hyperplanes). Simultaneously, variable- and polarity-scrambled 3-CNF encodings of single-expander <code>TSA</code> and <strong>F</strong><sub>2</sub>-homological <code>XOR<sub>3</sub>-MAJ<sub>3</sub></code> formulas defeat pure CDCL (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>) and CDCL+XOR (<code>CryptoMiniSat 5</code>), all three of which suffer exponential blowup and hit <code>TIMEOUT_60s</code> starting at <em>V</em> &ge; 48 (<code>1,608</code> variables / <code>2,304</code> clauses) even with <strong>zero disjunctive selector guards (<code>|S| = 0</code>)</strong>.</p>
+<p>This note documents <code>v0.3.0</code> of <code>certified-arith-preproc</code> (<code>veripb_veronese_prg.py</code> + <code>proofs/veronese_prg_soundness.lean</code>), resolving Limitation #2 for degree-2 Goldreich PRG predicates and rigorously delimiting the degree-3/4 frontier (<code>v0.4</code>):</p>
+<ol>
+<li><strong>Blind Degree-2 Veronese <code>RM(2, n)</code> &amp; <strong>F</strong><sub>2</sub>-Simplicial Homology Calculus (<code>VeriPB 3.0.2</code>):</strong> Recovers unrolled width-<em>k</em> (<em>k</em> &le; 7) blocks via logged <code>(1, 1)</code> resolution, extracts degree-&le;2 Boolean equations via fast <em>O</em>(<em>k</em> 2<sup><em>k</em></sup>) M&ouml;bius/ANF inversion, solves global sparse <strong>F</strong><sub>2</sub> RREF over <code>RM(2, n)</code>, lazily introduces shared Veronese product witnesses <code>p<sub>u,w</sub> &harr; (x<sub>u</sub> &and; x<sub>w</sub>)</code> (<code>red</code>), and emits pure <code>pol</code> + <code>red</code> (<code>0</code> <code>rup</code> search) refutations. Crucially, on <strong>Homological <code>XOR<sub>3</sub>-MAJ<sub>3</sub></code></strong> over <em>K</em><sub>4</sub> tetrahedral 2-cycles (<code>&part;<sup>2</sup> = 0</code>), <strong>every <code>MAJ<sub>3</sub></code> triplet in the entire formula is unique</strong> (zero gate collisions), yet quadratic boundaries cancel identically in <code>RM(2, n)</code>.</li>
+<li><strong>End-to-End <code>VeriPB 3.0.2</code> Scaling (<code>13/13</code> Certified UNSAT, <code>4/4</code> SAT Rejected):</strong> Certifies all <code>12/12</code> scaling instances (<code>|S| &isin; {0, 2, 3}</code>, up to <code>31,715</code> vars / <code>41,160</code> clauses) plus the <code>v0.2</code> vs <code>v0.3</code> ablation (<code>389.27 ms</code> vs <code>TIMEOUT_60s</code> on all three C/C++ solvers), and rejects <code>4/4</code> <code>SAT</code> controls with <code>0</code> false positives.</li>
+<li><strong>Universal <code>&forall;n</code> Lean 4.36.0 Formalization + Mechanical Degree-2 Barrier (<code>14</code> Theorems, <code>0 sorryAx</code>):</strong> Proves <code>red</code> witness soundness and RUP preservation for Veronese products, polarity-scrambling invariance of <code>RM(2, n)</code>, universal <code>&forall;n</code> vanishing of <code>MAJ<sub>3</sub></code> over arbitrary <strong>F</strong><sub>2</sub>-simplicial 2-cycles (<code>simplicial_2cycle_maj3_vanishes</code>), universal single-expander unsatisfiability (<code>homological_xor3_maj3_expander_unsat</code>), and the <strong>Degree-2 Barrier Theorem</strong> (<code>xor_maj5_no_deg2_annihilator</code>): across all <code>2<sup>22</sup> = 4,194,304</code> polynomials in <code>RM(2, 6)</code>, <code>0</code> non-zero degree-&le;2 polynomials vanish on Goldreich&rsquo;s <code>XOR-MAJ<sub>5</sub></code> gate.</li>
+</ol>
+<hr />
+<h2>1. Related Work &amp; Cook&ndash;Reckhow Positioning</h2>
+<ul>
+<li><strong>Goldreich&rsquo;s PRG, Algebraic Degree &amp; Linearization Thresholds:</strong> Goldreich [1] (<em>2000</em>), Alekhnovich [2] (<em>FOCS 2003 / TOC 2005</em>), Bogdanov and Qiao [3] (<em>RANDOM 2009</em>), and Applebaum, Barak, and Wigderson [4] (<em>STOC 2010</em>) showed that 5-local PRGs based on degree-2 predicates (<code>TSA</code> = <code>x<sub>1</sub> &oplus; x<sub>2</sub> &oplus; x<sub>3</sub> &oplus; x<sub>4</sub>x<sub>5</sub></code> or <code>XOR-MAJ<sub>3</sub></code>) resist DPLL/Resolution (<code>2<sup>&Omega;(n)</sup></code> lower bounds) and degree-1 <strong>F</strong><sub>2</sub> Gaussian elimination, while Schoenebeck [5] (<em>FOCS 2008</em>) proved linear-degree <code>&Omega;(n)</code> Lasserre / Sum-of-Squares lower bounds on random sparse XOR/CSP expanders.</li>
+<li><strong>Why Both CDCL and <code>CryptoMiniSat 5</code> Collapse at <code>|S| = 0</code>:</strong>
+<ul>
+<li>In <code>v0.2</code>, <code>CryptoMiniSat 5</code> solved standalone <code>Tseitin<sub>140</sub></code> in <code>1.85 s</code> and only collapsed when disjoined with <code>PHP</code> across a selector cut <em>S</em>.</li>
+<li>In single-expander <code>Goldreich_TSA</code> and <code>Homological_XOR3_MAJ3</code> (<code>|S| = 0</code>), <strong>every local block has empty degree-1 vanishing ideal</strong> (<code>I<sub>1</sub>(B<sub>v</sub>) = {0}</code>). Thus <code>CryptoMiniSat 5</code> extracts <strong>zero</strong> linear XOR clauses, while restricting quadratic/majority variables still leaves a 3-regular Tseitin expander requiring <code>2<sup>&Omega;(V)</sup></code> Resolution steps (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>).</li>
+</ul>
+</li>
+<li><strong><strong>F</strong><sub>2</sub>-Simplicial Homology Without Gate Collisions:</strong> Viewing <code>MAJ<sub>3</sub>(x<sub>a</sub>, x<sub>b</sub>, x<sub>c</sub>) = x<sub>a</sub>x<sub>b</sub> &oplus; x<sub>a</sub>x<sub>c</sub> &oplus; x<sub>b</sub>x<sub>c</sub> (mod 2)</code> as the 1-skeleton boundary <code>&part;{a, b, c} &isin; &Lambda;<sup>2</sup>([n])</code>, any closed 2-cycle <em>C</em> of triangles (<code>&part;C = 0 (mod 2)</code>, e.g. disjoint <em>K</em><sub>4</sub> boundaries) satisfies <code>&oplus;<sub>T &isin; C</sub> MAJ<sub>3</sub>(T) &equiv; 0 (mod 2)</code> with <strong>zero repeated 3-tuples</strong>, defeating syntactic gate-congruence closure (Biere et al. [6], <em>SAT 2024</em>) while remaining polynomially refutable in <code>VeriPB 3.0</code> [7, 8] via shared Veronese witnesses.</li>
+</ul>
+<hr />
+<h2>2. Blind Degree-2 Veronese <code>VeriPB 3.0</code> Calculus (<code>veripb_veronese_prg.py</code>)</h2>
+<pre><code class="language-text">Input: Variable-permuted, polarity-scrambled, clause-shuffled 3-CNF (n_vars, m clauses)
+1. Logged (1,1)-chain unrolling (`_unroll_11_chains_logged`):
+     Eliminates Tseitin 3-CNF splitting chains via `pol id_p id_n + [s] ;`.
+2. Optional primal cut discovery (`discover_primal_vertex_cut`, |S| &lt;= 6):
+     - Single-expander PRGs yield S = None (|S| = 0, single fiber ()).
+     - Hybrid formulas (e.g. PHP OR_S Homological_XOR3_MAJ3) split into 2^|S| fibers.
+3. Per-fiber degree-&lt;=2 Veronese extraction (`_extract_veronese_rm2_records`):
+     For each unrolled block supp = (v_1, ..., v_k) (1 &lt;= k &lt;= 7) with &gt;= 2^{k-1} clauses:
+       - Compute exact O(k * 2^k) F_2 Mobius / ANF transform (or RM(2, k) vanishing ideal).
+       - Reject blocks of algebraic degree &gt;= 3 with empty RM(2, k) ideal (e.g. XOR-MAJ_5).
+       - Emit record: L_i(x) ^ Q_i(x) == c_0^(i) (mod 2) in Veronese coordinates RM(2, n).
+4. Sparse GF(2) RREF in RM(2, n) with minimal core tracking:
+     Eliminate over coordinates {(u,)} U {(u, w) : u &lt; w}; extract minimal inconsistent E*.
+5. Lazy VeriPB 3.0 (`pol` + `red`, ZERO `rup`) realization on E*:
+     a) Shared Veronese product witnesses p_{u,w} &lt;-&gt; (x_u &amp; x_w) ONLY for (u,w) in U_{i in E*} Q_i:
+          and_11: red 1 ~x_u 1 ~x_w 1 x_p &gt;= 1 : x_p -&gt; 1 ;
+          and_0x: red 1 x_u 1 ~x_p &gt;= 1 : x_p -&gt; 0 ;
+          and_x0: red 1 x_w 1 ~x_p &gt;= 1 : x_p -&gt; 0 ;
+     b) Fold linearized block parity z_1 ^ ... ^ z_r == c_0^(i) via (r - 2) unconditional 3-XOR
+        `red` steps (`_realize_parity3_bounds`), reducing the block residual to two B = 1 clauses
+        on (s_{r-2}, z_r), derived over the 2^k-cube on `supp` via exact clause halving (`2 d`).
+     c) Even-multiplicity Gocht-Nordstrom CG halving (`sum_and_halve`):
+        Cancels all x_u, all shared p_{u,w}, all folding s_{i,t}, and all MAJ_3 witnesses w_e
+        for arbitrary even multiplicities 2*M_z in Z, deriving G &gt;= 1 (or 0 &gt;= 1 at |S| = 0).
+Output: Complete `.pbp` certificate verified by `veripb 3.0.2 --cnf`.
+</code></pre>
+<hr />
+<h2>3. Universal <code>&forall;n</code> Formalization in Lean 4.36.0 (<code>proofs/veronese_prg_soundness.lean</code>)</h2>
+<p>Verified in <code>8.49 s</code> with standalone <code>Lean 4.36.0</code> (zero Mathlib imports, <code>0</code> warnings, <code>0 sorryAx</code>, kernel axioms only across all 14 <code>#print axioms</code>-audited theorems):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Lean 4.36.0 Verified Theorems</th>
+<th style="text-align: left;">Mathematical Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Group 1</strong></td>
+<td style="text-align: left;"><code>veronese_and_red_11_witness</code>, <code>veronese_and_red_0x_sound</code>, <code>veronese_and_red_x0_sound</code>, <code>veronese_and_clauses_characterize_prod</code></td>
+<td style="text-align: left;"><code>VeriPB 3.0</code> <code>red</code> witness validity, RUP preservation of prior <code>and_*</code> clauses, and exact <code>p = u &and; w</code> (<code>b2n p = b2n u * b2n w</code>) equivalence</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group 2</strong></td>
+<td style="text-align: left;"><code>maj3_anf_f2_exact</code>, <code>and_polarity_scramble_invariance</code>, <code>maj3_polarity_scramble_boundary_invariance</code></td>
+<td style="text-align: left;">Exact <strong>F</strong><sub>2</sub> quadratic boundary of <code>MAJ<sub>3</sub></code> and invariance of <code>RM(2, n)</code> quadratic supports under arbitrary literal polarity flips</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group 3</strong></td>
+<td style="text-align: left;"><code>k4_tetrahedron_maj3_boundary_zero</code>, <code>simplicial_2cycle_maj3_vanishes</code></td>
+<td style="text-align: left;"><em>K</em><sub>4</sub> 4-face identity (<code>0</code> axioms) and universal inductive <code>&forall;n, &forall;x, &forall;tris</code> vanishing <code>&part;C = 0 &rArr; &oplus; MAJ<sub>3</sub> = 0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group 4</strong></td>
+<td style="text-align: left;"><code>homological_xor3_maj3_expander_unsat</code></td>
+<td style="text-align: left;">Universal <code>&forall;V, n</code> unsatisfiability of single-expander Homological <code>XOR<sub>3</sub>-MAJ<sub>3</sub></code> under odd global vertex charge</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group 5</strong></td>
+<td style="text-align: left;"><code>clause_cube_halving_exact</code>, <code>xor_chain_fold_sound</code>, <code>veronese_even_multiplicity_cg_unsat</code></td>
+<td style="text-align: left;">Zero-slack <code>B = 1</code> cube halving, inductive <code>&forall;zs</code> XOR-chain folding, and arbitrary-multiplicity <code>Int</code> CG halving cancellation</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group 6</strong></td>
+<td style="text-align: left;"><code>xor_maj5_no_deg2_annihilator</code></td>
+<td style="text-align: left;"><strong>Mechanical Degree-2 Barrier:</strong> across all <code>2<sup>22</sup> = 4,194,304</code> polynomials in <code>RM(2, 6)</code> and both polarities, only <code>0</code> vanishes on <code>y &oplus; MAJ<sub>5</sub>(x<sub>1</sub>..x<sub>5</sub>) = rhs</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Experimental Evaluation (60s 4-Solver Wall-Clock Suite)</h2>
+<p>Executed on a 4-core Linux machine (<code>Python 3.12</code>, <code>veripb 3.0.2</code>, <code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>, <code>CryptoMiniSat 5</code>). Every instance is randomly scrambled in variable IDs, literal polarities, literal order, and clause order prior to solving (<code>results/veronese_prg_benchmark_results.json</code>).</p>
+<h3>Table 1: Single-Expander PRG Scaling (<code>|S| = 0</code>) &amp; Hybrid Disjunctive Interpolants (<code>|S| &isin; {2, 3}</code>, 60s Limit)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instance</th>
+<th style="text-align: center;">Vars / Clauses</th>
+<th style="text-align: center;"><code>|S|</code></th>
+<th style="text-align: center;"><code>.pbp</code> Lines (<code>w</code>)</th>
+<th style="text-align: center;">Ours (<code>Emit + veripb = Total</code>)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V28</code></td>
+<td style="text-align: center;"><code>938 / 1,344</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>6,158</code> (<code>178</code>)</td>
+<td style="text-align: center;"><strong><code>138.13 ms</code></strong> (<code>103.15 + 34.98</code>)</td>
+<td style="text-align: center;"><code>712.66 ms</code></td>
+<td style="text-align: center;"><code>447.07 ms</code></td>
+<td style="text-align: center;"><code>972.31 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V36</code></td>
+<td style="text-align: center;"><code>1,206 / 1,728</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>7,982</code> (<code>234</code>)</td>
+<td style="text-align: center;"><strong><code>301.57 ms</code></strong> (<code>210.35 + 91.22</code>)</td>
+<td style="text-align: center;"><code>5,184.87 ms</code></td>
+<td style="text-align: center;"><code>4,588.67 ms</code></td>
+<td style="text-align: center;"><code>9,067.69 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V48</code></td>
+<td style="text-align: center;"><code>1,608 / 2,304</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>10,276</code> (<code>284</code>)</td>
+<td style="text-align: center;"><strong><code>465.90 ms</code></strong> (<code>336.26 + 129.64</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V64</code></td>
+<td style="text-align: center;"><code>2,144 / 3,072</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>14,132</code> (<code>412</code>)</td>
+<td style="text-align: center;"><strong><code>319.07 ms</code></strong> (<code>240.37 + 78.70</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V96</code></td>
+<td style="text-align: center;"><code>3,216 / 4,608</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>21,220</code> (<code>620</code>)</td>
+<td style="text-align: center;"><strong><code>1,660.17 ms</code></strong> (<code>1,049.55 + 610.62</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V28</code></td>
+<td style="text-align: center;"><code>938 / 1,344</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>8,490</code> (<code>310</code>)</td>
+<td style="text-align: center;"><strong><code>234.00 ms</code></strong> (<code>157.03 + 76.97</code>)</td>
+<td style="text-align: center;"><code>1,289.80 ms</code></td>
+<td style="text-align: center;"><code>683.03 ms</code></td>
+<td style="text-align: center;"><code>1,700.38 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V36</code></td>
+<td style="text-align: center;"><code>1,206 / 1,728</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>10,594</code> (<code>374</code>)</td>
+<td style="text-align: center;"><strong><code>552.48 ms</code></strong> (<code>415.96 + 136.52</code>)</td>
+<td style="text-align: center;"><code>15,133.87 ms</code></td>
+<td style="text-align: center;"><code>13,874.77 ms</code></td>
+<td style="text-align: center;"><code>22,104.03 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V52</code></td>
+<td style="text-align: center;"><code>1,742 / 2,496</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>15,634</code> (<code>566</code>)</td>
+<td style="text-align: center;"><strong><code>457.94 ms</code></strong> (<code>314.96 + 142.98</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V80</code></td>
+<td style="text-align: center;"><code>2,680 / 3,840</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>23,752</code> (<code>848</code>)</td>
+<td style="text-align: center;"><strong><code>1,611.74 ms</code></strong> (<code>1,210.20 + 401.54</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_6Local_V44</code></td>
+<td style="text-align: center;"><code>4,290 / 5,632</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>27,094</code> (<code>546</code>)</td>
+<td style="text-align: center;"><strong><code>1,674.62 ms</code></strong> (<code>1,238.34 + 436.28</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR2_Homological_XOR3_MAJ3_V44</code></td>
+<td style="text-align: center;"><code>12,036 / 16,224</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>36,976</code> (<code>940</code>)</td>
+<td style="text-align: center;"><strong><code>2,405.68 ms</code></strong> (<code>1,976.38 + 429.30</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR3_Homological_XOR3_MAJ3_V40</code></td>
+<td style="text-align: center;"><code>31,715 / 41,160</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>77,868</code> (<code>1,648</code>)</td>
+<td style="text-align: center;"><strong><code>9,438.63 ms</code></strong> (<code>8,000.66 + 1,437.97</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 2: <code>v0.2</code> vs <code>v0.3</code> Engine Ablation &amp; Degree-3/4 Frontier Controls</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instance</th>
+<th style="text-align: center;">Vars / Clauses</th>
+<th style="text-align: center;"><code>v0.2</code> (<code>veripb_interpolant</code>)</th>
+<th style="text-align: center;"><code>v0.3</code> (<code>veripb_veronese_prg</code>)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Ablation_v02_vs_v03_Homological_XOR3_MAJ3_V44</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>Rejected</code> (<code>185.40 ms</code>)</td>
+<td style="text-align: center;"><strong><code>VERIFIED UNSAT</code> (<code>389.27 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Barrier_Cubic_XOR3_AND3_6Local_V36</code> <em>(deg 3)</em></td>
+<td style="text-align: center;"><code>3,510 / 4,608</code></td>
+<td style="text-align: center;"><code>Rejected</code> (<code>214.49 ms</code>)</td>
+<td style="text-align: center;"><code>Rejected: outside RM(2, n)</code> (<code>1,204.93 ms</code>)</td>
+<td style="text-align: center;"><code>12,449.85 ms</code></td>
+<td style="text-align: center;"><code>10,763.87 ms</code></td>
+<td style="text-align: center;"><code>19,532.79 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Barrier_Goldreich_XOR3_MAJ5_7Local_V36</code> <em>(deg 4)</em></td>
+<td style="text-align: center;"><code>9,270 / 11,520</code></td>
+<td style="text-align: center;"><code>Rejected</code> (<code>777.72 ms</code>)</td>
+<td style="text-align: center;"><code>Rejected: outside RM(2, n)</code> (<code>2,329.90 ms</code>)</td>
+<td style="text-align: center;"><code>7,942.65 ms</code></td>
+<td style="text-align: center;"><code>4,344.13 ms</code></td>
+<td style="text-align: center;"><code>17,666.45 ms</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 3: SAT Soundness Controls (<code>4/4</code> Rejected, 0 False Positives)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instance</th>
+<th style="text-align: center;">Vars / Clauses</th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>v0.3</code> (<code>veripb_veronese_prg</code>)</th>
+<th style="text-align: left;">Diagnostic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SAT_Goldreich_TSA_5Local_V44_even</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>160.03 ms</code>)</td>
+<td style="text-align: center;"><strong>Rejected</strong> (<code>100.77 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_Homological_XOR3_MAJ3_5Local_V44_even</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>148.16 ms</code>)</td>
+<td style="text-align: center;"><strong>Rejected</strong> (<code>98.85 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_Homological_XOR3_MAJ3_6Local_V36_even</code></td>
+<td style="text-align: center;"><code>3,510 / 4,608</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>167.05 ms</code>)</td>
+<td style="text-align: center;"><strong>Rejected</strong> (<code>293.24 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_PHP10_10_OR2_Homological_XOR3_MAJ3_V36</code></td>
+<td style="text-align: center;"><code>9,510 / 12,648</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>265.31 ms</code>)</td>
+<td style="text-align: center;"><strong>Rejected</strong> (<code>993.23 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber (0, 1) on separator S=[6561, 8257] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>5. Honest Limitations &amp; Delimited Frontier for <code>v0.4</code></h2>
+<ol>
+<li><strong>Higher-Degree Algebraic Barriers (<code>deg &ge; 3</code>: <code>Cubic XOR<sub>3</sub>-AND<sub>3</sub></code> &amp; <code>Goldreich XOR<sub>3</sub>-MAJ<sub>5</sub></code>):</strong> As proved mechanically in <code>xor_maj5_no_deg2_annihilator</code> and measured in Table 2, predicates whose local vanishing ideal has trivial intersection with <code>RM(2, k)</code> (<code>nullity == 0</code>) yield zero equations in degree-2 Veronese space. Extending certification to <code>XOR<sub>3</sub>-AND<sub>3</sub></code> and <code>XOR<sub>3</sub>-MAJ<sub>5</sub></code> requires higher-order Veronese lifts <code>RM(d, n)</code> (<code>d &isin; {3, 4}</code>) or sparse Macaulay syzygy cascades, paying <em>O</em>(<em>n<sup>d</sup></em>) coordinates unless bounded by hypergraph locality.</li>
+<li><strong>Sub-Quadratic Random PRGs Without Homological 2-Cycles (<code>m &ll; C(n, 2)</code>, <code>&part;C &ne; 0</code>):</strong> When <code>m &lt; n + n(n &minus; 1)/2</code> random 5-tuples lack a closed <strong>F</strong><sub>2</sub>-simplicial 2-cycle in <code>&Lambda;<sup>2</sup>([n])</code>, the linearized <code>RM(2, n)</code> system has fewer rows than columns and is rank-deficient, matching Schoenebeck&rsquo;s <code>&Omega;(n)</code>-degree SoS lower bound [5].</li>
+<li><strong>External SAT Competition Benchmarks &amp; Rust Port (<code>v0.4</code>):</strong> All <code>v0.1&ndash;v0.3</code> families remain synthetic scrambled 3-CNFs; porting the proof logger to Rust and evaluating coverage on industrial / SAT Competition UNSAT benchmarks is the next engineering milestone.</li>
+</ol>
+<hr />
+<h2>6. Reproducibility Commands</h2>
+<pre><code class="language-bash"># 1. Verify the universal &forall;n Lean 4.36.0 Veronese &amp; Homological PRG suite (14 theorems, 0 sorryAx)
+lean proofs/veronese_prg_soundness.lean
+
+# 2. Emit &amp; verify VeriPB 3.0.2 proofs on scrambled TSA, Homological XOR3-MAJ3 &amp; hybrid instances
+uv run --with-editable . cap-veronese
+
+# 3. Run the full 60s 4-solver benchmark suite (scaling + v0.2/v0.3 &amp; deg-3/4 barriers + SAT controls)
+uv run --with-editable '.[benchmarks]' cap-bench-veronese --timeout 60
+
+# 4. Full v0.1 + v0.2 + v0.3 verification pipeline
+./scripts/reproduce.sh --timeout 300
+</code></pre>
+<hr />
+<h2>References</h2>
+<ol>
+<li>Oded Goldreich. <em>Candidate One-Way Functions Based on Expander Graphs</em>. ECCC TR00-090, 2000.</li>
+<li>Michael Alekhnovich. <em>More on Average Case vs Approximation Complexity</em>. FOCS 2003 / Theory of Computing 1(1):1&ndash;23, 2005.</li>
+<li>Andrej Bogdanov and Youming Qiao. <em>On the Security of Goldreich&rsquo;s One-Way Function</em>. RANDOM 2009, LNCS 5687, pp. 392&ndash;405.</li>
+<li>Benny Applebaum, Boaz Barak, and Avi Wigderson. <em>Public-Key Cryptography from Different Assumptions</em>. STOC 2010, pp. 171&ndash;180.</li>
+<li>Grant Schoenebeck. <em>Linear Level Lasserre Lower Bounds for Certain k-CSPs</em>. FOCS 2008, pp. 593&ndash;602.</li>
+<li>Armin Biere, Katalin Fazekas, Mathias Fleury, and Nils Froleyks. <em>Clausal Congruence Closure</em>. SAT 2024, LIPIcs Vol. 305, pp. 6:1&ndash;6:25.</li>
+<li>Stephan Gocht and Jakob Nordstr&ouml;m. <em>Certifying Parity Reasoning Efficiently Using Pseudo-Boolean Proofs</em>. AAAI 2021, Vol. 35(5), pp. 3768&ndash;3777.</li>
+<li>Bart Bogaerts, Stephan Gocht, Ciaran McCreesh, and Jakob Nordstr&ouml;m. <em>Certified Dominance and Symmetry Breaking for Combinatorial Optimisation</em> (<code>VeriPB 3.0</code>). JAIR, 2023.</li>
+<li>Stefan Szeider. <em>PBLean / pb-catcher: Formally Verified Pseudo-Boolean Proof Checking in Lean</em>. <code>arXiv:2602.08692</code>, 2026.</li>
+</ol>

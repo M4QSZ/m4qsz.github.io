@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import paperHtml from '../../../data/disjunctiveInterpolantPaper.html?raw';
+---
+<Base
+  lang="en"
+  title="Blind VeriPB 3.0 Certification for Disjunctive Interpolants (PHP ∨ Tseitin) | Miguel Quevedo"
+  description="Technical Note v0.2: blind primal vertex-cut decomposition, guarded Chvátal-Gomory clique cutting planes, and Gocht-Nordström parity logging in VeriPB 3.0 for scrambled 3-CNF; universal ∀n Lean 4.36.0 theorems (0 sorryAx) and 13/13 veripb 3.0.2 proofs vs Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5."
+  pageLabel="Paper · Certified Disjunctive Interpolants"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Blind VeriPB 3.0 Certification for Disjunctive Interpolants (PHP ∨ Tseitin)</h1>
+      <p class="detail-lede">Technical Note / Preprint Draft v0.2 — not peer-reviewed. Every certificate and wall-clock figure below is produced by reproducible runs verified with Lean 4.36.0 and veripb 3.0.2.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.2)</strong></div>
+      <div><span>Verification</span><strong>Lean 4.36.0: universal ∀n suite (0 sorryAx) · veripb 3.0.2: 13/13 VERIFIED UNSATISFIABLE</strong></div>
+      <div><span>Status</span><strong>Research Prototype · Technical Note v0.2</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/certified-disjunctive-interpolants.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repository + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/TECHNICAL_NOTE_DISJUNCTIVE_INTERPOLANTS.md" target="_blank" rel="noopener noreferrer">Markdown source ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>

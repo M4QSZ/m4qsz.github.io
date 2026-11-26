@@ -27,8 +27,8 @@ import { publicCrates } from '../../data/profile';
     </div>
 
     <div class="lab-section-head">
-      <h2>Research &amp; Papers (12 technical reports · all with PDF)</h2>
-      <span>Bilingual technical reports from Cockpit v2.2 and Meson with verified architecture, real test suites, SQL migrations, and downloadable PDFs</span>
+      <h2>Research &amp; Papers (14 technical reports · all with PDF)</h2>
+      <span>Bilingual technical reports from Cockpit v2.2, Meson, and certified SAT solving with verified architecture, real test suites, SQL migrations, and downloadable PDFs</span>
     </div>
     <div class="lab-grid">
       <article>
@@ -165,6 +165,30 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </article>
+      <article>
+        <span class="lab-card-label">Paper 13 · Technical Note v0.2 (not peer-reviewed) · Nov 2026</span>
+        <h2>Blind VeriPB 3.0 Certification for Disjunctive Interpolants (PHP ∨ Tseitin)</h2>
+        <p>Blind primal vertex-cut decomposition, guarded Chvátal-Gomory clique induction, and Gocht-Nordström parity logging (<code>MAJ₃</code> <code>red</code>) on scrambled 3-CNF: universal <code>∀n</code> Lean 4.36.0 soundness (17 declarations, <code>0 sorryAx</code>), <code>13/13</code> proofs verified by <code>veripb 3.0.2</code> (up to <code>29,664</code> clauses in <code>3.09 s</code> where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out at 60 s), and <code>4/4</code> SAT controls rejected.</p>
+        <p class="lab-stack-line">Python · VeriPB 3.0.2 · Lean 4.36.0 (∀n) · Kissat 4.0.4 · CaDiCaL 1.9.5 · CryptoMiniSat 5</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/certified-disjunctive-interpolants/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/certified-disjunctive-interpolants/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/certified-disjunctive-interpolants.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </article>
+      <article>
+        <span class="lab-card-label">Paper 14 · Technical Note v0.3 (not peer-reviewed) · Nov 2026</span>
+        <h2>Blind Degree-2 Veronese &amp; F₂-Homological VeriPB 3.0 Certification for Goldreich PRGs</h2>
+        <p>Blind degree-2 Veronese <code>RM(2, n)</code> &amp; <code>F₂</code>-simplicial homology calculus (<code>K₄</code> 2-cycles with <code>∂² = 0</code> and zero gate collisions) for cut-free single-expander Goldreich PRGs (<code>TSA</code> &amp; <code>XOR₃-MAJ₃</code>, <code>|S| = 0</code>) and hybrids (up to <code>41,160</code> clauses): 14 Lean 4.36.0 theorems (<code>0 sorryAx</code>, including the mechanical <code>RM(2, 6)</code> barrier on <code>XOR-MAJ₅</code>), <code>13/13</code> <code>veripb 3.0.2</code> proofs where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out at 60 s from <code>V ≥ 48</code>, and <code>4/4</code> SAT controls rejected.</p>
+        <p class="lab-stack-line">Python · VeriPB 3.0.2 · RM(2, n) · Lean 4.36.0 (14 theorems) · Kissat 4.0.4 · CaDiCaL 1.9.5 · CryptoMiniSat 5</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/certified-veronese-homological-prg/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/certified-veronese-homological-prg/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/certified-veronese-homological-prg.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </article>
     </div>
 
     <div class="lab-grid" style="margin-top:24px;">
@@ -185,6 +209,6 @@ import { publicCrates } from '../../data/profile';
         </article>
       ))}
     </div>
-    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 12 technical reports with PDFs: systems architecture (multi-CLI and multi-device orchestration, local-first sync, a production NoSQL → SQL migration, multi-tenant ERP) and a SAT research prototype with verified VeriPB proofs and 30 Lean 4 theorems (0 axioms), with limitations documented.</p></div>
+    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 14 technical reports with PDFs: systems architecture (multi-CLI and multi-device orchestration, local-first sync, a production NoSQL → SQL migration, multi-tenant ERP) and three SAT research notes with verified VeriPB 3.0.2 proofs and 61 Lean 4 theorems (30 + 17 + 14 declarations, 0 sorryAx), with limitations documented.</p></div>
   </main>
 </Base>

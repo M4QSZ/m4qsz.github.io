@@ -1,0 +1,354 @@
+<blockquote>
+<p><strong>Estado:</strong> Prototipo de investigación y Nota Técnica (v0.2). Sin revisión por pares; cada certificado y métrica de tiempo ha sido verificado mecánicamente con <code>Lean 4.36.0</code> y <code>veripb 3.0.2</code>.</p>
+</blockquote>
+<hr />
+<h2>Resumen</h2>
+<p>Las fórmulas disyuntivas con eliminación de cables de la forma <code>PHP<sub>p</sub><sup>h</sup> &or;<sub>S</sub> Tseitin<sub>G</sub></code> —donde un separador pequeño <em>S</em> conmuta entre un núcleo del Principio del Palomar y un núcleo de paridad de Tseitin sobre grafos 3-regulares, aplanado en 3-CNF anónima con variables y polaridades permutadas— derrotan simultáneamente a los solvers CDCL modernos y a los solvers CDCL+XOR. El CDCL puro (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>) sufre cotas inferiores exponenciales de Resolución tanto en <code>PHP</code> como en <code>Tseitin</code>, mientras que CDCL+XOR (<code>CryptoMiniSat 5</code>) queda cegado por las cadenas <code>(1, 1)</code> de eliminación de cables y colapsa en la rama <code>PHP</code>.</p>
+<p>Esta nota técnica documenta la versión <code>v0.2.0</code> de <code>certified-arith-preproc</code>, presentando un cálculo ciego emisor de pruebas <code>VeriPB 3.0</code> (<code>veripb_interpolant.py</code>) junto con su formalización universal <code>&forall;n</code> en <code>Lean 4.36.0</code> (<code>proofs/disjunctive_interpolant_soundness.lean</code>):</p>
+<ol>
+<li><strong>Certificación extremo a extremo en <code>VeriPB 3.0.2</code>:</strong> logra <code>13/13</code> certificados <code>s VERIFIED UNSATISFIABLE</code> para <code>|S| &isin; {0, 2, 3}</code> (11 instancias disyuntivas escaladas/multiselector y 2 ablaciones puras <code>|S| = 0</code>), escalando hasta <code>16,656</code> variables y <code>29,664</code> cláusulas (<code>PHP24_23_OR2_Tseitin52</code>) en <code>3,089.92 ms</code> totales (<code>2,972.84 ms</code> de emisión en Python + <code>117.08 ms</code> de verificación en <code>veripb 3.0.2</code>) donde <code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code> y <code>CryptoMiniSat 5</code> agotan <code>60 s</code>.</li>
+<li><strong>Cero falsos positivos en controles SAT:</strong> rechaza limpiamente <code>4/4</code> instancias satisfacibles de control (verificadas <code>SAT</code> por <code>CaDiCaL 1.9.5</code>).</li>
+<li><strong>Solidez universal <code>&forall;n</code> en Lean 4.36.0:</strong> verifica mecánicamente 17 declaraciones en 7 grupos de teoremas inductivos con <code>0 sorryAx</code> y únicamente axiomas del núcleo de Lean, cerrando la Limitación #4 de la Nota Técnica v0.1 para el cálculo disyuntivo.</li>
+</ol>
+<hr />
+<h2>1. Trabajo relacionado y posicionamiento en complejidad de pruebas</h2>
+<ul>
+<li><strong>Interpolación factible y separaciones en Cutting Planes:</strong> Pudlák [1] (<em>JSL 1997</em>) y Krajíček [2] (<em>JSL 1997</em>) establecieron la interpolación factible para Resolución y Planos de Corte, mientras que Hrubeš y Pudlák [3] (<em>FOCS 2017</em>) y Garg, Göös, Kamath y Sokolov [4] (<em>STOC 2018</em>) demostraron cotas inferiores exponenciales para circuitos e interpolantes monótonos cuando guardas no monótonas de paridad acoplan subfórmulas ortogonales.</li>
+<li><strong>Por qué colapsan tanto CDCL como CDCL+XOR en <code>PHP<sub>p</sub><sup>h</sup> &or;<sub>S</sub> Tseitin<sub>G</sub></code>:</strong>
+<ul>
+<li><em>Clausal Congruence &amp; Resolución (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>):</em> Biere et al. [5] (<em>SAT 2024</em>) fusionan compuertas equivalentes desde CNF, pero <code>PHP</code> y <code>Tseitin</code> no comparten compuertas congruentes y ambas requieren refutaciones exponenciales en Resolución.</li>
+<li><em>Gauss-Jordan XOR (<code>CryptoMiniSat 5</code>):</em> aunque <code>CryptoMiniSat 5</code> resuelve <code>Tseitin<sub>140</sub></code> puro sobre grafos expansores 3-regulares en <code>1,854.25 ms</code> sobre <strong>F</strong><sub>2</sub>, colapsa al disyuntarlo con <code>PHP</code>: el corte de cables <code>(1, 1)</code> oculta los soportes XOR tras variables auxiliares y las fibras <code>PHP</code> carecen de estructura lineal módulo 2.</li>
+</ul>
+</li>
+<li><strong>Certificación pseudo-booleana y de paridad:</strong> Gocht y Nordström [6] (<em>AAAI 2021</em>) introdujeron pruebas compactas de paridad en <code>VeriPB</code> mediante testigos de extensión, generalizadas en <code>VeriPB 3.0</code> por Bogaerts et al. [7] (<em>JAIR 2023</em>), y Szeider [8] (<em>PBLean / pb-catcher, 2026</em>) formalizó la verificación PB en Lean 4. Nuestro motor descubre a ciegas el separador primal, los cliques de cardinalidad y el sistema XOR desde 3-CNF permutada y emite un único certificado <code>VeriPB 3.0</code> de tamaño polinomial.</li>
+</ul>
+<hr />
+<h2>2. Cálculo Disyuntivo Ciego en <code>VeriPB 3.0</code> (<code>veripb_interpolant.py</code>)</h2>
+<pre><code class="language-text">Entrada: 3-CNF DIMACS anónima y permutada (n_vars, m cláusulas)
+1. Desenrollado global registrado de cadenas (1,1) (`_unroll_11_chains_logged`):
+     Cancela iterativamente variables auxiliares de ocurrencia (1,1) mediante
+     `pol id_p id_n + ;` (disjuntas) o `pol id_p id_n + s ;` (con saturación).
+2. Descubrimiento de corte primal anclado por palomar (`discover_primal_vertex_cut`):
+     Entre los primeros (max_cut + 1) vértices de menor grado en G_primal, al menos
+     un ancla u queda fuera de S (|S| &lt;= max_cut). Evalúa S_cand = N(u) &cap; N(v)
+     para v fuera de N(u) mediante BFS rápido en tiempo O(|V| * deg).
+3. Certificación por fibra para cada b en {0, 1}^|S| (guarda G = sum_{t in S} l_t(b)):
+     a) Proyectar cláusulas activas en la fibra b y ejecutar desenrollado (1,1)
+        local protegiendo las variables del corte S.
+     b) Inducción Chvátal-Gomory guardada de cliques + PHP (`_try_certify_guarded_php`):
+        Para cada clique Q_j (|Q_j| = m_q), derivar inductivamente para m = 2..m_q-1:
+          I_{m+1} := ceil( ((m - 1) * I_m + sum_{i=0}^{m-1} M_{i,m}) / m )
+                  -&gt; m*G + sum_{i=0}^{m} ~q_i &gt;= m   (`pol ... m d ;`)
+        Sumar p cláusulas ALO + h desigualdades AMO y dividir por c_guard (`c_guard d`)
+        para derivar G &gt;= 1 (con 0 variables de extensión).
+     c) Paridad guardada con testigo `red` MAJ_3 (`_try_certify_guarded_parity`):
+        Ejecutar RREF dispersa en GF(2) con máscaras de combinación; emitir testigos
+        SOLO para el subconjunto inconsistente minimal E*:
+          R_1: y1 + y2 + y3 + 2*~w &gt;= 2 : x_w -&gt; 0 ;
+          R_2: ~y1 + ~y2 + ~y3 + 2*w &gt;= 2 : x_w -&gt; 1 ;
+          L_i := ceil((R_2 + K_i) / 2),  U^- := ceil((2*(L_1+L_2+L_3) + K_4) / 3)
+        Dividir sum(U^+) y sum(U^-) entre 2 (`2 d`), sumar para cancelar x_v y w_e,
+        y dividir por tot_m para obtener G &gt;= 1.
+4. Reensamblaje del cubo booleano (`collapse_cube`):
+     Combinar fibras opuestas en 2^|S| - 1 pasos `pol id0 id1 + 2 d ;` -&gt; `0 &gt;= 1`.
+Salida: Certificado `.pbp` completo verificado por `veripb 3.0.2 --cnf`.
+</code></pre>
+<h3>2.1 Identidades algebraicas exactas del emisor</h3>
+<ul>
+<li><strong>Paso inductivo Chvátal–Gomory guardado:</strong> dados <code>(m &minus; 1)G + &Sigma;<sub>i=1</sub><sup>m</sup> x&#772;<sub>i</sub> &ge; m &minus; 1</code> y <em>m</em> cláusulas binarias guardadas <code>G + x&#772;<sub>i</sub> + x&#772;<sub>m+1</sub> &ge; 1</code>, la combinación <code>(m &minus; 1)I<sub>m</sub> + &Sigma;<sub>i=1</sub><sup>m</sup> M<sub>i,m+1</sub></code> asigna peso uniforme <em>m</em> a cada literal <code>x&#772;<sub>1</sub>, &hellip;, x&#772;<sub>m+1</sub></code> y peso <code>m<sup>2</sup> &minus; m + 1</code> a <em>G</em> y al lado derecho. Al dividir entre <em>m</em> se obtiene <code>&lceil;(m<sup>2</sup> &minus; m + 1)/m&rceil; = m</code> sin pérdida de holgura.</li>
+<li><strong>Identidad entera exacta de paridad vía <code>MAJ<sub>3</sub></code>:</strong> en las 8 asignaciones de <code>{0, 1}<sup>3</sup></code>, definiendo <code>w = MAJ<sub>3</sub>(y<sub>1</sub>, y<sub>2</sub>, y<sub>3</sub>)</code> se cumple de manera idéntica en <strong>Z</strong> que <code>y<sub>1</sub> + y<sub>2</sub> + y<sub>3</sub> &minus; 2w = y<sub>1</sub> &oplus; y<sub>2</sub> &oplus; y<sub>3</sub></code>. En forma normalizada de literales positivos, reescribir pesos pares negativos añade una constante par al lado derecho, conmutando exactamente con la división entera entre 2 (<code>&lceil;(B + 2K)/2&rceil; = &lceil;B/2&rceil; + K</code>).</li>
+</ul>
+<hr />
+<h2>3. Formalización Universal <code>&forall;n</code> en Lean 4.36.0 (<code>proofs/disjunctive_interpolant_soundness.lean</code>)</h2>
+<p>Cerrando la Limitación #4 de la Nota Técnica v0.1 para el cálculo disyuntivo, <code>proofs/disjunctive_interpolant_soundness.lean</code> verifica 17 declaraciones independientes agrupadas en 7 familias de teoremas universales en <code>1.46 s</code> con <code>Lean 4.36.0</code> (sin Mathlib, <code>0 sorryAx</code>):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Grupo</th>
+<th style="text-align: left;">Declaraciones verificadas en Lean 4</th>
+<th style="text-align: left;">Alcance matemático universal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Auxiliares</strong></td>
+<td style="text-align: left;"><code>b2n_not</code>, <code>b2n_add_not</code>, <code>b2n_le_one</code></td>
+<td style="text-align: left;">Aritmética exacta 0–1 de complemento en <code>Bool &rarr; Nat</code> (0 axiomas)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 1</strong></td>
+<td style="text-align: left;"><code>chain11_pb_cancel_sound</code>, <code>chain11_unroll_steps_sound</code></td>
+<td style="text-align: left;">Solidez inductiva del desenrollado <code>(1, 1)</code> para cualquier lista <code>vs : List Bool</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 2</strong></td>
+<td style="text-align: left;"><code>guarded_amo_cg_step_sound</code>, <code>cg_ceiling_div_id</code>, <code>guarded_amo_step_full</code></td>
+<td style="text-align: left;">Paso Chvátal–Gomory AMO guardado y <code>&lceil;(m<sup>2</sup> &minus; m + 1)/m&rceil; = m</code> para todo <code>m &ge; 1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 3</strong></td>
+<td style="text-align: left;"><code>guarded_php_unsat_derives_guard</code></td>
+<td style="text-align: left;">Derivación universal <code>&forall;p, h</code> (<code>h &lt; p</code>) de <code>G &ge; 1</code> para el Principio del Palomar guardado</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 4</strong></td>
+<td style="text-align: left;"><code>maj3_witness_exact_xor_z</code>, <code>parity3_red_witness_*</code>, <code>guarded_parity3_veripb_sound</code></td>
+<td style="text-align: left;">Identidad exacta <code>MAJ<sub>3</sub></code> (0 axiomas), validez de testigos <code>red</code> y cota <code>3G + y&#772;<sub>1</sub> + y&#772;<sub>2</sub> + y&#772;<sub>3</sub> + 2w &ge; 3</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 5</strong></td>
+<td style="text-align: left;"><code>even_coeff_cg_halving_cancel_sound</code></td>
+<td style="text-align: left;">División entera entre 2 de coeficientes pares y cancelación exacta en <code>Int</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 6</strong></td>
+<td style="text-align: left;"><code>tseitin_graph_handshaking_parity</code></td>
+<td style="text-align: left;">Invarianza inductiva de paridad en grafos arbitrarios <code>List (Nat &times; Nat &times; Bool)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Teorema 7</strong></td>
+<td style="text-align: left;"><code>cubeGuardSat_self</code>, <code>boolean_cube_halving_unsat</code></td>
+<td style="text-align: left;">Insatisfacibilidad universal <code>&forall;k : Nat</code> del reensamblaje del cubo sobre <code>Fin k &rarr; Bool</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Evaluación experimental (suite de 4 solvers a 60 s + referencia cruzada a 300 s)</h2>
+<p>Todos los experimentos se ejecutaron sin carga concurrente en una máquina Linux de 4 núcleos (<code>Python 3.12</code>, <code>veripb 3.0.2</code>, <code>Kissat 4.0.4</code> compilado con <code>-O3</code>, <code>CaDiCaL 1.9.5</code> vía <code>python-sat</code> y <code>CryptoMiniSat 5</code> vía <code>pycryptosat</code>). Todas las instancias se permutaron aleatoriamente en variables, signos y orden de cláusulas antes de resolverlas.</p>
+<h3>Tabla 1: Escalado e interpolantes multiselector (<code>|S| &isin; {2, 3}</code>, límite 60 s)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia permutada</th>
+<th style="text-align: center;">Vars / Cláusulas</th>
+<th style="text-align: center;"><code>|S|</code></th>
+<th style="text-align: center;">Líneas <code>.pbp</code> (<code>w</code>)</th>
+<th style="text-align: center;">Nuestro (Emit + <code>veripb</code> = Total)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>PHP07_06_OR2_Tseitin14</code></td>
+<td style="text-align: center;"><code>674 / 1,008</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>878 (28)</code></td>
+<td style="text-align: center;"><strong><code>32.77 ms</code></strong> <code>(24.4 + 8.4)</code></td>
+<td style="text-align: center;"><code>154.90 ms</code></td>
+<td style="text-align: center;"><code>179.33 ms</code></td>
+<td style="text-align: center;"><code>203.81 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP08_07_OR2_Tseitin16</code></td>
+<td style="text-align: center;"><code>922 / 1,408</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>1,168 (32)</code></td>
+<td style="text-align: center;"><strong><code>64.78 ms</code></strong> <code>(53.8 + 11.0)</code></td>
+<td style="text-align: center;"><code>263.35 ms</code></td>
+<td style="text-align: center;"><code>446.17 ms</code></td>
+<td style="text-align: center;"><code>240.74 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP10_09_OR2_Tseitin20</code></td>
+<td style="text-align: center;"><code>1,592 / 2,520</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>1,934 (40)</code></td>
+<td style="text-align: center;"><strong><code>138.35 ms</code></strong> <code>(114.8 + 23.6)</code></td>
+<td style="text-align: center;"><code>8,126.79 ms</code></td>
+<td style="text-align: center;"><code>8,649.59 ms</code></td>
+<td style="text-align: center;"><code>986.64 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP11_10_OR2_Tseitin22</code></td>
+<td style="text-align: center;"><code>2,026 / 3,256</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2,422 (44)</code></td>
+<td style="text-align: center;"><strong><code>195.54 ms</code></strong> <code>(162.6 + 33.0)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR2_Tseitin24</code></td>
+<td style="text-align: center;"><code>2,534 / 4,128</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2,988 (48)</code></td>
+<td style="text-align: center;"><strong><code>278.52 ms</code></strong> <code>(258.8 + 19.8)</code></td>
+<td style="text-align: center;"><code>10,608.28 ms</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP13_12_OR2_Tseitin28</code></td>
+<td style="text-align: center;"><code>3,157 / 5,196</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>3,694 (56)</code></td>
+<td style="text-align: center;"><strong><code>300.90 ms</code></strong> <code>(278.4 + 22.5)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP16_15_OR2_Tseitin36</code></td>
+<td style="text-align: center;"><code>5,496 / 9,312</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>6,264 (72)</code></td>
+<td style="text-align: center;"><strong><code>523.04 ms</code></strong> <code>(489.5 + 33.6)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP20_19_OR2_Tseitin44</code></td>
+<td style="text-align: center;"><code>10,052 / 17,536</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>11,156 (88)</code></td>
+<td style="text-align: center;"><strong><code>1,499.29 ms</code></strong> <code>(1,433.3 + 66.0)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP24_23_OR2_Tseitin52</code></td>
+<td style="text-align: center;"><code>16,656 / 29,664</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>18,160 (104)</code></td>
+<td style="text-align: center;"><strong><code>3,089.92 ms</code></strong> <code>(2,972.8 + 117.1)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR3_Expander30</code></td>
+<td style="text-align: center;"><code>8,820 / 12,360</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>10,124 (120)</code></td>
+<td style="text-align: center;"><strong><code>727.43 ms</code></strong> <code>(665.5 + 61.9)</code></td>
+<td style="text-align: center;"><code>35,968.12 ms</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP14_13_OR3_Expander36</code></td>
+<td style="text-align: center;"><code>13,419 / 18,964</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>15,124 (144)</code></td>
+<td style="text-align: center;"><strong><code>1,353.55 ms</code></strong> <code>(1,252.8 + 100.8)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Referencia cruzada a 300 s (Nota Técnica v0.1):</em> En <code>PHP13_12_OR2_Tseitin28</code> (<code>3,157</code> vars / <code>5,196</code> cláusulas), <code>Kissat 4.0.4</code> tardó <code>209,745.2 ms</code> y <code>CryptoMiniSat 5</code> agotó <code>300 s</code>. Nuestro pipeline especializado resuelve, emite y verifica el certificado <code>VeriPB 3.0.2</code> completo en <code>300.90 ms</code> (<code>697&times;</code> más rápido de extremo a extremo que <code>Kissat 4.0.4</code> sin prueba).</p>
+<h3>Tabla 2: Ablación ortogonal independiente (<code>|S| = 0</code>)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia pura permutada</th>
+<th style="text-align: center;">Vars / Cláusulas</th>
+<th style="text-align: center;"><code>|S|</code></th>
+<th style="text-align: center;">Líneas <code>.pbp</code> (<code>w</code>)</th>
+<th style="text-align: center;">Nuestro (Emit + <code>veripb</code> = Total)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Standalone_PHP14_13_Scrambled</code></td>
+<td style="text-align: center;"><code>322 / 1,337</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>302 (0)</code></td>
+<td style="text-align: center;"><strong><code>740.52 ms</code></strong> <code>(734.0 + 6.5)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Standalone_Tseitin140_Expander_Scrambled</code></td>
+<td style="text-align: center;"><code>210 / 560</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>848 (140)</code></td>
+<td style="text-align: center;"><strong><code>34.50 ms</code></strong> <code>(25.7 + 8.8)</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>UNSAT (1,854.25 ms)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>La Tabla 2 aísla empíricamente la obstrucción dual: <code>CryptoMiniSat 5</code> resuelve <code>Tseitin<sub>140</sub></code> puro en <code>1.85 s</code> gracias a Gauss-Jordan sobre XOR mientras el CDCL puro agota el tiempo, pero en <code>PHP<sub>14</sub><sup>13</sup></code> los tres solvers expiran. Al disyuntarlos con cables eliminados colapsan ambos paradigmas, mientras <code>VeriPB 3.0</code> mantiene pruebas polinomiales.</p>
+<h3>Tabla 3: Controles de solidez SAT (0 falsos positivos)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia de control satisfacible</th>
+<th style="text-align: center;">Vars / Cláusulas</th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;">Nuestro (<code>veripb_interpolant.py</code>)</th>
+<th style="text-align: left;">Diagnóstico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SAT_PHP08_08_OR2_Tseitin16_odd</code></td>
+<td style="text-align: center;"><code>1,026 / 1,568</code></td>
+<td style="text-align: center;"><code>SAT (63.59 ms)</code></td>
+<td style="text-align: center;"><strong><code>Rechazada (57.13 ms)</code></strong></td>
+<td style="text-align: left;"><code>Fiber (0, 1) on S=[222, 587] is FEASIBLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_PHP08_07_OR2_Tseitin16_even</code></td>
+<td style="text-align: center;"><code>922 / 1,408</code></td>
+<td style="text-align: center;"><code>SAT (64.27 ms)</code></td>
+<td style="text-align: center;"><strong><code>Rechazada (34.40 ms)</code></strong></td>
+<td style="text-align: left;"><code>Fiber (0, 0) on S=[144, 394] is FEASIBLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_PHP10_10_OR3_Expander24_odd</code></td>
+<td style="text-align: center;"><code>5,921 / 8,216</code></td>
+<td style="text-align: center;"><code>SAT (108.55 ms)</code></td>
+<td style="text-align: center;"><strong><code>Rechazada (183.36 ms)</code></strong></td>
+<td style="text-align: left;"><code>Fiber (0, 0, 1) on S=[1749, 3588, 4652] is FEASIBLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_Standalone_Tseitin24_even</code></td>
+<td style="text-align: center;"><code>36 / 96</code></td>
+<td style="text-align: center;"><code>SAT (60.17 ms)</code></td>
+<td style="text-align: center;"><strong><code>Rechazada (3.34 ms)</code></strong></td>
+<td style="text-align: left;"><code>Fiber () on S=[] is FEASIBLE</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>5. Limitaciones y transparencia</h2>
+<ol>
+<li><strong>Ancho acotado del separador (<code>|S| &le; 6</code>):</strong> enumerar las fibras del cubo booleano introduce un factor <code>2<sup>|S|</sup></code>. Separadores anchos (<code>|S| &gg; 6</code>) requieren descomposición en árbol o interpolación LP sin enumeración explícita.</li>
+<li><strong>Topologías expansoras no separables:</strong> PRGs criptográficos como <code>Goldreich XOR-MAJ<sub>3</sub></code> forman un único grafo expansor sin cortes pequeños y quedan fuera del alcance de este motor disyuntivo.</li>
+<li><strong>Benchmarks sintéticos:</strong> todas las instancias de las Tablas 1–3 provienen de generadores sintéticos con permutación aleatoria; evaluar instancias industriales de SAT Competition queda como trabajo futuro.</li>
+<li><strong>Desarrollo asistido por IA:</strong> desarrollado mediante flujos multi-agente asistidos por IA y validado íntegramente por ejecución local de <code>lean 4.36.0</code>, <code>veripb 3.0.2</code>, <code>kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code> y <code>CryptoMiniSat 5</code>.</li>
+</ol>
+<hr />
+<h2>6. Comandos de reproducibilidad y referencias</h2>
+<pre><code class="language-bash"># 1. Verificar las 17 declaraciones universales en Lean 4.36.0 (0 sorryAx)
+lean proofs/disjunctive_interpolant_soundness.lean
+
+# 2. Emitir y verificar pruebas VeriPB 3.0.2 en interpolantes disyuntivos permutados
+uv run --with-editable . cap-interpolant
+
+# 3. Ejecutar el benchmark de 60 s contra Kissat, CaDiCaL y CryptoMiniSat 5
+uv run --with-editable '.[benchmarks]' cap-bench-interpolant --timeout 60
+</code></pre>
+<ol>
+<li>Pavel Pudlák. <em>Lower Bounds for Resolution and Cutting Plane Proofs and Monotone Computations</em>. Journal of Symbolic Logic (JSL), 62(3):981–998, 1997.</li>
+<li>Jan Krajíček. <em>Interpolation Theorems, Lower Bounds for Proof Systems, and Independence Results for Bounded Arithmetic</em>. Journal of Symbolic Logic (JSL), 62(2):457–486, 1997.</li>
+<li>Pavel Hrubeš y Pavel Pudlák. <em>Random Formulas, Monotone Circuits, and Interpolation</em>. En FOCS 2017, pp. 121–131.</li>
+<li>Ankit Garg, Mika Göös, Pritish Kamath y Dmitry Sokolov. <em>Monotone Circuit Lower Bounds from Resolution</em>. En STOC 2018, pp. 902–911.</li>
+<li>Armin Biere, Katalin Fazekas, Mathias Fleury y Nils Froleyks. <em>Clausal Congruence Closure</em>. En SAT 2024, LIPIcs Vol. 305, pp. 6:1–6:25.</li>
+<li>Stephan Gocht y Jakob Nordström. <em>Certifying Parity Reasoning Efficiently Using Pseudo-Boolean Proofs</em>. En AAAI 2021, Vol. 35(5), pp. 3768–3777.</li>
+<li>Bart Bogaerts, Stephan Gocht, Ciaran McCreesh y Jakob Nordström. <em>Certified Dominance and Symmetry Breaking for Combinatorial Optimisation</em>. JAIR 77:1539–1589, 2023.</li>
+<li>Stefan Szeider. <em>PBLean / pb-catcher: Pseudo-Boolean Proof Certificates for Lean 4</em>. <code>arXiv:2602.08692</code>, 2026.</li>
+</ol>

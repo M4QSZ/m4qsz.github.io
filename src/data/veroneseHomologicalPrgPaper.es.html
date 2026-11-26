@@ -1,0 +1,355 @@
+<blockquote>
+<p><strong>Estado:</strong> Prototipo de investigaci&oacute;n y Nota T&eacute;cnica (<code>v0.3</code>). Sin revisi&oacute;n por pares; cada certificado, teorema y m&eacute;trica de tiempo real ha sido verificado mec&aacute;nicamente con <code>Lean 4.36.0</code> (<code>0 sorryAx</code>) y <code>veripb 3.0.2</code>.</p>
+</blockquote>
+<hr />
+<h2>Resumen</h2>
+<p>La Nota T&eacute;cnica <code>v0.2</code> dej&oacute; abierta la <strong>Limitaci&oacute;n #2</strong>: las f&oacute;rmulas cuyo grafo primal desenrollado forma una <strong>&uacute;nica componente de alta expansi&oacute;n sin cortes peque&ntilde;os de v&eacute;rtices (<code>|S| = 0</code>)</strong> —como los predicados 5-locales de generadores seudoaleatorios (PRG) de Goldreich (<code>TSA</code> = <code>XOR<sub>3</sub> &oplus; AND<sub>2</sub></code> y <code>XOR-MAJ<sub>3</sub></code>) acoplados sobre grafos expansores 3-regulares— derrotan la descomposici&oacute;n por corte primal (<code>discover_primal_vertex_cut -&gt; None</code>), los Planos de Corte por cliques binarios (<code>0</code> cliques AMO) y la extracci&oacute;n de paridad de grado 1 (<code>0</code> hiperplanos lineales sobre <strong>F</strong><sub>2</sub>). Simult&aacute;neamente, las codificaciones 3-CNF con variables y polaridades permutadas de f&oacute;rmulas <code>TSA</code> de expansor &uacute;nico y <code>XOR<sub>3</sub>-MAJ<sub>3</sub></code> <strong>F</strong><sub>2</sub>-homol&oacute;gicas derrotan tanto al CDCL puro (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>) como a CDCL+XOR (<code>CryptoMiniSat 5</code>): los tres sufren explosi&oacute;n exponencial y agotan <code>TIMEOUT_60s</code> a partir de <em>V</em> &ge; 48 (<code>1,608</code> variables / <code>2,304</code> cl&aacute;usulas) incluso con <strong>cero guardas selectoras disyuntivas (<code>|S| = 0</code>)</strong>.</p>
+<p>Esta nota documenta la versi&oacute;n <code>v0.3.0</code> de <code>certified-arith-preproc</code> (<code>veripb_veronese_prg.py</code> + <code>proofs/veronese_prg_soundness.lean</code>), resolviendo la Limitaci&oacute;n #2 para predicados PRG de Goldreich de grado 2 y delimitando rigurosamente la frontera de grado 3/4 (<code>v0.4</code>):</p>
+<ol>
+<li><strong>C&aacute;lculo Ciego de Veronese de Grado 2 <code>RM(2, n)</code> y Homolog&iacute;a Simplicial sobre <strong>F</strong><sub>2</sub> (<code>VeriPB 3.0.2</code>):</strong> Recupera bloques desenrollados de ancho <em>k</em> (<em>k</em> &le; 7) mediante resoluci&oacute;n <code>(1, 1)</code> registrada, extrae ecuaciones booleanas de grado &le;2 mediante inversi&oacute;n r&aacute;pida M&ouml;bius/ANF en <em>O</em>(<em>k</em> 2<sup><em>k</em></sup>), resuelve RREF dispersa global sobre <strong>F</strong><sub>2</sub> en <code>RM(2, n)</code>, introduce perezosamente testigos compartidos de productos de Veronese <code>p<sub>u,w</sub> &harr; (x<sub>u</sub> &and; x<sub>w</sub>)</code> (<code>red</code>) y emite refutaciones puras <code>pol</code> + <code>red</code> (<code>0</code> b&uacute;squedas <code>rup</code>). Crucialmente, en <strong><code>XOR<sub>3</sub>-MAJ<sub>3</sub></code> Homol&oacute;gico</strong> sobre 2-ciclos tetra&eacute;dricos <em>K</em><sub>4</sub> (<code>&part;<sup>2</sup> = 0</code>), <strong>cada tripleta <code>MAJ<sub>3</sub></code> de toda la f&oacute;rmula es &uacute;nica</strong> (cero colisiones de compuertas), pero las fronteras cuadr&aacute;ticas se cancelan id&eacute;nticamente en <code>RM(2, n)</code>.</li>
+<li><strong>Escalado Extremo a Extremo en <code>VeriPB 3.0.2</code> (<code>13/13</code> UNSAT Certificadas, <code>4/4</code> Controles SAT Rechazados):</strong> Certifica las <code>12/12</code> instancias de escalado (<code>|S| &isin; {0, 2, 3}</code>, hasta <code>31,715</code> vars / <code>41,160</code> cl&aacute;usulas) m&aacute;s la ablaci&oacute;n <code>v0.2</code> vs <code>v0.3</code> (<code>389.27 ms</code> frente a <code>TIMEOUT_60s</code> en los tres solvers C/C++), y rechaza <code>4/4</code> controles <code>SAT</code> con <code>0</code> falsos positivos.</li>
+<li><strong>Formalizaci&oacute;n Universal <code>&forall;n</code> en Lean 4.36.0 + Barrera Mec&aacute;nica de Grado 2 (<code>14</code> Teoremas, <code>0 sorryAx</code>):</strong> Demuestra la solidez de testigos <code>red</code> y la preservaci&oacute;n RUP para productos de Veronese, la invarianza ante permutaci&oacute;n de polaridades en <code>RM(2, n)</code>, la anulaci&oacute;n universal <code>&forall;n</code> de <code>MAJ<sub>3</sub></code> sobre 2-ciclos simpliciales arbitrarios en <strong>F</strong><sub>2</sub> (<code>simplicial_2cycle_maj3_vanishes</code>), la insatisfacibilidad universal en expansores &uacute;nicos (<code>homological_xor3_maj3_expander_unsat</code>) y el <strong>Teorema de Barrera de Grado 2</strong> (<code>xor_maj5_no_deg2_annihilator</code>): entre los <code>2<sup>22</sup> = 4,194,304</code> polinomios de <code>RM(2, 6)</code>, <code>0</code> polinomios no nulos de grado &le;2 se anulan sobre la compuerta <code>XOR-MAJ<sub>5</sub></code> de Goldreich.</li>
+</ol>
+<hr />
+<h2>1. Trabajo Relacionado y Posicionamiento Cook&ndash;Reckhow</h2>
+<ul>
+<li><strong>PRG de Goldreich, Grado Algebraico y Umbrales de Linealizaci&oacute;n:</strong> Goldreich [1] (<em>2000</em>), Alekhnovich [2] (<em>FOCS 2003 / TOC 2005</em>), Bogdanov y Qiao [3] (<em>RANDOM 2009</em>) y Applebaum, Barak y Wigderson [4] (<em>STOC 2010</em>) demostraron que los PRGs 5-locales basados en predicados de grado 2 (<code>TSA</code> = <code>x<sub>1</sub> &oplus; x<sub>2</sub> &oplus; x<sub>3</sub> &oplus; x<sub>4</sub>x<sub>5</sub></code> o <code>XOR-MAJ<sub>3</sub></code>) resisten DPLL/Resoluci&oacute;n (cotas inferiores <code>2<sup>&Omega;(n)</sup></code>) y eliminaci&oacute;n gaussiana de grado 1 sobre <strong>F</strong><sub>2</sub>, mientras que Schoenebeck [5] (<em>FOCS 2008</em>) demostr&oacute; cotas inferiores de grado lineal <code>&Omega;(n)</code> para Lasserre / Sum-of-Squares sobre expansores aleatorios dispersos XOR/CSP.</li>
+<li><strong>Por Qu&eacute; Colapsan Tanto CDCL Como <code>CryptoMiniSat 5</code> en <code>|S| = 0</code>:</strong>
+<ul>
+<li>En <code>v0.2</code>, <code>CryptoMiniSat 5</code> resolv&iacute;a <code>Tseitin<sub>140</sub></code> puro en <code>1.85 s</code> y s&oacute;lo colapsaba al disyuntarlo con <code>PHP</code> mediante un corte selector <em>S</em>.</li>
+<li>En <code>Goldreich_TSA</code> y <code>Homological_XOR3_MAJ3</code> de expansor &uacute;nico (<code>|S| = 0</code>), <strong>cada bloque local tiene ideal anulador de grado 1 vac&iacute;o</strong> (<code>I<sub>1</sub>(B<sub>v</sub>) = {0}</code>). Por ello, <code>CryptoMiniSat 5</code> extrae <strong>cero</strong> cl&aacute;usulas XOR lineales, mientras que restringir las variables cuadr&aacute;ticas/mayoritarias deja intacto un expansor de Tseitin 3-regular que exige <code>2<sup>&Omega;(V)</sup></code> pasos de Resoluci&oacute;n (<code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>).</li>
+</ul>
+</li>
+<li><strong>Homolog&iacute;a Simplicial sobre <strong>F</strong><sub>2</sub> Sin Colisiones de Compuertas:</strong> Interpretando <code>MAJ<sub>3</sub>(x<sub>a</sub>, x<sub>b</sub>, x<sub>c</sub>) = x<sub>a</sub>x<sub>b</sub> &oplus; x<sub>a</sub>x<sub>c</sub> &oplus; x<sub>b</sub>x<sub>c</sub> (mod 2)</code> como la frontera del 1-esqueleto <code>&part;{a, b, c} &isin; &Lambda;<sup>2</sup>([n])</code>, cualquier 2-ciclo cerrado <em>C</em> de tri&aacute;ngulos (<code>&part;C = 0 (mod 2)</code>, p. ej. fronteras disjuntas de <em>K</em><sub>4</sub>) satisface <code>&oplus;<sub>T &isin; C</sub> MAJ<sub>3</sub>(T) &equiv; 0 (mod 2)</code> con <strong>cero 3-tuplas repetidas</strong>, derrotando el cierre sint&aacute;ctico de congruencia cl&aacute;usal (Biere et al. [6], <em>SAT 2024</em>) pero manteniendo refutaciones polinomiales en <code>VeriPB 3.0</code> [7, 8] mediante testigos de Veronese compartidos.</li>
+</ul>
+<hr />
+<h2>2. C&aacute;lculo Ciego de Veronese de Grado 2 en <code>VeriPB 3.0</code> (<code>veripb_veronese_prg.py</code>)</h2>
+<pre><code class="language-text">Entrada: 3-CNF con variables permutadas, polaridades invertidas y cláusulas mezcladas (n_vars, m cláusulas)
+1. Desenrollado registrado de cadenas (1,1) (`_unroll_11_chains_logged`):
+     Elimina cadenas auxiliares de división 3-CNF de Tseitin vía `pol id_p id_n + [s] ;`.
+2. Descubrimiento opcional de corte primal (`discover_primal_vertex_cut`, |S| &lt;= 6):
+     - PRGs de expansor único producen S = None (|S| = 0, fibra única ()).
+     - Fórmulas híbridas (p. ej. PHP OR_S Homological_XOR3_MAJ3) se dividen en 2^|S| fibras.
+3. Extracción de Veronese de grado &lt;=2 por fibra (`_extract_veronese_rm2_records`):
+     Para cada bloque desenrollado supp = (v_1, ..., v_k) (1 &lt;= k &lt;= 7) con &gt;= 2^{k-1} cláusulas:
+       - Calcular transformada exacta F_2 de Möbius / ANF en O(k * 2^k) (o ideal anulador RM(2, k)).
+       - Rechazar bloques de grado algebraico &gt;= 3 con ideal RM(2, k) vacío (p. ej. XOR-MAJ_5).
+       - Emitir registro: L_i(x) ^ Q_i(x) == c_0^(i) (mod 2) en coordenadas de Veronese RM(2, n).
+4. RREF dispersa sobre GF(2) en RM(2, n) con rastreo de núcleo minimal:
+     Eliminar sobre coordenadas {(u,)} U {(u, w) : u &lt; w}; extraer núcleo inconsistente minimal E*.
+5. Realización perezosa en VeriPB 3.0 (`pol` + `red`, CERO `rup`) sobre E*:
+     a) Testigos compartidos de producto de Veronese p_{u,w} &lt;-&gt; (x_u &amp; x_w) SOLO para (u,w) en U_{i in E*} Q_i:
+          and_11: red 1 ~x_u 1 ~x_w 1 x_p &gt;= 1 : x_p -&gt; 1 ;
+          and_0x: red 1 x_u 1 ~x_p &gt;= 1 : x_p -&gt; 0 ;
+          and_x0: red 1 x_w 1 ~x_p &gt;= 1 : x_p -&gt; 0 ;
+     b) Plegar la paridad linealizada del bloque z_1 ^ ... ^ z_r == c_0^(i) mediante (r - 2) pasos
+        3-XOR `red` incondicionales (`_realize_parity3_bounds`), reduciendo el residuo a dos cláusulas
+        B = 1 sobre (s_{r-2}, z_r), derivadas en el 2^k-cubo de `supp` por división exacta (`2 d`).
+     c) División entera CG de multiplicidad par de Gocht-Nordström (`sum_and_halve`):
+        Cancela todos los x_u, los p_{u,w} compartidos, los s_{i,t} de plegado y los testigos w_e
+        de MAJ_3 para multiplicidades pares arbitrarias 2*M_z en Z, derivando G &gt;= 1 (o 0 &gt;= 1 si |S| = 0).
+Salida: Certificado `.pbp` completo verificado por `veripb 3.0.2 --cnf`.
+</code></pre>
+<hr />
+<h2>3. Formalizaci&oacute;n Universal <code>&forall;n</code> en Lean 4.36.0 (<code>proofs/veronese_prg_soundness.lean</code>)</h2>
+<p>Verificado en <code>8.49 s</code> con <code>Lean 4.36.0</code> independiente (cero importaciones de Mathlib, <code>0</code> advertencias, <code>0 sorryAx</code>, &uacute;nicamente axiomas del kernel en los 14 teoremas auditados con <code>#print axioms</code>):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Grupo</th>
+<th style="text-align: left;">Teoremas Verificados en Lean 4.36.0</th>
+<th style="text-align: left;">Alcance Matem&aacute;tico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Grupo 1</strong></td>
+<td style="text-align: left;"><code>veronese_and_red_11_witness</code>, <code>veronese_and_red_0x_sound</code>, <code>veronese_and_red_x0_sound</code>, <code>veronese_and_clauses_characterize_prod</code></td>
+<td style="text-align: left;">Validez de testigos <code>red</code> en <code>VeriPB 3.0</code>, preservaci&oacute;n RUP de cl&aacute;usulas <code>and_*</code> previas y equivalencia exacta <code>p = u &and; w</code> (<code>b2n p = b2n u * b2n w</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grupo 2</strong></td>
+<td style="text-align: left;"><code>maj3_anf_f2_exact</code>, <code>and_polarity_scramble_invariance</code>, <code>maj3_polarity_scramble_boundary_invariance</code></td>
+<td style="text-align: left;">Frontera cuadr&aacute;tica exacta sobre <strong>F</strong><sub>2</sub> de <code>MAJ<sub>3</sub></code> e invarianza de soportes cuadr&aacute;ticos en <code>RM(2, n)</code> bajo inversiones arbitrarias de polaridad</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grupo 3</strong></td>
+<td style="text-align: left;"><code>k4_tetrahedron_maj3_boundary_zero</code>, <code>simplicial_2cycle_maj3_vanishes</code></td>
+<td style="text-align: left;">Identidad de las 4 caras de <em>K</em><sub>4</sub> (<code>0</code> axiomas) y anulaci&oacute;n inductiva universal <code>&forall;n, &forall;x, &forall;tris</code>: <code>&part;C = 0 &rArr; &oplus; MAJ<sub>3</sub> = 0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grupo 4</strong></td>
+<td style="text-align: left;"><code>homological_xor3_maj3_expander_unsat</code></td>
+<td style="text-align: left;">Insatisfacibilidad universal <code>&forall;V, n</code> de <code>XOR<sub>3</sub>-MAJ<sub>3</sub></code> Homol&oacute;gico de expansor &uacute;nico bajo carga global impar</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grupo 5</strong></td>
+<td style="text-align: left;"><code>clause_cube_halving_exact</code>, <code>xor_chain_fold_sound</code>, <code>veronese_even_multiplicity_cg_unsat</code></td>
+<td style="text-align: left;">Divisi&oacute;n de cubos sin holgura <code>B = 1</code>, plegado inductivo <code>&forall;zs</code> de cadenas XOR y cancelaci&oacute;n CG entera en <code>Int</code> para multiplicidades arbitrarias</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grupo 6</strong></td>
+<td style="text-align: left;"><code>xor_maj5_no_deg2_annihilator</code></td>
+<td style="text-align: left;"><strong>Barrera Mec&aacute;nica de Grado 2:</strong> entre los <code>2<sup>22</sup> = 4,194,304</code> polinomios de <code>RM(2, 6)</code> y ambas polaridades, s&oacute;lo <code>0</code> se anula en <code>y &oplus; MAJ<sub>5</sub>(x<sub>1</sub>..x<sub>5</sub>) = rhs</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Evaluaci&oacute;n Experimental (Suite de 4 Solvers con L&iacute;mite de 60 s)</h2>
+<p>Ejecutado en una m&aacute;quina Linux de 4 n&uacute;cleos (<code>Python 3.12</code>, <code>veripb 3.0.2</code>, <code>Kissat 4.0.4</code>, <code>CaDiCaL 1.9.5</code>, <code>CryptoMiniSat 5</code>). Cada instancia se permuta aleatoriamente en IDs de variables, polaridades de literales, orden de literales y orden de cl&aacute;usulas antes de resolverla (<code>results/veronese_prg_benchmark_results.json</code>).</p>
+<h3>Tabla 1: Escalado PRG en Expansor &Uacute;nico (<code>|S| = 0</code>) e Interpolantes Disyuntivos H&iacute;bridos (<code>|S| &isin; {2, 3}</code>, L&iacute;mite 60 s)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia</th>
+<th style="text-align: center;">Vars / Cl&aacute;usulas</th>
+<th style="text-align: center;"><code>|S|</code></th>
+<th style="text-align: center;">L&iacute;neas <code>.pbp</code> (<code>w</code>)</th>
+<th style="text-align: center;">Nuestro (<code>Emit + veripb = Total</code>)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V28</code></td>
+<td style="text-align: center;"><code>938 / 1,344</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>6,158</code> (<code>178</code>)</td>
+<td style="text-align: center;"><strong><code>138.13 ms</code></strong> (<code>103.15 + 34.98</code>)</td>
+<td style="text-align: center;"><code>712.66 ms</code></td>
+<td style="text-align: center;"><code>447.07 ms</code></td>
+<td style="text-align: center;"><code>972.31 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V36</code></td>
+<td style="text-align: center;"><code>1,206 / 1,728</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>7,982</code> (<code>234</code>)</td>
+<td style="text-align: center;"><strong><code>301.57 ms</code></strong> (<code>210.35 + 91.22</code>)</td>
+<td style="text-align: center;"><code>5,184.87 ms</code></td>
+<td style="text-align: center;"><code>4,588.67 ms</code></td>
+<td style="text-align: center;"><code>9,067.69 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V48</code></td>
+<td style="text-align: center;"><code>1,608 / 2,304</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>10,276</code> (<code>284</code>)</td>
+<td style="text-align: center;"><strong><code>465.90 ms</code></strong> (<code>336.26 + 129.64</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V64</code></td>
+<td style="text-align: center;"><code>2,144 / 3,072</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>14,132</code> (<code>412</code>)</td>
+<td style="text-align: center;"><strong><code>319.07 ms</code></strong> (<code>240.37 + 78.70</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_TSA_5Local_V96</code></td>
+<td style="text-align: center;"><code>3,216 / 4,608</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>21,220</code> (<code>620</code>)</td>
+<td style="text-align: center;"><strong><code>1,660.17 ms</code></strong> (<code>1,049.55 + 610.62</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V28</code></td>
+<td style="text-align: center;"><code>938 / 1,344</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>8,490</code> (<code>310</code>)</td>
+<td style="text-align: center;"><strong><code>234.00 ms</code></strong> (<code>157.03 + 76.97</code>)</td>
+<td style="text-align: center;"><code>1,289.80 ms</code></td>
+<td style="text-align: center;"><code>683.03 ms</code></td>
+<td style="text-align: center;"><code>1,700.38 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V36</code></td>
+<td style="text-align: center;"><code>1,206 / 1,728</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>10,594</code> (<code>374</code>)</td>
+<td style="text-align: center;"><strong><code>552.48 ms</code></strong> (<code>415.96 + 136.52</code>)</td>
+<td style="text-align: center;"><code>15,133.87 ms</code></td>
+<td style="text-align: center;"><code>13,874.77 ms</code></td>
+<td style="text-align: center;"><code>22,104.03 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V52</code></td>
+<td style="text-align: center;"><code>1,742 / 2,496</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>15,634</code> (<code>566</code>)</td>
+<td style="text-align: center;"><strong><code>457.94 ms</code></strong> (<code>314.96 + 142.98</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_5Local_V80</code></td>
+<td style="text-align: center;"><code>2,680 / 3,840</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>23,752</code> (<code>848</code>)</td>
+<td style="text-align: center;"><strong><code>1,611.74 ms</code></strong> (<code>1,210.20 + 401.54</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Homological_XOR3_MAJ3_6Local_V44</code></td>
+<td style="text-align: center;"><code>4,290 / 5,632</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>27,094</code> (<code>546</code>)</td>
+<td style="text-align: center;"><strong><code>1,674.62 ms</code></strong> (<code>1,238.34 + 436.28</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR2_Homological_XOR3_MAJ3_V44</code></td>
+<td style="text-align: center;"><code>12,036 / 16,224</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>36,976</code> (<code>940</code>)</td>
+<td style="text-align: center;"><strong><code>2,405.68 ms</code></strong> (<code>1,976.38 + 429.30</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PHP12_11_OR3_Homological_XOR3_MAJ3_V40</code></td>
+<td style="text-align: center;"><code>31,715 / 41,160</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>77,868</code> (<code>1,648</code>)</td>
+<td style="text-align: center;"><strong><code>9,438.63 ms</code></strong> (<code>8,000.66 + 1,437.97</code>)</td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 2: Ablaci&oacute;n de Motores <code>v0.2</code> vs <code>v0.3</code> y Controles de Frontera de Grado 3/4</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia</th>
+<th style="text-align: center;">Vars / Cl&aacute;usulas</th>
+<th style="text-align: center;"><code>v0.2</code> (<code>veripb_interpolant</code>)</th>
+<th style="text-align: center;"><code>v0.3</code> (<code>veripb_veronese_prg</code>)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code></th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Ablation_v02_vs_v03_Homological_XOR3_MAJ3_V44</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>Rechazada</code> (<code>185.40 ms</code>)</td>
+<td style="text-align: center;"><strong><code>VERIFIED UNSAT</code> (<code>389.27 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+<td style="text-align: center;"><code>TIMEOUT_60s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Barrier_Cubic_XOR3_AND3_6Local_V36</code> <em>(grado 3)</em></td>
+<td style="text-align: center;"><code>3,510 / 4,608</code></td>
+<td style="text-align: center;"><code>Rechazada</code> (<code>214.49 ms</code>)</td>
+<td style="text-align: center;"><code>Rechazada: fuera de RM(2, n)</code> (<code>1,204.93 ms</code>)</td>
+<td style="text-align: center;"><code>12,449.85 ms</code></td>
+<td style="text-align: center;"><code>10,763.87 ms</code></td>
+<td style="text-align: center;"><code>19,532.79 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Barrier_Goldreich_XOR3_MAJ5_7Local_V36</code> <em>(grado 4)</em></td>
+<td style="text-align: center;"><code>9,270 / 11,520</code></td>
+<td style="text-align: center;"><code>Rechazada</code> (<code>777.72 ms</code>)</td>
+<td style="text-align: center;"><code>Rechazada: fuera de RM(2, n)</code> (<code>2,329.90 ms</code>)</td>
+<td style="text-align: center;"><code>7,942.65 ms</code></td>
+<td style="text-align: center;"><code>4,344.13 ms</code></td>
+<td style="text-align: center;"><code>17,666.45 ms</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 3: Controles de Solidez SAT (<code>4/4</code> Rechazados, 0 Falsos Positivos)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Instancia</th>
+<th style="text-align: center;">Vars / Cl&aacute;usulas</th>
+<th style="text-align: center;"><code>CaDiCaL 1.9.5</code></th>
+<th style="text-align: center;"><code>v0.3</code> (<code>veripb_veronese_prg</code>)</th>
+<th style="text-align: left;">Diagn&oacute;stico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SAT_Goldreich_TSA_5Local_V44_even</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>160.03 ms</code>)</td>
+<td style="text-align: center;"><strong>Rechazada</strong> (<code>100.77 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_Homological_XOR3_MAJ3_5Local_V44_even</code></td>
+<td style="text-align: center;"><code>1,474 / 2,112</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>148.16 ms</code>)</td>
+<td style="text-align: center;"><strong>Rechazada</strong> (<code>98.85 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_Homological_XOR3_MAJ3_6Local_V36_even</code></td>
+<td style="text-align: center;"><code>3,510 / 4,608</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>167.05 ms</code>)</td>
+<td style="text-align: center;"><strong>Rechazada</strong> (<code>293.24 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber () on separator S=[] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SAT_PHP10_10_OR2_Homological_XOR3_MAJ3_V36</code></td>
+<td style="text-align: center;"><code>9,510 / 12,648</code></td>
+<td style="text-align: center;"><code>SAT</code> (<code>265.31 ms</code>)</td>
+<td style="text-align: center;"><strong>Rechazada</strong> (<code>993.23 ms</code>)</td>
+<td style="text-align: left;"><code>Fiber (0, 1) on separator S=[6561, 8257] is FEASIBLE or outside RM(2, n) Veronese calculus</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>5. Limitaciones Honestas y Frontera Delimitada para <code>v0.4</code></h2>
+<ol>
+<li><strong>Barreras Algebraicas de Mayor Grado (<code>deg &ge; 3</code>: <code>Cubic XOR<sub>3</sub>-AND<sub>3</sub></code> y <code>Goldreich XOR<sub>3</sub>-MAJ<sub>5</sub></code>):</strong> Tal como se demostr&oacute; mec&aacute;nicamente en <code>xor_maj5_no_deg2_annihilator</code> y se midi&oacute; en la Tabla 2, los predicados cuyo ideal anulador local tiene intersecci&oacute;n trivial con <code>RM(2, k)</code> (<code>nullity == 0</code>) producen cero ecuaciones en el espacio de Veronese de grado 2. Extender la certificaci&oacute;n a <code>XOR<sub>3</sub>-AND<sub>3</sub></code> y <code>XOR<sub>3</sub>-MAJ<sub>5</sub></code> requiere levantamientos de Veronese de orden superior <code>RM(d, n)</code> (<code>d &isin; {3, 4}</code>) o cascadas dispersas de sicigias de Macaulay, pagando <em>O</em>(<em>n<sup>d</sup></em>) coordenadas salvo acotaci&oacute;n por localidad de hipergrafo.</li>
+<li><strong>PRGs Aleatorios Subcuadr&aacute;ticos Sin 2-Ciclos Homol&oacute;gicos (<code>m &ll; C(n, 2)</code>, <code>&part;C &ne; 0</code>):</strong> Cuando <code>m &lt; n + n(n &minus; 1)/2</code> 5-tuplas aleatorias carecen de un 2-ciclo simplicial cerrado sobre <strong>F</strong><sub>2</sub> en <code>&Lambda;<sup>2</sup>([n])</code>, el sistema linealizado en <code>RM(2, n)</code> tiene menos filas que columnas y resulta deficiente en rango, coincidiendo con la cota inferior SoS de grado <code>&Omega;(n)</code> de Schoenebeck [5].</li>
+<li><strong>Benchmarks Externos de SAT Competition y Port a Rust (<code>v0.4</code>):</strong> Todas las familias <code>v0.1&ndash;v0.3</code> siguen siendo 3-CNFs sint&eacute;ticas permutadas; portar el emisor de pruebas a Rust y evaluar cobertura sobre benchmarks UNSAT industriales / SAT Competition constituye el pr&oacute;ximo hito de ingenier&iacute;a.</li>
+</ol>
+<hr />
+<h2>6. Comandos de Reproducibilidad</h2>
+<pre><code class="language-bash"># 1. Verificar la suite universal &forall;n en Lean 4.36.0 de Veronese y PRGs Homológicos (14 teoremas, 0 sorryAx)
+lean proofs/veronese_prg_soundness.lean
+
+# 2. Emitir y verificar pruebas VeriPB 3.0.2 en instancias permutadas TSA, Homological XOR3-MAJ3 e híbridas
+uv run --with-editable . cap-veronese
+
+# 3. Ejecutar la suite completa de 60 s con 4 solvers (escalado + ablación v0.2/v0.3 y barreras grado 3/4 + controles SAT)
+uv run --with-editable '.[benchmarks]' cap-bench-veronese --timeout 60
+
+# 4. Pipeline completo de verificación v0.1 + v0.2 + v0.3
+./scripts/reproduce.sh --timeout 300
+</code></pre>
+<hr />
+<h2>Referencias</h2>
+<ol>
+<li>Oded Goldreich. <em>Candidate One-Way Functions Based on Expander Graphs</em>. ECCC TR00-090, 2000.</li>
+<li>Michael Alekhnovich. <em>More on Average Case vs Approximation Complexity</em>. FOCS 2003 / Theory of Computing 1(1):1&ndash;23, 2005.</li>
+<li>Andrej Bogdanov y Youming Qiao. <em>On the Security of Goldreich&rsquo;s One-Way Function</em>. RANDOM 2009, LNCS 5687, pp. 392&ndash;405.</li>
+<li>Benny Applebaum, Boaz Barak y Avi Wigderson. <em>Public-Key Cryptography from Different Assumptions</em>. STOC 2010, pp. 171&ndash;180.</li>
+<li>Grant Schoenebeck. <em>Linear Level Lasserre Lower Bounds for Certain k-CSPs</em>. FOCS 2008, pp. 593&ndash;602.</li>
+<li>Armin Biere, Katalin Fazekas, Mathias Fleury y Nils Froleyks. <em>Clausal Congruence Closure</em>. SAT 2024, LIPIcs Vol. 305, pp. 6:1&ndash;6:25.</li>
+<li>Stephan Gocht y Jakob Nordstr&ouml;m. <em>Certifying Parity Reasoning Efficiently Using Pseudo-Boolean Proofs</em>. AAAI 2021, Vol. 35(5), pp. 3768&ndash;3777.</li>
+<li>Bart Bogaerts, Stephan Gocht, Ciaran McCreesh y Jakob Nordstr&ouml;m. <em>Certified Dominance and Symmetry Breaking for Combinatorial Optimisation</em> (<code>VeriPB 3.0</code>). JAIR, 2023.</li>
+<li>Stefan Szeider. <em>PBLean / pb-catcher: Formally Verified Pseudo-Boolean Proof Checking in Lean</em>. <code>arXiv:2602.08692</code>, 2026.</li>
+</ol>

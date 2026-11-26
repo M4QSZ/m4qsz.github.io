@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import paperHtml from '../../../data/veroneseHomologicalPrgPaper.html?raw';
+---
+<Base
+  lang="en"
+  title="Blind Degree-2 Veronese & F2-Homological VeriPB 3.0 Certification for Expander-Entangled Goldreich PRG Formulas | Miguel Quevedo"
+  description="Technical Note v0.3: blind degree-2 Veronese RM(2, n) & F2-simplicial homology VeriPB 3.0 calculus for single-expander Goldreich TSA and Homological XOR3-MAJ3 3-CNF formulas; 14 Lean 4.36.0 theorems (0 sorryAx) including the mechanical RM(2, 6) barrier on XOR-MAJ5, and 13/13 veripb 3.0.2 proofs vs Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5."
+  pageLabel="Paper · Certified Veronese & Homological PRGs"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Blind Degree-2 Veronese &amp; F₂-Homological VeriPB 3.0 Certification for Expander-Entangled Goldreich PRG Formulas</h1>
+      <p class="detail-lede">Technical Note / Preprint Draft v0.3 — not peer-reviewed. Every certificate, Lean 4 theorem, and wall-clock figure below comes from reproducible local runs verified with Lean 4.36.0 and veripb 3.0.2.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.3)</strong></div>
+      <div><span>Verification</span><strong>Lean 4.36.0: 14 ∀n &amp; barrier theorems (0 sorryAx) · veripb 3.0.2: 13/13 VERIFIED UNSATISFIABLE</strong></div>
+      <div><span>Status</span><strong>Research Prototype · Technical Note v0.3</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/certified-veronese-homological-prg.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repository + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/TECHNICAL_NOTE_VERONESE_HOMOLOGICAL_PRG.md" target="_blank" rel="noopener noreferrer">Markdown source ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>
