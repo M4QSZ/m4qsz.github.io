@@ -297,7 +297,7 @@ export const englishProjects: EnglishProject[] = [
   },
   {
     slug: 'cockpit', number: '18', title: 'Cockpit v2.2: Multi-CLI Orchestrator', type: 'Native Rust + GPUI desktop · MCP · 6 Technical Reports',
-    status: 'Private source · 6 Cockpit Reports (18 Papers in Lab)',
+    status: 'Private source · 6 Cockpit Reports (21 Papers in Lab)',
     accent: 'orange',
     variant: 'rust-suite',
     paperUrl: '/en/lab/cockpit-paper/',
