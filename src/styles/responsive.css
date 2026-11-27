@@ -80,7 +80,10 @@
   .detail-meta { grid-template-columns: 1fr; gap: 14px; }
   .tech-matrix > div { grid-template-columns: 1fr; gap: 6px; }
   .site-footer { flex-direction: column; gap: 16px; }
-  .cv-sheet { padding: 24px 18px; }
+  .cv-sheet { padding: 22px 16px; }
+  .cv-entry-head,
+  .cv-oss-grid,
+  .cv-skills-row { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -96,6 +99,12 @@
 @page {
   size: A4;
   margin: 14mm 15mm;
+  background: #fff;
+}
+
+@page cv-sheet {
+  size: A4;
+  margin: 12mm 14mm;
   background: #fff;
 }
 
@@ -125,7 +134,68 @@
   }
   .wrap { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .detail-main { padding: 0 !important; }
-  .cv-sheet { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important; background: #fff !important; color: #000 !important; max-width: none !important; }
+  .cv-sheet {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #111 !important;
+    max-inline-size: none !important;
+    page: cv-sheet;
+  }
+  .cv-header { padding-bottom: 9pt !important; margin-bottom: 11pt !important; border-bottom: 1.5pt solid #8e532e !important; }
+  .cv-sheet h1 { font-size: 17.5pt !important; margin: 0 0 3.5pt !important; color: #0f1410 !important; }
+  .cv-sheet .cv-role { font-size: 9.6pt !important; line-height: 1.35 !important; margin: 0 0 5pt !important; color: #8e532e !important; }
+  .cv-sheet .cv-meta { font-size: 8.3pt !important; line-height: 1.38 !important; color: #374139 !important; gap: 2pt !important; }
+  .cv-sheet section { margin-top: 12pt !important; }
+  .cv-sheet h2 {
+    font-size: 8.2pt !important;
+    letter-spacing: 0.08em !important;
+    margin: 0 0 6.5pt !important;
+    padding-bottom: 3pt !important;
+    border-bottom: 0.75pt solid #d0d4ca !important;
+    color: #8e532e !important;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .cv-entry { break-inside: avoid; page-break-inside: avoid; }
+  .cv-entry + .cv-entry { margin-top: 9.5pt !important; }
+  .cv-entry-head { break-after: avoid; page-break-after: avoid; margin-bottom: 2pt !important; }
+  .cv-sheet h3 { font-size: 9.8pt !important; color: #0f1410 !important; break-after: avoid; page-break-after: avoid; }
+  .cv-date { font-size: 8.5pt !important; color: #5b4a3a !important; }
+  .cv-sheet .cv-sub { font-size: 8.3pt !important; line-height: 1.38 !important; margin: 0 0 5pt !important; color: #465248 !important; }
+  .cv-sheet p, .cv-sheet li { font-size: 9.15pt !important; line-height: 1.44 !important; color: #1a211b !important; }
+  .cv-sheet ul { margin: 3pt 0 0 !important; padding-left: 14pt !important; }
+  .cv-sheet li { margin-bottom: 4.5pt !important; }
+  .cv-sheet code {
+    background: #f1efe9 !important;
+    color: #141d16 !important;
+    padding: 0.5pt 3pt !important;
+    font-size: 8.3pt !important;
+  }
+  .cv-sheet a { color: #16281c !important; text-decoration-color: rgba(142, 83, 46, 0.45) !important; }
+  .cv-oss-grid { gap: 7pt 12pt !important; margin-top: 7pt !important; break-inside: avoid; page-break-inside: avoid; }
+  .cv-oss-item {
+    font-size: 8.5pt !important;
+    line-height: 1.38 !important;
+    padding: 2pt 0 2pt 8pt !important;
+    border-left: 1.5pt solid #c9a789 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .cv-oss-item strong { font-size: 8.8pt !important; margin-bottom: 1.5pt !important; }
+  .cv-skills-grid { gap: 4.5pt !important; }
+  .cv-skills-row {
+    grid-template-columns: 128pt minmax(0, 1fr) !important;
+    gap: 2pt 10pt !important;
+    font-size: 8.7pt !important;
+    line-height: 1.4 !important;
+    padding-bottom: 4pt !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .cv-edu-grid { gap: 4pt !important; break-inside: avoid; page-break-inside: avoid; }
   .paper-wide .detail-hero { margin-bottom: 14px !important; padding-bottom: 12px !important; border-bottom: 1.5px solid #222 !important; }
   .paper-wide h1,
   .paper-wide h2,

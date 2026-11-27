@@ -6,74 +6,158 @@ import { profile } from '../../data/profile';
   <main id="contenido" class="detail-main wrap">
     <a class="back-link" href="/en/">← Back to portfolio</a>
     <div class="cv-actions">
-      <button class="button button-primary" type="button" onclick="window.print()">Print / Save PDF ↗</button>
+      <a class="button button-primary" href="/cv-miguel-quevedo-en.pdf" download>Download PDF (2 pages) ↓</a>
+      <button class="button button-outline" type="button" onclick="window.print()">Print ↗</button>
       <a class="text-link" style="margin-top:0" href="/cv/">Versión en español (ES) ↗</a>
     </div>
+
     <article class="cv-sheet">
-      <h1>{profile.name}</h1>
-      <p class="cv-role">Rust Systems, AI Agent Infrastructure (MCP / GPUI) &amp; Formal Verification Engineer · Multiplatform (Flutter · Dart · Kotlin · Unity C# · Web)</p>
-      <p class="cv-meta">
-        Estado Aragua, Venezuela (Remote · Hybrid · On-site · Full/Part-time · Open to relocate) ·
-        <a href={`mailto:${profile.email}`}>{profile.email}</a> ·
-        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">linkedin.com/in/miguel-quevedo-dev</a> ·
-        <a href={profile.github} target="_blank" rel="noopener noreferrer">github.com/M4QSZ</a>
-      </p>
+      <header class="cv-header">
+        <h1>{profile.name}</h1>
+        <p class="cv-role">Rust Systems, AI Agent Infrastructure (MCP / GPUI) &amp; Formal&#160;Verification Engineer · Multiplatform (Flutter · Dart · Kotlin · Unity C# · Web)</p>
+        <div class="cv-meta">
+          <span>Estado Aragua, Venezuela (UTC-4 / EST-EDT overlap · Remote · Hybrid · On-site · Full/Part-time · Open to relocate)</span>
+          <span class="cv-meta-links">
+            <a href={`mailto:${profile.email}`}>{profile.email}</a>
+            <span aria-hidden="true">·</span>
+            <a href="https://m4qsz.github.io/en/" target="_blank" rel="noopener noreferrer">m4qsz.github.io/en</a>
+            <span aria-hidden="true">·</span>
+            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">linkedin.com/in/miguel-quevedo-dev</a>
+            <span aria-hidden="true">·</span>
+            <a href={profile.github} target="_blank" rel="noopener noreferrer">github.com/M4QSZ</a>
+          </span>
+        </div>
+      </header>
 
       <section>
         <h2>Summary</h2>
         <p>
           End-to-end systems and multiplatform software engineer taking concepts from 0-to-1 ideation and feedback-validated MVPs to working desktop,
           mobile, and web products with 1:1 "on-model" design fidelity, offline-first clean architecture, native Rust engines, concurrent MCP servers,
-          formal verification &amp; certified SAT proof logging (Lean 4 + VeriPB 3.0), Flutter apps, Unity (C#) games, and web platforms. Final-year Systems
-          Engineering (Programming Concentration) student at Universidad Bicentenaria de Aragua (expected graduation: July 2027).
+          formal verification &amp; certified SAT proof logging (Lean 4 + VeriPB 3.0), Flutter apps, Unity (C#) games, and web platforms.
         </p>
       </section>
 
       <section>
         <h2>Experience &amp; flagship ecosystem</h2>
-        <h3>Lead Architect &amp; Multiplatform Software Engineer at Meson (Independent Product Suite)</h3>
-        <p class="cv-sub">September 2025 – Present · Remote (Windows/Desktop, Mobile &amp; Web · 769/860 active-branch commits · 912,888 Dart + 50,270 Rust LOC in <code>meson_business</code> · 404/404 live Rust tests)</p>
-        <ul>
-          <li><strong>POS, Dual Self-Checkout, Rust Retail &amp; Device Hub (<code>meson_business</code> · 2,521 Dart files / 521 test files):</strong> architected hospitality &amp; retail POS, CRDT Kitchen/Bar KDS, self-checkout with RS-232/USB anti-theft weigh-scales, Flame 2.5D floor planner (+ Rust isometric 3D projection &amp; magnetic snapping), <code>meson_features</code> engines (78/78 tests: cycle-safe nested BOMs, FEFO, GS1 weight/price barcodes, BOGO/MultiBuy integer-cent promotions), and <code>device_hub</code> (mDNS/BLE discovery, offline Isar IoT, failover print queues, CFDs, WebRTC).</li>
-          <li><strong>Financial ERP, Production SQL Migration &amp; Atelier HR:</strong> exact <code>BigInt</code> cents, double-entry ledger, 3-way AP invoice matching, SENIAT fiscal hash chain, complete Firestore → Supabase/PostgreSQL cutover (502 files, 0 Firestore remaining, 59 RLS policies, PL/pgSQL PN-Counter CRDT, <code>FOR UPDATE</code> dispatch contract), B2B marketplace, Atelier HR/payroll + PIN kiosk, and layered desktop shell.</li>
-          <li><strong>49 Rust FFI APIs &amp; 8 Crates (50,270 LOC via <code>flutter_rust_bridge</code> · 404/404 live tests):</strong> self-calibrating zero-LLM edge NLU (<code>meson_ai</code>, 16k LOC, 300/300 tests: online Platt scaling, 128d PC1-removed SIF, adaptive-RAM <code>tract-onnx</code>, Spanish phonetics, <code>catch_unwind</code> circuit breakers, Flutter <code>AutomationEngine</code>, and documented pivot from Candle GGUF <code>Qwen2.5</code> + Whisper for legacy POS hardware), sparse-chunked Office suite (<code>meson_tools</code>, 21/21 tests: 1M-row <code>ChunkedColumn</code> + DAG + <code>.xlsx/.docx/.pptx</code> roundtrips), isolated Whisper STT worker, <code>qbsdiff</code> delta updater (<code>meson_shell</code> 5/5), SIMD media, hardware-bound HMAC licensing, HLC/CRDT AES-256-GCM LAN P2P, and <code>meson_gpui</code> shell (15 files).</li>
-          <li><strong>Companion Apps, Input Telemetry &amp; Astro Web:</strong> <code>meson_central</code> (super-admin/licensing), <code>meson_delivery</code> (DTN courier mesh), <code>meson_customer</code>, <code>meson_pause</code> (15 tests), <code>meson_currency</code>, <code>BUCO</code> (22 tests), <em>Axion Mouse Lab</em> (native Rust Windows Raw Input: exact <code>SO(2)</code>, IRLS Huber, Jensen-immune polling, 39/41 tests), 10 decoupled packages, and a 189-page, 19-language Astro SaaS platform (<a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">mesonapp.vercel.app</a>).</li>
-          <li><strong>Leadership &amp; Collaboration:</strong> solo author of Rust engines, HLC/CRDT P2P sync, NoSQL → SQL migration, and <code>meson_central</code>; supervised one collaborator contributing Flutter UI screens (~10.6% of commits).</li>
-        </ul>
+        <div class="cv-entry">
+          <div class="cv-entry-head">
+            <h3>Lead Architect &amp; Multiplatform Software Engineer — Meson (Independent Product Suite)</h3>
+            <span class="cv-date">Sep 2025 – Present</span>
+          </div>
+          <p class="cv-sub">Remote · Windows/Desktop, Mobile &amp; Web · 769/860 active-branch commits · 2,521 Dart files (521 tests) + 50,270 Rust LOC (912k Dart LOC) · 404/404 live Rust tests</p>
+          <ul>
+            <li><strong>POS, Dual Self-Checkout, Rust Retail &amp; Device Hub (<code>meson_business</code>):</strong> architected hospitality &amp; retail POS, CRDT Kitchen/Bar KDS, self-checkout with RS-232/USB anti-theft weigh-scales, Flame 2.5D floor planner (+ Rust isometric 3D projection &amp; magnetic snapping), <code>meson_features</code> engines (78/78 tests: cycle-safe nested BOMs, FEFO, GS1 weight/price barcodes, BOGO/MultiBuy integer-cent promotions), and <code>device_hub</code> (mDNS/BLE discovery, offline Isar IoT, failover print queues, CFDs, WebRTC).</li>
+            <li><strong>Financial ERP, SQL Migration, AppSec &amp; Atelier HR:</strong> exact <code>BigInt</code> cents, double-entry ledger, 3-way AP invoice matching, SENIAT fiscal hash chain; complete Firestore → Supabase/PostgreSQL cutover (502 files, 0 Firestore remaining, 59 baseline RLS policies, PL/pgSQL PN-Counter CRDT, <code>FOR UPDATE</code> dispatch contract) + pre-production BaaS/RLS &amp; Realtime WAL empirical security audit across 112 tables / 411 policies (<a href="https://m4qsz.github.io/en/lab/meson-baas-rls-telemetry-audit/" target="_blank" rel="noopener noreferrer">Paper 18</a>); B2B marketplace, Atelier HR/payroll + PIN kiosk, and layered desktop shell.</li>
+            <li><strong>49 Rust FFI APIs &amp; 8 Crates (<code>flutter_rust_bridge</code>):</strong> self-calibrating zero-LLM edge NLU (<code>meson_ai</code>, 16k LOC, 300/300 tests: online Platt scaling, 128d PC1-removed SIF, adaptive-RAM <code>tract-onnx</code>, Spanish phonetics, <code>catch_unwind</code> circuit breakers, Flutter <code>AutomationEngine</code>, and documented pivot from Candle GGUF <code>Qwen2.5</code> + Whisper for legacy POS hardware), sparse-chunked Office suite (<code>meson_tools</code>, 21/21 tests: 1M-row <code>ChunkedColumn</code> + DAG + <code>.xlsx/.docx/.pptx</code> roundtrips), isolated Whisper STT worker, <code>qbsdiff</code> delta updater (<code>meson_shell</code> 5/5), SIMD media, hardware-bound HMAC licensing, HLC/CRDT AES-256-GCM LAN P2P, and <code>meson_gpui</code> shell (15 files).</li>
+            <li><strong>Companion Apps, Telemetry &amp; Leadership:</strong> <code>meson_central</code> (super-admin/licensing), <code>meson_delivery</code> (DTN courier mesh), <code>meson_customer</code>, <code>meson_pause</code> (15 tests), <code>meson_currency</code>, <a href="https://github.com/M4QSZ/BUCO" target="_blank" rel="noopener noreferrer"><code>BUCO</code></a> (22 tests), <em>Axion Mouse Lab</em> (native Rust Windows Raw Input: exact <code>SO(2)</code>, IRLS Huber, Jensen-immune polling, 100% math suite / 39/41 tests), 10 decoupled packages, and a 189-page, 19-language Astro platform (<a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">mesonapp.vercel.app</a>). Solo author of Rust engines, P2P sync, NoSQL → SQL migration &amp; Central; supervised 1 Flutter UI collaborator (~10.6% commits).</li>
+          </ul>
+        </div>
       </section>
 
       <section>
         <h2>AI infrastructure, formal verification, games &amp; web</h2>
-        <ul>
-          <li><strong>Cockpit v2.2 (Native Rust + GPUI CE 0.3.0 + MCP Multi-CLI Orchestrator · ~78k Rust LOC · 57 runtime modules · 228 tests):</strong> Native desktop orchestrator &amp; concurrent stdio MCP server unifying Claude Code, Codex CLI, Antigravity, and OpenCode with 5h/7d quota telemetry, hot Auto-Failover, automatic RTK interception (<code>PreToolUse</code> + <code>PATH</code> shims, −85% live on <code>cargo test</code>), power-loss-proof 15s <code>sync_all()</code> persistence + <code>/recover</code>, local-first P2P/4G (Iroh QUIC, Tailscale, 4G Relay, <code>wgproxyrs</code>, Android Kotlin), and $0 harnesses (Win32 UIA, S→D Cloud 3D + Blender, 10-rule Unity C#, 14-rule Roblox Luau, FFmpeg, Math/Music Lab) (<a href="/en/projects/cockpit/">case study</a> · <a href="/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">PDF</a>).</li>
-          <li><strong>Certified SAT &amp; Formal Verification Research (Lean 4.36.0 + VeriPB 3.0.2 · <a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">public repo</a>):</strong> Three technical notes (Papers 12–14) covering blind certified arithmetic preprocessing, disjunctive interpolants (PHP ∨ Tseitin), and degree-2 Veronese <code>RM(2, n)</code> + <code>F₂</code> simplicial homology for Goldreich PRGs: <strong>61 Lean 4 theorems</strong> (30 + 17 + 14, <code>0 sorryAx</code>), <code>31/31</code> proofs checked by <code>veripb 3.0.2</code> (up to 41,160 clauses where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out), and SAT controls rejected.</li>
-          <li><strong>Brasas (Flutter Canvas, Unity 6.3 LTS C# &amp; Roblox Luau):</strong> Shared Flutter Canvas engine (<code>meson_brasas</code>, 21.1k LOC), standalone Unity 6.3 LTS edition with an engine-free C# assembly (40 XML logs with 0 failures up to <strong>142 EditMode + 8 PlayMode</strong>), 1,353-vertex 13-control 2D mesh rig, 30 fps MP4 temporal diff review, and Luau prototype (<a href="/en/lab/meson-brasas-game-architecture/">Paper 16</a>).</li>
-          <li><strong>El Pueblo del Faro (Roblox Studio), Alma (Next.js) &amp; Astro sites:</strong> Client/server Luau + Rojo/Python tooling, Alma marketplace storefront (Next.js, TypeScript, Supabase, Fuse.js, Recharts, Resend), and public Astro deployments.</li>
-        </ul>
+        <div class="cv-entry">
+          <div class="cv-entry-head">
+            <h3>Cockpit v2.2 — Native Multi-CLI Orchestrator (Rust + GPUI CE 0.3.0 + MCP)</h3>
+            <span class="cv-date">2026</span>
+          </div>
+          <p class="cv-sub">~78k Rust LOC · 57 runtime modules · 228 tests · <a href="https://m4qsz.github.io/en/projects/cockpit/" target="_blank" rel="noopener noreferrer">Case study</a> · <a href="https://m4qsz.github.io/papers/cockpit-orchestrator-paper.pdf" target="_blank" rel="noopener noreferrer">Paper PDF</a></p>
+          <p class="cv-compact">
+            Native desktop orchestrator &amp; concurrent stdio MCP server unifying Claude Code, Codex CLI, Antigravity, and OpenCode with 5h/7d quota telemetry,
+            hot Auto-Failover, automatic RTK interception (<code>PreToolUse</code> + <code>PATH</code> shims, −85% live on <code>cargo test</code>), power-loss-proof 15s <code>sync_all()</code>
+            persistence + <code>/recover</code>, local-first P2P/4G (Iroh QUIC, Tailscale, 4G Relay, <code>wgproxyrs</code>, Android Kotlin), and $0 harnesses (Win32 UIA, S→D Cloud 3D + Blender <code>bpy</code>, 10-rule Unity C#, 14-rule Roblox Luau, FFmpeg, Math/Music Lab).
+          </p>
+        </div>
+
+        <div class="cv-entry">
+          <div class="cv-entry-head">
+            <h3>Certified SAT &amp; Formal Verification Research (Lean 4.36.0 + VeriPB 3.0.2)</h3>
+            <span class="cv-date">2026</span>
+          </div>
+          <p class="cv-sub">Public repository: <a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">github.com/M4QSZ/certified-arith-preproc</a> · Papers 12–14</p>
+          <p class="cv-compact">
+            Blind certified arithmetic preprocessing, disjunctive interpolants (PHP ∨ Tseitin), and degree-2 Veronese <code>RM(2, n)</code> + <code>F₂</code> simplicial homology
+            for Goldreich PRGs: <strong>61 Lean 4 theorems</strong> (30 + 17 + 14, <code>0 sorryAx</code>), <code>31/31</code> proofs checked by <code>veripb 3.0.2</code>
+            (up to 41,160 clauses where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out), and SAT controls rejected.
+          </p>
+        </div>
+
+        <div class="cv-entry">
+          <div class="cv-entry-head">
+            <h3>Multi-Runtime Games (Brasas · El Pueblo del Faro) &amp; Web Platforms</h3>
+            <span class="cv-date">2025 – 2026</span>
+          </div>
+          <ul>
+            <li><strong>Brasas (<a href="https://m4qsz.github.io/en/lab/meson-brasas-game-architecture/" target="_blank" rel="noopener noreferrer">Paper 16</a>) &amp; El Pueblo del Faro:</strong> <em>Brasas</em> across Flutter Canvas (<code>meson_brasas</code>, 21.1k LOC), standalone Unity 6.3 LTS engine-free C# core (40 XML logs with 0 failures up to <strong>142 EditMode + 8 PlayMode</strong>), 1,353-vertex 13-control 2D mesh rig, 30 fps MP4 temporal diff QA, and Luau prototype; <em>El Pueblo del Faro</em> in Roblox Studio (client/server Luau + Rojo/Python).</li>
+            <li><strong>Production Web &amp; E-Commerce:</strong> <em>Alma</em> storefront (Next.js, TypeScript, Supabase, Fuse.js, Recharts, Resend), <a href="https://set-ingenieria.vercel.app" target="_blank" rel="noopener noreferrer">SET Engineering</a> (Astro + Tailwind), and <a href="https://pulsera-medica.vercel.app" target="_blank" rel="noopener noreferrer">MedPulse SOS</a> (Astro + TypeScript + Supabase QR/NFC).</li>
+          </ul>
+        </div>
       </section>
 
       <section>
-        <h2>Research publications (18 PDF papers) &amp; open-source code</h2>
-        <ul>
-          <li><strong><a href="/en/lab/">Technical Lab (18 bilingual ES/EN reports with downloadable PDFs)</a>:</strong> <strong>6 Cockpit reports</strong> (Multi-CLI orchestrator, Zero-Vision MCP, P2P/4G orchestration, algebraic KV-Cache laws, power-loss resilience/fingerprinting, automatic RTK &amp; $0 pipelines), <strong>9 Meson / Systems &amp; Game reports</strong> (finance/SENIAT, ERP/Rust retail/Device Hub, HLC/CRDT/DTN sync, FFI arenas/sparse Office/3D, NoSQL→SQL cutover, 112-table BaaS/RLS &amp; Realtime WAL empirical audit, self-calibrating Edge NLU + UI automation, Brasas architecture, Raw Input biomechanical telemetry), and <strong>3 certified SAT notes</strong> in Lean 4 + VeriPB 3.0.2.</li>
-          <li><strong><a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">certified-arith-preproc</a> (Python + Lean 4 + VeriPB 3.0.2):</strong> Blind pseudo-Boolean proof logging with 61 Lean 4 theorems (<code>0 sorryAx</code>) and reproducible solver benchmarks against Kissat, CaDiCaL, and CryptoMiniSat.</li>
-          <li><strong><a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> (Rust · Green CI):</strong> Clean-room crate with HLC, LWW CRDT, anti-replay <code>ChaCha20-Poly1305</code> framing, and bounded retry outbox (7 integration tests on Ubuntu &amp; Windows).</li>
-          <li><strong><a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> (Rust + C99 + <code>dart:ffi</code> · Green CI):</strong> Panic-safe FFI bridge featuring <code>u64</code> generational handles, <code>catch_unwind</code> guard, trigram search, and live C99 <code>cdylib</code> consumer test.</li>
-          <li><strong><a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> (Dart · Green CI):</strong> Pure-Dart transactional offline-first outbox with write coalescing, jittered exponential backoff, partial batch ACKs, and dead-letter quarantine.</li>
-          <li><strong>Public Vercel deployments:</strong> <a href="https://mesonapp.vercel.app" target="_blank" rel="noopener noreferrer">Meson OS Platform</a> (189 pages · 19 languages), <a href="https://set-ingenieria.vercel.app" target="_blank" rel="noopener noreferrer">SET Engineering</a> (Astro + Tailwind), and <a href="https://pulsera-medica.vercel.app" target="_blank" rel="noopener noreferrer">MedPulse SOS</a> (Astro + TypeScript + Supabase).</li>
-        </ul>
+        <h2>Research publications (18 PDF papers) &amp; audited open source</h2>
+        <p class="cv-compact">
+          <strong><a href="https://m4qsz.github.io/en/lab/" target="_blank" rel="noopener noreferrer">Technical Lab (m4qsz.github.io/en/lab)</a>:</strong>
+          18 bilingual ES/EN reports with downloadable PDFs — <strong>6 Cockpit reports</strong> (Multi-CLI orchestrator, Zero-Vision MCP, P2P/4G orchestration, algebraic KV-Cache laws, resilience/fingerprinting, automatic RTK &amp; $0 pipelines),
+          <strong>9 Meson / Systems &amp; Game reports</strong> (finance/SENIAT, ERP/Rust retail/Device Hub, HLC/CRDT/DTN sync, FFI arenas/sparse Office/3D, NoSQL→SQL cutover, 112-table BaaS/RLS &amp; Realtime WAL audit, Edge NLU + UI automation, Brasas, Raw Input/Huber), and <strong>3 certified SAT notes</strong> in Lean 4 + VeriPB 3.0.2.
+        </p>
+        <div class="cv-oss-grid">
+          <div class="cv-oss-item">
+            <strong><a href="https://github.com/M4QSZ/lan-delta-sync" target="_blank" rel="noopener noreferrer">lan-delta-sync</a> (Rust · Green CI)</strong>
+            <span>Clean-room HLC, LWW CRDT, anti-replay <code>ChaCha20-Poly1305</code> framing &amp; bounded outbox (7 tests Linux/Windows).</span>
+          </div>
+          <div class="cv-oss-item">
+            <strong><a href="https://github.com/M4QSZ/ffi-arena-bridge" target="_blank" rel="noopener noreferrer">ffi-arena-bridge</a> (Rust + C99 + <code>dart:ffi</code> · CI)</strong>
+            <span><code>u64</code> generational handles, <code>catch_unwind</code> guard, trigram search &amp; live C99 <code>cdylib</code> consumer test.</span>
+          </div>
+          <div class="cv-oss-item">
+            <strong><a href="https://github.com/M4QSZ/dart-offline-outbox" target="_blank" rel="noopener noreferrer">dart-offline-outbox</a> (Dart · Green CI)</strong>
+            <span>Pure-Dart transactional offline-first outbox: write coalescing, jittered backoff, partial ACKs &amp; quarantine.</span>
+          </div>
+          <div class="cv-oss-item">
+            <strong><a href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">certified-arith-preproc</a> (Python + Lean 4)</strong>
+            <span>Reproducible blind pseudo-Boolean proof logging (VeriPB 3.0.2, 61 Lean 4 theorems, SAT benchmarks).</span>
+          </div>
+        </div>
       </section>
 
       <section>
         <h2>Skills &amp; engineering practices</h2>
-        <p><strong>Core active stack:</strong> Rust (GPUI CE 0.3.0, MCP stdio, Iroh QUIC, userspace WireGuard, <code>C-ABI</code> / <code>dart:ffi</code>, <code>tract-onnx</code>), Lean 4 / VeriPB 3.0 / SAT-SMT (Z3, Kissat, CaDiCaL, CryptoMiniSat), Flutter (Impeller / Skia / Deferred Components), Dart, Flame, WebRTC, HLC / CRDTs, ChaCha20-Poly1305 / AES-256-GCM / Argon2, C#, Unity 6.3 LTS, Kotlin, TypeScript, JavaScript, Next.js, React, Astro, Python, Luau/Lua (Rojo/Lune), Blender <code>bpy</code>, FFmpeg, PostgreSQL, Supabase (RLS / PL/pgSQL), MySQL, SQLite, Isar, Git, Git LFS, GitHub Actions CI, Whisper STT / Edge NLU (Platt/SIF/RAG), <code>qbsdiff</code>, Win32 UIA / Raw Input, RS-232 / ESC-POS / mDNS Hardware.</p>
-        <p><strong>Engineering practices:</strong> 0-to-1 MVP execution &amp; 1:1 "on-model" UI fidelity, Modular / Clean Architecture, Offline-First systems, NoSQL → SQL migration, Formal Verification &amp; Automated Testing, Crash &amp; Memory Profiling, AppSec hardening, cross-functional delegation, Godot, and foundational work in C, C++, x64 Assembly (NASM), Java, PHP/Laravel, and Django.</p>
+        <div class="cv-skills-grid">
+          <div class="cv-skills-row">
+            <strong>Systems &amp; Native</strong>
+            <span>Rust (GPUI CE 0.3.0, MCP stdio, Iroh QUIC, userspace WireGuard, <code>C-ABI</code> / <code>dart:ffi</code>, <code>qbsdiff</code>, Win32 UIA / Raw Input), HLC / CRDTs, ChaCha20-Poly1305 / AES-256-GCM / Argon2, WebRTC, RS-232 / ESC-POS / mDNS Hardware.</span>
+          </div>
+          <div class="cv-skills-row">
+            <strong>AI &amp; Formal Verification</strong>
+            <span>Lean 4, VeriPB 3.0, SAT/SMT (Z3, Kissat, CaDiCaL, CryptoMiniSat), <code>tract-onnx</code>, Whisper STT, Edge NLU (Platt / SIF / RAG).</span>
+          </div>
+          <div class="cv-skills-row">
+            <strong>Multiplatform &amp; Web</strong>
+            <span>Flutter (Impeller / Skia / Deferred Components), Dart, Flame, Kotlin, TypeScript, JavaScript, Next.js, React, Astro, Python.</span>
+          </div>
+          <div class="cv-skills-row">
+            <strong>Games &amp; Media</strong>
+            <span>Unity 6.3 LTS, C#, Luau/Lua (Rojo / Lune), Blender <code>bpy</code>, FFmpeg, Godot (familiar).</span>
+          </div>
+          <div class="cv-skills-row">
+            <strong>Data, DevOps &amp; Foundations</strong>
+            <span>PostgreSQL, Supabase (RLS / PL/pgSQL), MySQL, SQLite, Isar, Git / Git LFS, GitHub Actions CI · Foundational C, C++, x64 Assembly (NASM), Java, PHP/Laravel, Django.</span>
+          </div>
+          <div class="cv-skills-row">
+            <strong>Engineering Practices</strong>
+            <span>0-to-1 MVP execution, 1:1 "on-model" UI fidelity, Modular / Clean Architecture, Offline-First systems, NoSQL → SQL migration, Formal Verification &amp; Automated Testing, Crash &amp; Memory Profiling, AppSec hardening, technical leadership.</span>
+          </div>
+        </div>
       </section>
 
       <section>
         <h2>Education &amp; languages</h2>
-        <p><strong>Universidad Bicentenaria de Aragua (UBA):</strong> B.S. in Systems Engineering, Programming Concentration (2023 to July 2027, expected).</p>
-        <p><strong>Languages:</strong> Spanish (Native) · English (Bilingual / C2) · Portuguese (Advanced) · Italian (Advanced) · German (Basic) · Japanese (Basic).</p>
+        <div class="cv-edu-grid">
+          <p><strong>Universidad Bicentenaria de Aragua (UBA):</strong> B.S. in Systems Engineering, Programming Concentration (2023 – Jul 2027, expected).</p>
+          <p><strong>Languages:</strong> Spanish (Native) · English (Bilingual / C2) · Portuguese (Advanced) · Italian (Advanced) · German (Basic) · Japanese (Basic).</p>
+        </div>
       </section>
     </article>
   </main>
