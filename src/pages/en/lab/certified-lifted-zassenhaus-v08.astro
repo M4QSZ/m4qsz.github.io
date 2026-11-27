@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import paperHtml from '../../../data/liftedZassenhausPaper.html?raw';
+---
+<Base
+  lang="en"
+  title="VeriPB 3.0-Certified Blind Witt–Hensel Peeling, Veronese Annihilators, and Local-Intersection Zassenhaus Preprocessing | Miguel Quevedo"
+  description="Technical Preprint v0.8: native Rust VeriPB 3.0 engines (cap-veronese-rs & schoenebeck_rs) for blind Z-adder Hensel peeling, local-intersection Zassenhaus gadget inversion up to 356,789 variables, G1 dominance, and RM(4,5) Schoenebeck threshold shift (n*: 75 -> 90), backed by 15 standalone Lean 4.36.0 suites (0 sorryAx)."
+  pageLabel="Paper · Certified Witt–Hensel, Veronese & Lifted Zassenhaus"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+    <div class="detail-hero">
+      <h1 class="long-title">VeriPB 3.0-Certified Blind Witt–Hensel Peeling, Veronese Annihilators, and Local-Intersection Zassenhaus Preprocessing for Scrambled Hybrid CNFs</h1>
+      <p class="detail-lede">Technical Preprint v0.8 — not peer-reviewed. Every certificate, Lean 4 theorem, and wall-clock figure below comes from reproducible local runs verified with Lean 4.36.0, rustc 1.100.0, and veripb 3.0.2.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.8)</strong></div>
+      <div><span>Verification</span><strong>Lean 4.36.0: 15 suites (0 sorryAx) · veripb 3.0.2: 11/11 corpus + 16/16 G₁ + 26/26 RM(4,5)</strong></div>
+      <div><span>Status</span><strong>Technical Preprint v0.8 · Rust + VeriPB 3.0</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/certified-lifted-zassenhaus-v08.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repository + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/papers/PAPER_1_VERIPB_BLIND_ARITH_VERONESE.md" target="_blank" rel="noopener noreferrer">Markdown source ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>

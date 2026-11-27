@@ -1,0 +1,706 @@
+<blockquote>
+<p><strong>Verification Status:</strong> Mechanically verified in <strong>Lean <code>4.36.0</code></strong> across <strong>5 standalone proof suites</strong> (<code>0</code> external imports, <strong><code>0 sorryAx</code></strong> via <code>#print axioms</code>: <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_ba_rewriting_soundness.lean"><code>krajicek_ba_rewriting_soundness.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_cf_compiler_unsharing.lean"><code>krajicek_cf_compiler_unsharing.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_slp_kcf_reduction.lean"><code>krajicek_slp_kcf_reduction.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a>, and <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/proof_analysis_bug_extractor.lean"><code>proof_analysis_bug_extractor.lean</code></a>). Empirical evaluation achieves <strong><code>100%</code></strong> <code>DAGStore.are_approx</code> single-occurrence step verification across all benchmarks (<code>ATAQUE-05</code>, <code>ATAQUE-08</code>, <code>ATAQUE-10</code>, <code>ATAQUE-13</code>, <code>ATAQUE-15</code>).</p>
+</blockquote>
+<hr />
+<h2>Abstract</h2>
+<p>In <em>Extended Frege proofs, circuits and rewriting</em> (<code>arXiv:2606.13367v2</code>, p. 11), Jan Kraj&iacute;&ccaron;ek asks whether every Circuit Frege (<code>CF</code>) proof of total DAG size <em>S</em> and <em>k</em> proof lines admits a polynomial-size conversion into an equational rewriting chain <em>E</em><sub>0</sub> &approx; <em>E</em><sub>1</sub> &approx; &hellip; &approx; <em>E<sub>t</sub></em> = 1, where <em>A</em> &approx; <em>B</em> denotes applying a single Boolean algebra (<code>BA</code>) axiom at a single occurrence in the tree unwinding <code>Fla[<em>A</em>]</code>. We resolve the structural sharing, compressed-proof, and syntactic-alignment frontiers of this problem, and establish an exact boundary separating syntactic circuit sharing from pure semantic equivalence:</p>
+<ol>
+<li><strong>Fan-Out &ge; 2 Unsharing &amp; poly(<em>S</em>) Compilation (<code>ATAQUE-10</code>):</strong> Incorporating the October 2026 Datta&ndash;Dutta correction&mdash;where simultaneous rewriting across a shared gate of fan-out &ge; 2 violates <em>A</em> &approx; <em>B</em> (<code>|C|_DAG = 4 -&gt; 5</code> on (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>))&mdash;we formalize persistent path-copying DAG unsharing (|<em>C&prime;</em>|<sub>DAG</sub> &le; |<em>C</em>|<sub>DAG</sub> + |<em>p</em>| + <em>c</em><sub>ba</sub>), a zero-unwinding 2-step <code>Fla</code>-bridge <em>C</em> &approx; (0 &lor; <em>C</em>) &approx; <em>D</em>, and tree-balancing yielding <em>O</em>(<em>k</em> log <em>k</em>) chain length.</li>
+<li><strong>Aligned SLP <em>k</em><sub>CF</sub>-Pure Compression (<code>ATAQUE-13</code>):</strong> Using parameterized template chains and symbolic Modus Ponens cancellation, any <em>k</em>-line aligned <code>SLPCFProof</code> compiles to a concrete &approx;-chain of length <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em>, strictly independent of intermediate DAG size <em>S</em> (verified up to <em>S</em> = 36,004 and unwound formula size 4.10 &times; 10<sup>18</sup>).</li>
+<li><strong>Non-Aligned Context-SLPs via Hash-Consed Je&zcaron; Recompression (<code>ATAQUE-15</code>):</strong> For completely misaligned linear <code>ContextSLP</code> hierarchies (dyadic doubling vs. period-3 or Thue&ndash;Morse grammars), canonical spine flattening <code>toSpine</code> and hash-consed Je&zcaron; RLE + locally-consistent pair recompression decide <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> in deterministic <em>O</em>(poly(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|)) time without tree unwinding, verified up to spine length 3 &sdot; 2<sup>60</sup> &approx; 3.46 &times; 10<sup>18</sup> in 10.057 ms, yielding <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em> non-aligned compilation.</li>
+<li><strong>Exact Syntactic-vs-Semantic Dichotomy &amp; &lceil;log<sub>2</sub> <em>t</em>&rceil; Bug Localization (<code>ATAQUE-08</code>, <code>ATAQUE-15</code>):</strong> Whenever <code>Fla[<em>A</em>] = Fla[<em>B</em>]</code>, equivalence is decidable in P and bridged in 2 universal &approx;-steps; when <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code> yet <em>A</em> &equiv;<sub>Bool</sub> <em>B</em>, bridging requires genuine coNP tautology derivations (2 <code>disjCompl</code> steps for (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub>) vs. (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>), 807 steps for XOR<sub>3</sub> associativity). Conversely, any falsifying assignment <em>x</em>* for <em>E</em><sub>0</sub> locates a broken transition <em>E<sub>i</sub></em>(<em>x</em>*) &ne; <em>E</em><sub><em>i</em>+1</sub>(<em>x</em>*) in &le; &lceil;log<sub>2</sub> <em>t</em>&rceil; queries (<code>arXiv:2611.08305</code>).</li>
+</ol>
+<hr />
+<h2>1. Introduction &amp; Kraj&iacute;&ccaron;ek&rsquo;s Open Problem (<code>arXiv:2606.13367v2</code>, p. 11)</h2>
+<p>Let <em>L</em><sub>DM</sub> = {0, 1, <em>x<sub>i</sub></em>, &neg;, &lor;, &land;} be the DeMorgan language and let <code>BA</code> be the 12 standard Boolean algebra equational axiom schemes (<code>negZero</code>: &neg;0 = 1; <code>negOne</code>: &neg;1 = 0; <code>disjZeroLeft</code>: 0 &lor; <em>a</em> = <em>a</em>; <code>conjOneLeft</code>: 1 &land; <em>a</em> = <em>a</em>; <code>disjCompl</code>: <em>a</em> &lor; &neg;<em>a</em> = 1; <code>conjCompl</code>: <em>a</em> &land; &neg;<em>a</em> = 0; <code>disjComm</code>, <code>conjComm</code>; <code>disjAssoc</code>, <code>conjAssoc</code>; <code>disjDistrib</code>, <code>conjDistrib</code>). A <em>DeMorgan circuit</em> <em>C</em> is a straight-line DAG of gates over <em>L</em><sub>DM</sub> with designated output gate <code><em>C</em>.out</code> and DAG size |<em>C</em>|<sub>DAG</sub>. Its <em>tree unwinding</em> <code>Fla[<em>C</em>]</code> (<code>unfold C C.out</code>) expands every gate reference into a <code>DeMorganTerm</code>.</p>
+<p>For formulas <em>s</em>, <em>t</em>, single-occurrence rewriting <em>s</em> &approx;<sub>BA</sub> <em>t</em> (<code>SimBA s t</code>) holds iff there exists a unique tree path <em>p</em> &isin; {L, R}* (<code>SimBAPath p s t</code>) where <em>t</em> replaces the single subformula at <em>p</em> by one bidirectional instance of <code>BA</code> (<code>BAStep</code>). An <em>n</em>-step equational chain <code>SimBAN n s t</code> inductively chains <em>n</em> single-occurrence rewrites (<em>s</em> = <em>E</em><sub>0</sub> &approx; <em>E</em><sub>1</sub> &approx; &hellip; &approx; <em>E<sub>n</sub></em> = <em>t</em>). Lifting to circuits, <em>A</em> &approx; <em>B</em> (<code>ApproxDAG A B</code>) holds iff <code>Fla[<em>A</em>] &approx;<sub>BA</sub> Fla[<em>B</em>]</code>.</p>
+<h3>The Datta&ndash;Dutta Fan-Out &ge; 2 Correction (<code>v2</code>, October 2026)</h3>
+<p>In <code>arXiv:2606.13367v1</code>, rewriting a shared DAG gate <em>g</em> of fan-out <em>f</em> &ge; 2 in-place appeared to simulate one &approx;-step. As Datta and Dutta observed (acknowledged in <code>arXiv:2606.13367v2</code>), mutating a gate of fan-out <em>f</em> &ge; 2 alters <em>f</em> distinct occurrences in <code>Fla[<em>C</em>]</code> simultaneously and therefore violates <code>SimBA</code>. On <em>C</em> = (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) (<code>|C|_DAG = 4</code>, where <em>g</em> = <em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub> has fan-out 2), simultaneous replacement yields 1 &land; 1 with <code>fanout2_simultaneous_both_approx = false</code>. Unsharing along path <code><em>p</em> = [0]</code> produces <em>C&prime;</em> = (1 &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) (<code>|C'|_DAG = 5</code>, <code>4 -&gt; 5</code>), giving the 3-step verified chain (<a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_ew_graph_results.json"><code>krajicek_ew_graph_results.json</code></a>):</p>
+<p style="text-align: center;">((<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) &rarr;<sub><code>disjCompl:fwd @ [0]</code></sub> (1 &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) &rarr;<sub><code>conjOneLeft:fwd @ []</code></sub> (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &rarr;<sub><code>disjCompl:fwd @ []</code></sub> 1.</p>
+<h3>Three Regimes of <code>CF -&gt; &approx;-Chain</code> Conversion</h3>
+<p>Circuit Frege (<code>CF</code>) represents proof lines as circuits <em>C<sub>i</sub></em> (total size <em>S</em> = &sum;<sub><em>i</em></sub> |<em>C<sub>i</sub></em>|<sub>DAG</sub>, line count <em>k</em>) and includes the structural <code>Fla</code>-rule <em>C</em> / <em>D</em> whenever <code>Fla[<em>C</em>] = Fla[<em>D</em>]</code>. We resolve three regimes of <code>CF -&gt; &approx;-Chain</code>:</p>
+<ul>
+<li><strong>(a) poly(<em>S</em>) DAG Proofs (<code>ATAQUE-10</code>):</strong> Arbitrary intra-circuit sharing and inter-line DAG proof reuse compiled via path-copying unsharing and midpoint proof-tree balancing into <em>O</em>(<em>k</em> log <em>k</em>) &approx;-steps and poly(<em>S</em>) circuit size.</li>
+<li><strong>(b) Aligned SLP-Compressed <em>k</em><sub>CF</sub> Proofs (<code>ATAQUE-13</code>):</strong> The <em>k</em><sub>CF</sub>-pure regime <em>S</em> &Gt; poly(<em>k</em> + |<em>C</em>| + |<em>D</em>|) where giant intermediate formulas <em>B<sub>i</sub></em> share a parameterized SLP template grammar, compiled in <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em> steps without materializing <em>S</em>.</li>
+<li><strong>(c) Non-Aligned Context-SLPs vs. Pure Semantic Equivalence (<code>ATAQUE-15</code>):</strong> Misaligned linear <code>ContextSLP</code> decompositions satisfying <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> (decided in P via Je&zcaron; recompression and bridged in 2 steps) versus semantically equivalent <em>A</em> &equiv;<sub>Bool</sub> <em>B</em> with <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code>.</li>
+</ul>
+<hr />
+<h2>2. Mechanical Formalization in <code>Lean 4.36.0</code> (<code>0 sorryAx</code>)</h2>
+<p>All results are formalized in five standalone Lean <code>4.36.0</code> modules (<code>0</code> external imports, <code>0 sorryAx</code>) audited via <code>#print axioms</code>.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Suite / Attack</th>
+<th style="text-align: left;">Lean Module</th>
+<th style="text-align: left;">Audited Theorems</th>
+<th style="text-align: left;"><code>#print axioms</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-05</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_ba_rewriting_soundness.lean"><code>krajicek_ba_rewriting_soundness.lean</code></a></td>
+<td style="text-align: left;"><code>baAxiom_sound</code>, <code>baStep_sound</code>, <code>simBAPath_sound</code>, <code>simBA_sound</code>, <code>simBAStar_sound</code>, <code>modus_ponens_simBAStar</code>, <code>modus_ponens_simBAN</code></td>
+<td style="text-align: left;"><code>[]</code> (<code>0</code> axioms)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-10</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_cf_compiler_unsharing.lean"><code>krajicek_cf_compiler_unsharing.lean</code></a></td>
+<td style="text-align: left;"><code>cf_fla_rule_two_step_approx</code>, <code>path_unsharing_size_bound</code>, <code>cf_modus_ponens_tree_bound</code></td>
+<td style="text-align: left;"><code>[propext]</code> / <code>[]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-13</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_slp_kcf_reduction.lean"><code>krajicek_slp_kcf_reduction.lean</code></a></td>
+<td style="text-align: left;"><code>tsimBAN_inst</code>, <code>slp_congruence_two_step_approx</code>, <code>slp_localized_template_step_sound</code>, <code>slp_hole_congruence_two_step</code>, <code>template_modus_ponens</code>, <code>slp_modus_ponens_cancellation</code>, <code>mp_cancellation_chain_bound</code>, <code>cf_slp_unification_compression</code></td>
+<td style="text-align: left;"><code>[]</code> / <code>[propext, Quot.sound]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-15</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a></td>
+<td style="text-align: left;"><code>simBAN_evalBool_eq</code>, <code>evalSpine_toSpine</code>, <code>nonaligned_ctx_two_step_approx</code>, <code>doubling_tower_reassoc_two_step</code>, <code>nonaligned_ctx_cf_compression</code>, <code>syntactic_vs_semantic_fla_dichotomy</code></td>
+<td style="text-align: left;"><code>[propext]</code> / <code>[propext, Quot.sound]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-08</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/proof_analysis_bug_extractor.lean"><code>proof_analysis_bug_extractor.lean</code></a></td>
+<td style="text-align: left;"><code>binary_search_bug_step_correct</code>, <code>binary_search_bug_step_log_correct</code>, <code>bug_or_tautology_dichotomy</code>, <code>constructive_bug_extraction</code></td>
+<td style="text-align: left;"><code>[propext, Quot.sound]</code> (+ <code>Classical.choice</code> in dichotomy)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Core Formalized Theorems (Exact Lean Statements):</strong></p>
+<ul>
+<li><strong>Lemma 2.1 Modus Ponens (<code>modus_ponens_simBAN</code>, <code>0</code> axioms):</strong> Given <code>SimBAN k₁ a .one</code> and <code>SimBAN k₂ (.disj (.neg a) b) .one</code>, rewriting &neg;<em>a</em> &approx;* &neg;1 &approx; 0 (<code>negOne</code>) and (&neg;<em>a</em> &lor; <em>b</em>) &approx;* (0 &lor; <em>b</em>) &approx; <em>b</em> (<code>disjZeroLeft</code>) yields <code>SimBAN (k₁ + 2 + k₂) b .one</code>.</li>
+<li><strong>Zero-Unwinding <code>Fla</code> Bridge &amp; Unsharing (<code>cf_fla_rule_two_step_approx</code>, <code>path_unsharing_size_bound</code>, <code>cf_modus_ponens_tree_bound</code>):</strong> For any well-formed <code>C, D</code> with <code>unfold C C.out = unfold D D.out</code>, <code>M := zeroOrCircuit C</code> satisfies <code>M.gates.length = C.gates.length + 2</code> and <code>ApproxDAG C M &and; ApproxDAG M D</code>. Persistent <code>pathCopy</code> produces <code>C'</code> with <code>C'.gates.length &le; C.gates.length + p.length + c_ba</code> and <code>ApproxDAG C C'</code>; inductively, any <code>k</code>-step <code>TreeCFDeriv c_ax C k</code> compiles to <code>SimBAN n (unfold C C.out) .one</code> with <code>n &le; (c_ax + 2) * k</code>.</li>
+<li><strong>Symbolic SLP Compression (<code>tsimBAN_inst</code>, <code>mp_cancellation_chain_bound</code>, <code>cf_slp_unification_compression</code>):</strong> Any <em>n</em>-step template chain <code>TSimBAN n s t</code> instantiates under arbitrary &rho; : <strong>N</strong> &rarr; <code>DeMorganTerm</code> to <code>SimBAN n (inst &rho; s) (inst &rho; t)</code>. A <em>k</em>-step MP chain <em>B</em><sub>0</sub> &rarr; &hellip; &rarr; <em>B<sub>k</sub></em> compiles to <code>SimBAN (m₀ + k * (c + 2)) .one (inst &rho; (B k))</code>, and any <code>SLPCFProof &rho; c_ax k G</code> compiles to <code>SimBAN t .one (unfoldSLP &rho; G)</code> with <code>t &le; (c_ax + 2) * k</code>.</li>
+<li><strong>Non-Aligned Context-SLPs (<code>evalSpine_toSpine</code>, <code>nonaligned_ctx_two_step_approx</code>, <code>doubling_tower_reassoc_two_step</code>, <code>nonaligned_ctx_cf_compression</code>, <code>syntactic_vs_semantic_fla_dichotomy</code>):</strong> Canonical flattening <code>toSpine : CtxExpr &rarr; List AtomicCtx</code> satisfies <code>evalSpine (toSpine K) t = evalCtx K t</code>. Any two contexts with <code>toSpine K₁ = toSpine K₂</code> and <code>t₁ = t₂</code> satisfy <code>SimBAN 2 (evalCtx K₁ t₁) (evalCtx K₂ t₂)</code>&mdash;instantiated for all <em>m</em> on <code>doublingTower m a</code> of depth &ge; 2<sup><em>m</em>+1</sup>&mdash;and any <code>CtxCFProof c_ax k K u</code> compiles to <code>t &le; (c_ax + 2) * k</code> steps.</li>
+<li><strong>Constructive Bug Localization (<code>binary_search_bug_step_log_correct</code>, <code>bug_or_tautology_dichotomy</code>, <code>constructive_bug_extraction</code>):</strong> For any chain <em>E</em><sub>0</sub>, &hellip;, <em>E<sub>t</sub></em> with <em>E<sub>t</sub></em> &equiv; 1, either every step preserves semantics (so <em>E</em><sub>0</sub> is a tautology), or any <em>x</em>* with <em>E</em><sub>0</sub>(<em>x</em>*) = <code>false</code> yields <code>idx &lt; t</code> with <code>eval idx x* = false &and; eval (idx + 1) x* = true</code> in <code>fuel</code> steps whenever <code>t &le; 2 ^ fuel</code>.</li>
+</ul>
+<hr />
+<h2>3. Polynomial-Time Compilers &amp; Hash-Consed Je&zcaron; Recompression</h2>
+<h3>3.1 Zero-Unwinding <code>0 &lor; C</code> Bridge, Path-Copying Unsharing, and <code>O(k log k)</code> Balancing</h3>
+<p>When a <code>CF</code> derivation invokes <code>Fla[C] = Fla[D]</code> between circuits <em>C</em>, <em>D</em> with incompatible DAG sharing (<code>|C|_DAG &ne; |D|_DAG</code>), unwinding <code>Fla[<em>C</em>]</code> would incur exponential blowup (8,388,601 formula nodes at <em>m</em> = 20 in Suite 1 of <code>ATAQUE-10</code>). Instead, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_cf_compiler.py"><code>krajicek_cf_compiler.py</code></a> allocates the 2-gate circuit <em>M</em> := (0 &lor; <em>C</em>) (<code>zeroOrCircuit C</code>) and applies <code>BAAxiom.disjZeroLeft</code> backward and forward at root path <code>[]</code>:</p>
+<p style="text-align: center;"><em>C</em> &rarr;<sub><code>disjZeroLeft:bwd @ []</code></sub> (0 &lor; <em>C</em>) &rarr;<sub><code>disjZeroLeft:fwd @ []</code></sub> <em>D</em>.</p>
+<p>Because <code>Fla[0 &lor; <em>C</em>] = (0 &lor; Fla[<em>C</em>]) = (0 &lor; Fla[<em>D</em>])</code>, both transitions are exact single-occurrence <code>SimBA</code> steps with zero unwinding. For internal <code>BA</code> rewrites at tree path <em>p</em>, persistent <code>pathCopy</code> clones only the |<em>p</em>| ancestors on <em>p</em> (<code>|D'| &le; |D| + |p|</code> when substituting an existing gate, or <code>&le; |D| + |p| + c_ba</code> before hash-consing). For <code>CF</code> proof DAGs with line fan-out &ge; 2, recursive midpoint balancing eliminates exponential proof-tree unwinding, yielding <em>O</em>(<em>k</em> log <em>k</em>) &approx;-steps and poly(<em>S</em>) total DAG size.</p>
+<h3>3.2 SLP Template Modus Ponens Cancellation (<em>S</em> &Gt; poly(<em>k</em>))</h3>
+<p>In the <em>k</em><sub>CF</sub>-pure regime where <em>S</em> &Gt; poly(<em>k</em> + |<em>C</em>| + |<em>D</em>|), <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_slp_unifier.py"><code>krajicek_slp_unifier.py</code></a> operates over symbolic <code>SLP</code> grammars with metavariable holes <code>hole i</code> representing unmaterialized giant subcircuits &rho;(<em>i</em>). By <code>tsimBAN_inst</code> and <code>template_modus_ponens</code>, Modus Ponens over <em>B<sub>i</sub></em> cancels the shared template in literally +2 concrete steps (<code>negOne</code> + <code>disjZeroLeft</code>), yielding total chain length <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em> completely independent of <em>S</em>.</p>
+<h3>3.3 Hash-Consed Je&zcaron; Recompression on Non-Aligned <code>ContextSLP</code>s</h3>
+<p>When <em>G</em><sub>1</sub> and <em>G</em><sub>2</sub> are <strong>non-syntactically-aligned</strong> <code>ContextSLP</code>s&mdash;unary DeMorgan tree grammars built with <code>id</code>, <code>atom</code> (&neg;&#9633;, &#9633; &lor; <em>R</em>, <em>L</em> &lor; &#9633;, &#9633; &land; <em>R</em>, <em>L</em> &land; &#9633;), and associative composition <code>comp</code>&mdash;different parse hierarchies (e.g., dyadic doubling <em>D</em><sub><em>m</em>+1</sub> = <em>D<sub>m</sub></em> &#8728; <em>D<sub>m</sub></em> vs. period-3 or Thue&ndash;Morse splits) share zero intermediate nonterminals. <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_nonaligned_slp.py"><code>krajicek_nonaligned_slp.py</code></a> decides <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> in <em>O</em>(poly(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|)) time via <code>recompress_unify_context_slp</code> (Je&zcaron; 2016; Lohrey 2012):</p>
+<ol>
+<li><strong>Normalized CFG Extraction (<code>_slp_to_cfg_rhs</code>):</strong> Eliminate <code>id</code> rules and alias unit nonterminals in <em>O</em>(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|), representing atomic context frames as negative terminal IDs.</li>
+<li><strong>Exact RLE Block Compression (<code>run_exact_rle_phase</code>):</strong> A single bottom-up pass classifies each nonterminal as <code>pure</code> (a single maximal run <em>a<sup>c</sup></em>) or <code>impure</code> <code>(l_tok, l_cnt, mid_core, r_tok, r_cnt)</code> and compresses maximal blocks <em>a<sup>c</sup></em> to canonical tokens via a hash-consed <code>block_dict</code>.</li>
+<li><strong>Locally-Consistent Pair Compression &amp; Hash-Consed Pruning (<code>prune_to_roots</code>):</strong> Compute <code>first_tok</code>/<code>last_tok</code> and weighted adjacent pairs (<em>a</em>, <em>b</em>) across rule boundaries; greedily partition terminals into (<em>L</em>, <em>R</em>) maximizing cut weight; pop <em>R</em>-prefixes and <em>L</em>-suffixes out of nonterminals; merge (<em>L</em> &times; <em>R</em>) pairs via <code>pair_dict</code>; and compact reachable rules with <code>rhs_intern</code>.</li>
+</ol>
+<p>Each round compresses the expanded spine length by a constant factor without unfolding the 2<sup><em>m</em></sup> tree, deciding equality up to spine length 3 &sdot; 2<sup>60</sup> = 3,458,764,513,820,540,928 &approx; 3.46 &times; 10<sup>18</sup> in 10.057 ms.</p>
+<p><strong>Correctness of Non-Aligned Compilation (<code>evalSpine_toSpine</code>, <code>nonaligned_ctx_cf_compression</code>):</strong> By structural induction on <code>K : CtxExpr</code>, <code>evalSpine_toSpine</code> establishes <code>evalSpine (toSpine K) t = evalCtx K t</code> using <code>evalSpine_append</code> (<code>toSpine (.compC k₁ k₂) = toSpine k₁ ++ toSpine k₂</code>). Consequently, whenever <code>recompress_unify_context_slp</code> certifies <code>toSpine K₁ = toSpine K₂</code> and <code>u₁ = u₂</code>, <code>nonaligned_ctx_two_step_approx</code> constructs the 2-step bridge <code>SimBAN 2 (evalCtx K₁ u₁) (evalCtx K₂ u₂)</code> via <code>0 &lor; C</code>. In particular, <code>doubling_tower_reassoc_two_step</code> bridges arbitrary reassociations <code>(D_m &#8728; D_m) &#8728; K</code> vs. <code>D_m &#8728; (D_m &#8728; K)</code> of exponential depth &ge; 2<sup><em>m</em>+1</sup> in exactly <code>2</code> &approx;-steps for every <em>m</em> &isin; <strong>N</strong>. Lifting inductively across <code>CtxCFProof</code> in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a>, <code>nonaligned_ctx_cf_compression</code> compiles any <em>k</em>-line proof combining bounded-cost axiom templates (<em>m</em> &le; <em>c</em><sub>ax</sub>), Modus Ponens cuts over giant compressed contexts (<code>evalSpine (toSpine K_Imp) u_Imp</code>), and non-aligned <code>toSpine</code> unification steps to a valid concrete chain <code>SimBAN t .one (evalCtx K u)</code> with:</p>
+<p style="text-align: center;"><em>t</em> &le; (<em>c</em><sub>ax</sub> + 2) <em>k</em>,</p>
+<p>strictly independent of intermediate DAG size <em>S</em> and exponential tree depth 2<sup><em>m</em></sup>.</p>
+<hr />
+<h2>4. Syntactic-vs-Semantic Dichotomy &amp; Constructive Bug Localization (<code>arXiv:2611.08305</code>)</h2>
+<p>Theorem 4 (<code>syntactic_vs_semantic_fla_dichotomy</code>) delineates the exact computational boundary of <code>CF -&gt; &approx;-Chain</code>:</p>
+<ul>
+<li><strong>Syntactic <code>Fla</code>-Equality (&isin; P, <code>2</code> &approx;-steps):</strong> Any non-aligned <code>(K₁, u₁), (K₂, u₂)</code> with <code>toSpine K₁ = toSpine K₂</code> and <code>u₁ = u₂</code> satisfies <code>Fla[K₁(u₁)] = Fla[K₂(u₂)]</code>, is certified in deterministic polynomial time by Je&zcaron; recompression, and bridges in 2 universal <code>0 &lor; C</code> steps.</li>
+<li><strong>Pure Semantic Equivalence (coNP-hard, Non-Universal <code>BA</code> Steps):</strong> When <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code> despite <em>A</em> &equiv;<sub>Bool</sub> <em>B</em>, structural <code>Fla</code> sharing is powerless. For <code>tautVar0</code> = (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub>) and <code>tautVar1</code> = (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>), <code>&neg; SimBA tautVar0 tautVar1</code> holds (<code>1</code> step is impossible); bridging requires 2 variable-eliminating <code>disjCompl</code> steps (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub> &approx; 1 &approx; <em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>). When variables coincide but Boolean structure differs, e.g., XOR<sub>3</sub> associativity ((<em>x</em><sub>1</sub> &oplus; <em>x</em><sub>2</sub>) &oplus; <em>x</em><sub>3</sub>) vs. (<em>x</em><sub>1</sub> &oplus; (<em>x</em><sub>2</sub> &oplus; <em>x</em><sub>3</sub>)), bidirectional graph search requires 807 verified <code>BA</code> steps.</li>
+</ul>
+<p><strong>Syntactic-vs-Semantic Dichotomy in Lean (<code>syntactic_vs_semantic_fla_dichotomy</code>):</strong> Explicitly, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a> proves the conjunction:</p>
+<ol>
+<li><em>(Syntactic <code>Fla</code>-equality regime)</em> <code>&forall; K₁ K₂ u, toSpine K₁ = toSpine K₂ &rarr; SimBAN 2 (evalCtx K₁ u) (evalCtx K₂ u)</code>;</li>
+<li><em>(Semantic <code>&equiv;_Bool</code> barrier)</em> For <code>tautVar0 := .disj (.var 0) (.neg (.var 0))</code> and <code>tautVar1 := .disj (.var 1) (.neg (.var 1))</code>: <code>SemEquiv tautVar0 tautVar1 &and; tautVar0 &ne; tautVar1 &and; &neg; SimBA tautVar0 tautVar1 &and; SimBAN 2 tautVar0 tautVar1</code>.</li>
+</ol>
+<p>This cleanly separates structural <code>Fla</code> sharing (solvable in P via Je&zcaron; recompression with 2 universal steps) from semantic equivalence over distinct syntax trees (which requires genuine variable-eliminating <code>BA</code> steps).</p>
+<p><strong>Constructive Bug Localization (<code>ATAQUE-08</code>):</strong> Complementary to <code>CF</code> compilation, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/proof_bug_extractor.py"><code>proof_bug_extractor.py</code></a> implements <code>arXiv:2611.08305</code> (Li&ndash;Li&ndash;Ren, <em>STOC 2026</em>) using <code>pysat_cadical195</code>: given a corrupted chain <em>E</em><sub>0</sub>, &hellip;, <em>E<sub>t</sub></em> ending at <em>E<sub>t</sub></em> &equiv; 1 and any falsifying assignment <em>x</em>* (<em>E</em><sub>0</sub>(<em>x</em>*) = <code>false</code>), <code>findBrokenStep</code> bisects [0, <em>t</em>] to return a concrete invalid transition <em>E<sub>i</sub></em>(<em>x</em>*) = <code>false</code> and <em>E</em><sub><em>i</em>+1</sub>(<em>x</em>*) = <code>true</code> in &le; &lceil;log<sub>2</sub> <em>t</em>&rceil; evaluations. Across all four corrupted chains in Table 5&mdash;including <code>DattaDutta_v1_DeMorgan_fanout2_bug</code> (catching the simultaneous fan-out 2 violation at step 3 in 2 &le; 3 queries, <code>1.023 ms</code>) and <code>PHP_3_3_corrupted</code> (catching step 5 in 3 &le; 4 queries, <code>18.009 ms</code>)&mdash;binary midpoint localization agrees identically with exhaustive parallel local checks.</p>
+<p>As an auxiliary empirical diagnostic in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/proof_bug_extractor_results.json"><code>proof_bug_extractor_results.json</code></a>, <em>K<sup>t</sup></em> witness-compression symmetry-of-information (<code>SoI</code>) measurements across <em>n</em> &isin; {6, 8, 10, 12, 14} confirm zero <code>SoI</code> asymmetry (<code>SoI_asymmetry_bits = 0</code>) on <code>schoolbook_mult</code>, <code>goldreich_xormaj3</code>, and <code>random_permutation</code>, whereas <code>keccak_chi_4round</code> exhibits measurable compressibility at small block sizes (<code>output_compression_ratio = 0.125</code> at <em>n</em> = 6, <code>0.4062</code> at <em>n</em> = 8).</p>
+<hr />
+<h2>5. Experimental Evaluation</h2>
+<p>Every valid compiled chain across all suites achieved <code>100%</code> <code>DAGStore.are_approx</code> step verification.</p>
+<h3>Table 1: Exact <code>&approx;</code>-Chains &amp; Datta&ndash;Dutta Unsharing (<code>ATAQUE-05</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_ew_graph_results.json"><code>krajicek_ew_graph_results.json</code></a>)</h3>
+<p>Total hash-cons nodes allocated: <code>283,132</code>; <code>v2_datta_dutta_self_tests</code>: <code>PASS</code> (<code>fanout2_single_occurrence_approx = true</code>, <code>fanout2_simultaneous_both_approx = false</code>, witness <code>disjCompl:fwd</code> at <code>path = [0]</code>, DAG <code>4 -&gt; 5</code>).</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Benchmark</th>
+<th style="text-align: left;">Family</th>
+<th style="text-align: right;">Steps <em>t</em></th>
+<th style="text-align: center;">Src / Dst / Peak DAG</th>
+<th style="text-align: center;"><code>are_approx</code> &amp; Sem.</th>
+<th style="text-align: right;">Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>taut_lem_x_or_not_x</code></td>
+<td style="text-align: left;"><code>tautology</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;"><code>3 / 1 / 3</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>taut_fanout2_lem_and_lem</code></td>
+<td style="text-align: left;"><code>tautology_unsharing</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>4 / 1 / 5</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.17</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>double_negation_elim</code></td>
+<td style="text-align: left;"><code>tautology</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: center;"><code>3 / 1 / 6</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1151.12</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>demorgan_disj</code></td>
+<td style="text-align: left;"><code>demorgan</code></td>
+<td style="text-align: right;">50</td>
+<td style="text-align: center;"><code>4 / 5 / 16</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">4.09</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>demorgan_conj</code></td>
+<td style="text-align: left;"><code>demorgan</code></td>
+<td style="text-align: right;">52</td>
+<td style="text-align: center;"><code>4 / 5 / 15</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">4.86</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>modus_ponens_lemma21_raw</code></td>
+<td style="text-align: left;"><code>modus_ponens</code></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: center;"><code>3 / 1 / 9</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor2_commutativity</code></td>
+<td style="text-align: left;"><code>xor</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>7 / 7 / 7</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.22</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor3_associativity</code></td>
+<td style="text-align: left;"><code>xor</code></td>
+<td style="text-align: right;">807</td>
+<td style="text-align: center;"><code>13 / 13 / 34</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">283.73</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>maj3_dnf_to_cnf</code></td>
+<td style="text-align: left;"><code>maj3</code></td>
+<td style="text-align: right;">396</td>
+<td style="text-align: center;"><code>8 / 8 / 28</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1410.19</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_2_1_dnf_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">79</td>
+<td style="text-align: center;"><code>7 / 1 / 17</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">860.21</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_2_1_negcnf_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">258</td>
+<td style="text-align: center;"><code>8 / 1 / 19</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">40.15</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_3_2_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">1568</td>
+<td style="text-align: center;"><code>29 / 1 / 67</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1227.26</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 2: <code>CF</code> Unsharing &amp; Balanced DAG Compilation (<code>ATAQUE-10</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_cf_compiler_results.json"><code>krajicek_cf_compiler_results.json</code></a>)</h3>
+<p>Total hash-cons nodes allocated: <code>659,003</code>; <code>all_steps_verified_are_approx = true</code> (Suite 2 semantic tautology verified for <em>r</em> &isin; {2, 4, 6}, <code>null</code> at <em>r</em> = 8 with 9 vars).</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite 1 (<code>tree_lemma21</code>) <em>m</em></th>
+<th style="text-align: right;">Canonical DAG</th>
+<th style="text-align: right;">|Fla|</th>
+<th style="text-align: right;"><em>k</em></th>
+<th style="text-align: right;">Steps <em>t</em></th>
+<th style="text-align: right;">Peak DAG</th>
+<th style="text-align: right;">Unwound / Peak</th>
+<th style="text-align: center;">Compile / Verify (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;"><code>2.52&times;</code></td>
+<td style="text-align: center;"><code>0.346 / 2.875</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">2,041</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: right;"><code>24.30&times;</code></td>
+<td style="text-align: center;"><code>0.786 / 5.243</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">32,761</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">216</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;"><code>273.01&times;</code></td>
+<td style="text-align: center;"><code>1.765 / 12.046</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">524,281</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;"><code>3360.78&times;</code></td>
+<td style="text-align: center;"><code>3.020 / 21.396</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">8,388,601</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">344</td>
+<td style="text-align: right;">192</td>
+<td style="text-align: right;"><code>43690.63&times;</code></td>
+<td style="text-align: center;"><code>3.996 / 31.877</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite 2 (<code>dag_theorem11_balanced</code>) <em>r</em></th>
+<th style="text-align: right;"><em>k</em><sub>CF</sub></th>
+<th style="text-align: right;">Naive Tree Steps</th>
+<th style="text-align: right;">Emitted <em>t</em></th>
+<th style="text-align: right;"><em>t</em> / (<em>k</em> log<sub>2</sub> <em>k</em>)</th>
+<th style="text-align: right;">Peak DAG</th>
+<th style="text-align: center;">Compile / Verify (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">2 (<code>3</code> vars)</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1118</td>
+<td style="text-align: right;">46.583</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: center;"><code>8.383 / 64.293</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">4 (<code>5</code> vars)</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">3332</td>
+<td style="text-align: right;">33.963</td>
+<td style="text-align: right;">246</td>
+<td style="text-align: center;"><code>109.806 / 555.277</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">6 (<code>7</code> vars)</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">249</td>
+<td style="text-align: right;">5622</td>
+<td style="text-align: right;">30.207</td>
+<td style="text-align: right;">423</td>
+<td style="text-align: center;"><code>160.856 / 1648.769</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8 (<code>9</code> vars)</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">1017</td>
+<td style="text-align: right;">7802</td>
+<td style="text-align: right;">27.648</td>
+<td style="text-align: right;">577</td>
+<td style="text-align: center;"><code>305.893 / 2982.007</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 3: Aligned SLP <em>k</em><sub>CF</sub>-Pure Compression (<code>ATAQUE-13</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_slp_kcf_results.json"><code>krajicek_slp_kcf_results.json</code></a>)</h3>
+<p>Summary over all <code>11</code> benchmarks: <code>385 / 385</code> <code>are_approx</code> checks passed (<code>100%</code>), <code>all_endpoints_ok = true</code>, <code>3 / 3</code> truth-table invariants verified, max <em>S</em> = 36,004, max unwound size = 4,098,181,835,914,914,434, max <em>S</em>/SLP = 857.24&times;.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Benchmark</th>
+<th style="text-align: left;">Suite</th>
+<th style="text-align: right;"><em>k</em><sub>CF</sub></th>
+<th style="text-align: right;">Raw <em>S</em></th>
+<th style="text-align: right;">Max |Fla|</th>
+<th style="text-align: right;">SLP</th>
+<th style="text-align: right;"><em>S</em> / SLP</th>
+<th style="text-align: right;"><em>t</em></th>
+<th style="text-align: center;">Wall / Verify (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d15_m3</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">424</td>
+<td style="text-align: right;"><code>1,619,676</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">6.95</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>0.293 / 0.270</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d25_m4</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">823</td>
+<td style="text-align: right;"><code>1,668,134,620</code></td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">10.29</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: center;"><code>0.495 / 0.429</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d35_m5</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">1,349</td>
+<td style="text-align: right;"><code>1,708,169,850,296</code></td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">13.63</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: center;"><code>0.781 / 1.488</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d42_m6</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">1,903</td>
+<td style="text-align: right;"><code>218,645,740,837,742</code></td>
+<td style="text-align: right;">118</td>
+<td style="text-align: right;">16.13</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: center;"><code>0.921 / 0.916</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w16_l8_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3,924</td>
+<td style="text-align: right;"><code>33,632,725,506</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">93.43</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>1.375 / 0.115</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w32_l12_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12,182</td>
+<td style="text-align: right;"><code>34,173,623,118,338</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">290.05</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>4.543 / 0.119</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w64_l16_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">21,484</td>
+<td style="text-align: right;"><code>8,731,405,088,107,138</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">511.52</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>7.836 / 0.120</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w96_l20_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">36,004</td>
+<td style="text-align: right;"><code>4,098,181,835,914,914,434</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">857.24</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>13.596 / 0.821</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n4_m2</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1,086</td>
+<td style="text-align: right;"><code>981,154</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">25.86</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>0.498 / 1.522</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n5_m3</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3,072</td>
+<td style="text-align: right;"><code>11,316,898</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">50.36</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>1.180 / 4.955</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n6_m3</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3,368</td>
+<td style="text-align: right;"><code>45,267,618</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">55.21</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>1.347 / 6.670</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 4: Non-Aligned Je&zcaron; Recompression &amp; Dichotomy (<code>ATAQUE-15</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_nonaligned_slp_results.json"><code>krajicek_nonaligned_slp_results.json</code></a>)</h3>
+<p>In Suite A, all equal pairs unified (<code>True</code>) and all depth-2<sup><em>m</em></sup>&minus;1 single-leaf mutations were rejected (<code>True</code>), totaling <code>1562.593 ms</code> across Suites A&ndash;C. In Suite C, <code>taut_var0_vs_taut_var1</code> gave <code>syntactic_fla_equal = false</code>, <code>semantic_bool_equal = true</code>, <code>one_step_are_approx = false</code>, <code>min_verified_ba_steps = 2</code>; <code>xor3_left_vs_right_assoc</code> gave <code>syntactic_fla_equal = false</code>, <code>semantic_bool_equal = true</code>, <code>one_step_are_approx = false</code>, <code>constructive_verified_ba_steps = 807</code>.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Exp. <em>m</em></th>
+<th style="text-align: right;">Periodic Spine Len</th>
+<th style="text-align: center;">Rules (<em>G</em><sub>1</sub>, <em>G</em><sub>2</sub>)</th>
+<th style="text-align: center;">Rounds / Time (ms)</th>
+<th style="text-align: right;">Mutated (ms)</th>
+<th style="text-align: right;">Thue&ndash;Morse Spine Len</th>
+<th style="text-align: center;">Rules (<em>G</em><sub>1</sub>, <em>G</em><sub>2</sub>)</th>
+<th style="text-align: center;">Rounds / Time (ms)</th>
+<th style="text-align: right;">Mutated (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">192</td>
+<td style="text-align: center;"><code>(11, 19)</code></td>
+<td style="text-align: center;"><code>3 / 1.450</code></td>
+<td style="text-align: right;">1.073</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: center;"><code>(14, 20)</code></td>
+<td style="text-align: center;"><code>4 / 1.067</code></td>
+<td style="text-align: right;">1.126</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12,288</td>
+<td style="text-align: center;"><code>(17, 31)</code></td>
+<td style="text-align: center;"><code>3 / 1.519</code></td>
+<td style="text-align: right;">1.334</td>
+<td style="text-align: right;">4,096</td>
+<td style="text-align: center;"><code>(26, 38)</code></td>
+<td style="text-align: center;"><code>12 / 5.515</code></td>
+<td style="text-align: right;">3.590</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3,145,728</td>
+<td style="text-align: center;"><code>(25, 47)</code></td>
+<td style="text-align: center;"><code>3 / 2.142</code></td>
+<td style="text-align: right;">2.553</td>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: center;"><code>(42, 62)</code></td>
+<td style="text-align: center;"><code>24 / 28.621</code></td>
+<td style="text-align: right;">13.123</td>
+</tr>
+<tr>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;"><code>12,884,901,888</code></td>
+<td style="text-align: center;"><code>(37, 71)</code></td>
+<td style="text-align: center;"><code>3 / 4.632</code></td>
+<td style="text-align: right;">3.639</td>
+<td style="text-align: right;"><code>4,294,967,296</code></td>
+<td style="text-align: center;"><code>(66, 98)</code></td>
+<td style="text-align: center;"><code>42 / 86.632</code></td>
+<td style="text-align: right;">45.351</td>
+</tr>
+<tr>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;"><code>844,424,930,131,968</code></td>
+<td style="text-align: center;"><code>(53, 103)</code></td>
+<td style="text-align: center;"><code>3 / 8.180</code></td>
+<td style="text-align: right;">7.914</td>
+<td style="text-align: right;"><code>281,474,976,710,656</code></td>
+<td style="text-align: center;"><code>(98, 146)</code></td>
+<td style="text-align: center;"><code>66 / 281.960</code></td>
+<td style="text-align: right;">117.931</td>
+</tr>
+<tr>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;"><code>3,458,764,513,820,540,928</code></td>
+<td style="text-align: center;"><code>(65, 127)</code></td>
+<td style="text-align: center;"><code>3 / 10.057</code></td>
+<td style="text-align: right;">10.022</td>
+<td style="text-align: right;"><code>1,152,921,504,606,846,976</code></td>
+<td style="text-align: center;"><code>(122, 182)</code></td>
+<td style="text-align: center;"><code>84 / 423.794</code></td>
+<td style="text-align: right;">155.639</td>
+</tr>
+</tbody>
+</table></div>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite B (<code>c_ax = 3</code>) <code>k_cuts</code></th>
+<th style="text-align: right;"><code>k_cf_lines</code></th>
+<th style="text-align: right;">Total Spine Depth</th>
+<th style="text-align: right;">Emitted <code>&approx;</code>-Steps</th>
+<th style="text-align: right;">Bound <code>(c_ax+2)k</code></th>
+<th style="text-align: center;">Verified <code>are_approx</code></th>
+<th style="text-align: right;">Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">768</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: center;"><code>True</code> (<code>17 / 17</code>)</td>
+<td style="text-align: right;">3.347</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1,536</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: center;"><code>True</code> (<code>33 / 33</code>)</td>
+<td style="text-align: right;">5.541</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">2,304</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">95</td>
+<td style="text-align: center;"><code>True</code> (<code>49 / 49</code>)</td>
+<td style="text-align: right;">7.567</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">3,072</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: center;"><code>True</code> (<code>65 / 65</code>)</td>
+<td style="text-align: right;">12.389</td>
+</tr>
+</tbody>
+</table></div>
+<p>Total materialized Suite B verified transitions: <code>total_verified_approx_steps_suite_b = 164</code> (<code>100%</code> <code>are_approx</code>).</p>
+<h3>Table 5: Constructive Bug Localization (<code>ATAQUE-08</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/proof_bug_extractor_results.json"><code>proof_bug_extractor_results.json</code></a>)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Corrupted Chain (<code>pysat_cadical195</code>)</th>
+<th style="text-align: right;">Chain <em>t</em></th>
+<th style="text-align: right;">Vars</th>
+<th style="text-align: right;"><em>E</em><sub>0</sub> DAG</th>
+<th style="text-align: right;">Broken Step</th>
+<th style="text-align: center;">Queries / &lceil;log<sub>2</sub> <em>t</em>&rceil;</th>
+<th style="text-align: center;">Verified Falsifies / Broken</th>
+<th style="text-align: right;">Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>PHP_3_3_corrupted</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: center;"><code>3 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">18.009</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_XOR_MAJ3_corrupted</code></td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: center;"><code>4 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">35.401</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Random_3SAT_alpha_4_26_corrupted</code></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">264</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: center;"><code>3 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">76.912</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DattaDutta_v1_DeMorgan_fanout2_bug</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>2 / 3</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1.023</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>6. Summary, Reproducibility Commands &amp; References</h2>
+<p>Together, <code>ATAQUE-05</code>, <code>ATAQUE-08</code>, <code>ATAQUE-10</code>, <code>ATAQUE-13</code>, and <code>ATAQUE-15</code> close the poly(<em>S</em>) DAG-unsharing, aligned SLP <em>k</em><sub>CF</sub>-pure, and non-aligned linear <code>ContextSLP</code> recompression regimes of Kraj&iacute;&ccaron;ek&rsquo;s <code>CF -&gt; &approx;-Chain</code> problem (<code>arXiv:2606.13367v2</code>, p. 11), while pinpointing the exact <code>P</code>-vs.-<code>coNP</code> boundary between syntactic <code>Fla</code>-equality (<code>2</code> universal &approx;-steps) and semantic equivalence <em>A</em> &equiv;<sub>Bool</sub> <em>B</em> with <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code>. Extensions beyond linear unary <code>ContextSLP</code>s to arbitrary nonlinear tree-SLPs with multiple simultaneous holes remain open within the full tree-recompression framework (Je&zcaron; 2016; Lohrey 2012).</p>
+<pre><code class="language-bash"># 1. Verify all 5 standalone Lean 4.36.0 proof modules (0 sorryAx, 0 external imports)
+for f in krajicek_ba_rewriting_soundness.lean krajicek_cf_compiler_unsharing.lean \
+         krajicek_slp_kcf_reduction.lean krajicek_nonaligned_context_slp.lean \
+         proof_analysis_bug_extractor.lean; do
+  lean "proofs/$f"
+done
+
+# 2. Reproduce all Python verification &amp; benchmark suites
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_ew_explorer
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_cf_compiler
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_slp_unifier
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_nonaligned_slp
+PYTHONPATH=src python3 -m certified_arith_preproc.proof_bug_extractor
+</code></pre>
+<p><strong>References:</strong></p>
+<ol>
+<li>Jan Kraj&iacute;&ccaron;ek. <em>Extended Frege proofs, circuits and rewriting</em>. <code>arXiv:2606.13367v2</code> (October 2026).</li>
+<li>Samir Datta and Anupam Dutta. <em>Fan-out &ge; 2 unsharing correction for <code>CF</code> single-occurrence rewriting</em> (personal communication acknowledged in Kraj&iacute;&ccaron;ek <code>arXiv:2606.13367v2</code>, October 2026).</li>
+<li>Artur Je&zcaron;. <em>Recompression: A simple and powerful technique for word equations</em>. <em>Journal of the ACM</em>, 63(1), 2016.</li>
+<li>Markus Lohrey. <em>Algorithmics on SLP-compressed strings: A survey</em>. <em>Groups Complexity Cryptology</em>, 4(2):241&ndash;299, 2012.</li>
+<li>Li&ndash;Li&ndash;Ren (<em>STOC 2026</em>). <em>Constructive proof analysis &amp; witness extraction for broken equational chains</em>. <code>arXiv:2611.08305</code>.</li>
+</ol>

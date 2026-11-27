@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import paperHtml from '../../data/wittKneserTorsionPaper.es.html?raw';
+---
+<Base
+  title="Forma Normal de Smith 2^r-Ádica Universal ∀n y Torsión Lineal de Kneser KG(n,2) en Matrices de Nisan sobre Anillos de Witt W_k(F₂) | Miguel Quevedo"
+  description="Preprint v0.8: teoremas universales ∀n de Forma Normal de Smith en Z y subespacios propios de dimensión n−1 del grafo de Kneser KG(n,2) para acarreos simétricos sobre anillos de Witt W_k(F₂), verificados en 3 suites de Lean 4.36.0 (0 sorryAx) apuntando a NC-IPS y Frege."
+  pageLabel="Paper · Witt–Kneser 2-Adic Torsion (NC-IPS / Frege)"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Forma Normal de Smith 2<sup>r</sup>-Ádica Universal ∀n y Torsión de Rango Lineal de Kneser KG(n, 2) en Matrices Bimodales de Nisan sobre Anillos de Witt W<sub>k</sub>(F₂)</h1>
+      <p class="detail-lede">Preprint de Complejidad Algebraica de Pruebas v0.8 — sin revisión por pares. Todos los teoremas universales ∀n están verificados en 3 suites independientes de Lean 4.36.0 (0 imports externos, 0 sorryAx), delimitando explícitamente el alcance hacia NC-IPS / Frege frente a Extended Frege.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v0.8)</strong></div>
+      <div><span>Verificación</span><strong>Lean 4.36.0: 3 suites universales ∀n (0 sorryAx) · Bloque (n−1) de 2^r-torsión en KG(n,2) y brecha 6.43× en 4C₂ mod 16</strong></div>
+      <div><span>Estado</span><strong>Preprint de investigación · Algebraic Proof Complexity</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/witt-kneser-2adic-torsion.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repositorio + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/papers/PAPER_3_WITT_KNESER_2ADIC_TORSION_NC_IPS.md" target="_blank" rel="noopener noreferrer">Fuente en Markdown (EN) ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>

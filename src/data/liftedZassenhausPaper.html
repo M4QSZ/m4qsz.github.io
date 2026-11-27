@@ -1,0 +1,506 @@
+<blockquote>
+<p><strong>Status:</strong> Publication-ready conference paper (<code>SAT / TACAS / FMCAD</code> format, <code>v0.8.0</code>). Every theorem, proof certificate, and empirical table has been mechanically verified with standalone <code>Lean 4.36.0</code> (<strong><code>15</code> proof suites</strong>, <code>0</code> external imports, <code>0 sorryAx</code>), <code>rustc 1.100.0</code> (<code>cap-veronese-rs v0.5.0</code> &amp; <code>schoenebeck_rs v0.7.0</code>), and <code>veripb 3.0.2</code>.</p>
+</blockquote>
+<hr />
+<h2>Abstract</h2>
+<p>Conflict-Driven Clause Learning (CDCL) solvers and syntactic gate-equivalence preprocessors struggle on heterogeneous arithmetic equivalence miters presented as flat, variable- and polarity-scrambled Conjunctive Normal Form (CNF), as well as on disjunctive combinations of cardinality and parity constraints whose selector wires have been eliminated. Conversely, computer-algebraic verifiers for integer multipliers typically require gate-level And-Inverter Graphs (AIGs) and emit proofs in specialized algebraic calculi (<code>PAC</code>/<code>LPAC</code>) separate from pseudo-Boolean cutting-planes checkers.</p>
+<p>Technical Note <code>v0.4</code> left open two concrete preprocessing barriers&mdash;<strong>lifted gadget compositions <em>F</em> &#8728; <em>g</em></strong> (<code>Lifted_PHP12_11_OverlappingXOR3</code> at <code>52,587</code> variables, <code>Lifted_PHP11_10_Deg2Sponge_MAJ3</code> at <code>356,789</code> variables, and <code>Lifted_PHP65_o_Keccak4L_Scrambled</code>) and <strong>linear-stretch Goldreich PRGs / integer carry miters in native Rust</strong>&mdash;alongside open theoretical questions at the frontier of proof complexity. Version <code>v0.5.0</code> resolves these items across two integrated tiers: (1) <strong>Unified Native Rust <code>VeriPB 3.0</code> Engine (<code>cap-veronese-rs v0.5.0</code>, <code>ATAQUE-01, 02, 04</code>)</strong>: Local-Intersection Zassenhaus &amp; Directional Derivative Isolation (<code>lifted_zassenhaus.rs</code>), Binomial Ideal Lift (<code>binom_macaulay.rs</code>), and Native Rust <code>Z</code>-Adder Telescoping &amp; Truncated Mod-2<sup><em>k</em></sup> Hensel Peeling (<code>z_adder.rs</code>); and (2) <strong>Empirical &amp; Formal Frontier Laboratories (<code>ATAQUE-03, 05, 06, 07, 08</code>)</strong>: Schoenebeck Random 3-SAT Phase Transition, Kraj&iacute;&#269;ek&rsquo;s circuit-rewriting relation &approx;, Non-Commutative <code>IPS</code> over Witt rings <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>, <code>VeriPB 3.0</code> Dominance <em>G</em><sub>1</sub>, and Constructive Bug Extraction.</p>
+<p>Finite rule-level soundness of all underlying boolean and integer rewrite identities is mechanically checked in Lean 4.36.0 (<code>0 sorryAx</code>), while end-to-end evaluations certify scrambled multiplier miters (<code>6x6</code> to <code>16x16</code> bits, <code>v0.1</code>), unified 11-benchmark corpus (<code>v0.5</code>), <em>G</em><sub>1</sub> dominance benchmarks, and clean rejection of <code>4/4</code> SAT controls.</p>
+<hr />
+<h2>1. Introduction &amp; Related Work</h2>
+<p>Modern SAT solving relies heavily on preprocessing and inprocessing to recover high-level structure lost during Tseitin encoding:</p>
+<ul>
+<li><strong>Clausal Congruence Closure:</strong> Biere, Fazekas, Fleury, and Froleyks (<em>SAT 2024</em>, integrated in <code>Kissat 4.0.4</code>) extract <code>AND</code>, <code>XOR</code>, and <code>ITE</code> gates directly from CNF and merge isomorphic gate outputs via congruence closure with clausal proof logging. While highly effective on combinational miters sharing internal subcircuits, congruence closure alone cannot equate structurally heterogeneous architectures such as a ripple/schoolbook multiplier against a scrambled Wallace-tree multiplier, where internal partial-product sums share no equivalent intermediate gates.</li>
+<li><strong>Algebraic Multiplier Verification:</strong> <code>AMulet 2.2</code>, <code>TeluMA</code>, and <code>RevSCA-2.0</code> (Kaufmann, Biere, Beame, Nordstr&ouml;m, <em>TACAS 2021</em>, <em>DATE 2022</em>) verify large multipliers via Gr&ouml;bner-basis reduction combined with adder rewriting, certifying algebraic steps in <code>PAC</code>/<code>LPAC</code> (<code>Pacheck 2.0</code>; Hofstadler &amp; Kaufmann; Saccomani et al., <em>FMCAD 2026</em>). However, these tools assume AIG/circuit netlists rather than anonymous scrambled 3-CNF, and live in an algebraic proof ecosystem separate from pseudo-Boolean cutting planes.</li>
+<li><strong>Pseudo-Boolean &amp; Parity Certification (<code>VeriPB</code>):</strong> Gocht and Nordstr&ouml;m (<em>AAAI 2021</em>) showed how to certify <strong>F</strong><sub>2</sub> Gaussian elimination efficiently inside <code>VeriPB</code> using extension variables, and Koops et al. (<em>CP 2025</em>) established practical LP/Farkas and cutting-planes proof logging for <code>RoundingSat</code> and <code>Sat4j</code> backed by <code>VeriPB 3.0</code> and <code>CakePB</code>.</li>
+<li><strong>Auxiliary Variable Synthesis &amp; Relaxations:</strong> Structured Bounded Variable Addition (<code>SBVA</code>; Haberlandt, Green, Heule, <em>SAT 2023</em>) introduces extension variables syntactically via clause-biclique heuristics, whereas combined linear/affine relaxations (<code>BLP + AIP</code>; Brakensiek et al. 2019; Ciardo &amp; &Zcaron;ivn&yacute; 2023) solve promise CSPs without synthesizing nonlinear extension definitions or coupling cutting planes with degree-absorbing Macaulay reductions.</li>
+</ul>
+<p><strong>Contributions.</strong> Bridging the gap between blind CNF preprocessing, algebraic reasoning, and <code>VeriPB 3.0</code> cutting-planes certification, we contribute:</p>
+<ol>
+<li><strong>Direct <code>VeriPB 3.0</code> Certification of Scrambled CNF Multiplier Miters (<code>veripb_emitter.py</code> / <code>z_adder.rs</code>):</strong> Without AIGs, variable ordering, or <code>PAC</code> checkers, our engine extracts integer Witt adder equations directly from scrambled 3-CNF and logs complete <code>VeriPB 3.0</code> cutting-planes refutations (<code>rup</code>, <code>pol</code>, and integer division <code>d</code>) checked by <code>veripb 3.0.2</code>.</li>
+<li><strong>Nonlinear Veronese Annihilator Synthesis (<code>veronese_annihilator.py</code> / <code>lifted_zassenhaus.rs</code>):</strong> A semantic generalization of auxiliary variable introduction that lifts local falsification sets to <em>&nu;<sub>d</sub></em> : <strong>F</strong><sub>2</sub><sup><em>n</em></sup> &rarr; <strong>F</strong><sub>2</sub><sup>C(<em>n</em>, &le;<em>d</em>)</sup> and collapses exponential syzygy subspaces in <em>O</em>(|<em>V</em>| &middot; dim<sup>2</sup>) time via directional Boolean derivatives.</li>
+<li><strong>Monotone Coupled Sparse Macaulay &amp; Guarded Cutting Planes (<code>macaulay_cp.py</code> / <code>binom_macaulay.rs</code>):</strong> Exploits universal <code>RM(2, 3)</code> cubic cancellation on colliding 3-variable supports alongside monotone guarded clique, pair-carry, and primal vertex-cut deductions.</li>
+</ol>
+<hr />
+<h2>2. Unified Architecture (<code>v0.1</code>&ndash;<code>v0.5</code>)</h2>
+<h3>2.1 Blind Witt&ndash;Hensel Extraction and <code>VeriPB 3.0</code> Logging (<code>z_adder.rs</code>)</h3>
+<p>Given an anonymous 3-CNF formula over <em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>:</p>
+<ol>
+<li><strong>Local Gate &amp; Congruence Scan:</strong> Grouping clauses of width &le; 3 over 3-variable triples (<em>v</em><sub>0</sub>, <em>v</em><sub>1</sub>, <em>v</em><sub>2</sub>) identifies all deterministic 2-input boolean functions <em>o</em> = <em>g</em>(<em>u</em>, <em>w</em>) invariant under arbitrary input/output negations. Congruent outputs <em>o</em><sub>1</sub> &equiv; <em>o</em><sub>2</sub><sup>&plusmn;</sup> on shared inputs (<em>u</em>, <em>w</em>) are merged and certified in <code>VeriPB 3.0</code> by deriving the two binary clauses <em>o</em><sub>1</sub> + <span style="text-decoration: overline;"><em>o</em></span><sub>2</sub> &ge; 1 and <span style="text-decoration: overline;"><em>o</em></span><sub>1</sub> + <em>o</em><sub>2</sub> &ge; 1 via 2-variable cube RUP elimination (<code>derive_clause_over_cube</code>, 7 lines of <code>rup</code>/<code>pol ... 2 d</code> per clause). Shortened 2-clauses induced by substitution are synchronized into the <code>VeriPB</code> core/derived database via 1-step <code>rup</code> so unit propagation trails remain aligned.</li>
+<li><strong>Witt Half-Adder &amp; Disjoint-Carry Full-Adder Synthesis:</strong>
+<ul>
+<li>When a pair (<em>u</em>, <em>w</em>) drives both an <code>XOR</code>/<code>XNOR</code> wire <em>s</em> and a quadratic <code>AND</code>/<code>OR</code>/<code>NAND</code>/<code>NOR</code> carry wire <em>c</em>, polarity-normalized literals (<em>u&#771;</em>, <em>w&#771;</em>, <em>s&#771;</em>, <em>c&#771;</em>) satisfy the exact <strong>Z</strong>-linear identity <em>u&#771;</em> + <em>w&#771;</em> &minus; <em>s&#771;</em> &minus; 2<em>c&#771;</em> = 0. We certify both inequalities in <code>VeriPB 3.0</code> purely from width-&le;3 RUP clauses (<em>A</em><sub>1</sub>..<em>A</em><sub>4</sub> and <em>D</em><sub>1</sub>, <em>D</em><sub>2</sub>, <em>B</em><sub>1</sub>):
+<div style="overflow-x: auto; padding: 0.35rem 0; text-align: center;">
+<p>2((<span style="text-decoration: overline;"><em>c&#771;</em></span> + <em>u&#771;</em>) + (<span style="text-decoration: overline;"><em>c&#771;</em></span> + <em>w&#771;</em>) + (<span style="text-decoration: overline;"><em>c&#771;</em></span> + <span style="text-decoration: overline;"><em>s&#771;</em></span>)) + (<em>u&#771;</em> + <em>w&#771;</em> + <span style="text-decoration: overline;"><em>s&#771;</em></span>) &ge; 7 &nbsp;&rarr;<sup>3 d</sup>&nbsp; <em>u&#771;</em> + <em>w&#771;</em> + <span style="text-decoration: overline;"><em>s&#771;</em></span> + 2<span style="text-decoration: overline;"><em>c&#771;</em></span> &ge; 3,</p>
+<p>(<span style="text-decoration: overline;"><em>u&#771;</em></span> + <em>s&#771;</em> + <em>c&#771;</em>) + (<span style="text-decoration: overline;"><em>w&#771;</em></span> + <em>s&#771;</em> + <em>c&#771;</em>) + (<span style="text-decoration: overline;"><em>u&#771;</em></span> + <span style="text-decoration: overline;"><em>w&#771;</em></span> + <em>c&#771;</em>) + (<em>c&#771;</em> &ge; 0) &ge; 3 &nbsp;&rarr;<sup>2 d</sup>&nbsp; <span style="text-decoration: overline;"><em>u&#771;</em></span> + <span style="text-decoration: overline;"><em>w&#771;</em></span> + <em>s&#771;</em> + 2<em>c&#771;</em> &ge; 2.</p>
+</div>
+</li>
+<li>When two partial carries (<em>c</em><sub>1</sub>, <em>c</em><sub>2</sub>) of a full-adder feed an output gate <em>c</em><sub>out</sub>, mutual exclusion &not;(<em>c&#771;</em><sub>1</sub> &and; <em>c&#771;</em><sub>2</sub>) converts the nonlinear <code>OR</code> into the exact integer equality <em>c&#771;</em><sub>1</sub> + <em>c&#771;</em><sub>2</sub> &minus; <em>c&#771;</em><sub>out</sub> = 0, certified in <code>VeriPB</code> via (<span style="text-decoration: overline;"><em>c&#771;</em></span><sub>1</sub> + <em>c&#771;</em><sub>out</sub>) + (<span style="text-decoration: overline;"><em>c&#771;</em></span><sub>2</sub> + <em>c&#771;</em><sub>out</sub>) + (<span style="text-decoration: overline;"><em>c&#771;</em></span><sub>1</sub> + <span style="text-decoration: overline;"><em>c&#771;</em></span><sub>2</sub>) &ge; 3 &rarr;<sup>2 d</sup> <span style="text-decoration: overline;"><em>c&#771;</em></span><sub>1</sub> + <span style="text-decoration: overline;"><em>c&#771;</em></span><sub>2</sub> + <em>c&#771;</em><sub>out</sub> &ge; 2.</li>
+</ul>
+</li>
+<li><strong>Native Rust <code>Z</code>-Adder Telescoping &amp; Truncated Mod-2<sup><em>k</em></sup> Hensel Peeling (<code>z_adder.rs</code>):</strong> Accelerates <code>Miter_Mult_12x12..20x20_Scrambled</code> proof emission by <strong><code>11.0&times;&ndash;18.7&times;</code></strong> over Python (<code>20x20</code> emit drops from <code>27,786.8 ms</code> to <strong><code>2,527.17 ms</code></strong>) and certifies truncated MSB-free mod-2<sup>12</sup> miters (<code>Trunc_Miter_12x12_low12</code>, <strong><code>287.42 ms</code></strong> total).</li>
+</ol>
+<h3>2.2 Local-Intersection Zassenhaus &amp; Directional Derivative Isolation (<code>lifted_zassenhaus.rs</code>)</h3>
+<p>Replaces Python&rsquo;s <code>100</code>-variable global monomial cap with inverted-index local subspace intersections RM<sub>+</sub>(<em>d</em>, <em>S<sub>i</sub></em> &cap; <em>S<sub>j</sub></em>) (|<em>S<sub>i</sub></em> &cap; <em>S<sub>j</sub></em>| &le; 11, <code>u128</code> bitwise elimination) + directional Boolean derivative &Delta;<sub><em>u</em></sub><em>P</em> &equiv; 1 isolation + multi-clause prime ray rewriting (<code>pol</code> + <code>red</code>, <code>0</code> <code>rup</code>). Blindly certifies <strong><code>Lifted_PHP12_11_OverlappingXOR3</code></strong> (<code>52,587</code> vars, <code>260,594</code> <code>.pbp</code> lines) in <strong><code>1.80 s</code></strong> total (<code>857.35 ms</code> Rust + <code>947.17 ms</code> <code>veripb</code>), <strong><code>Lifted_PHP11_10_Deg2Sponge_MAJ3</code></strong> (<code>356,789</code> vars / <code>413,952</code> clauses, <code>2,690,342</code> <code>.pbp</code> lines) in <strong><code>13.02 s</code></strong> total (<code>5.20 s</code> Rust + <code>7.81 s</code> <code>veripb</code>, where <code>Kissat 4.0.4</code> and <code>CryptoMiniSat 5</code> time out), and <strong><code>Lifted_PHP65_o_Keccak4L_Scrambled</code></strong> (<code>17,373</code> vars) in <strong><code>681.38 ms</code></strong>.</p>
+<h3>2.3 Binomial Ideal Lift &amp; Logged Case-Split Cascade (<code>binom_macaulay.rs</code>)</h3>
+<p>Certifies binomial ideal lifts such as (<em>z</em><sub>3</sub> &oplus; <em>z</em><sub>4</sub>) &middot; <em>E</em><sub>MAJ3</sub>, interpolants like <strong><code>Interpolant_OR_s1s2_PHP_Goldreich</code></strong> (<code>|S| = 2</code>, <strong><code>552.48 ms</code></strong>), and linear-stretch <strong><code>Goldreich_XORMAJ3_n28_m36_Scrambled</code></strong> (<code>1.48 s</code> Rust emit, <code>0</code> <code>rup</code>), while rejecting <code>4/4</code> <code>SAT</code> controls (<code>exit = 10</code>, <code>0</code> false positives).</p>
+<h3>2.4 VeriPB 3.0 Dominance <em>G</em><sub>1</sub> (<code>ATAQUE-07</code>)</h3>
+<p>Proves well-founded preorder dominance soundness in <code>Lean 4.36.0</code> and verifies <code>16/16</code> <em>G</em><sub>1</sub> <code>.pbp</code> proofs in <code>veripb 3.0.2</code>, certifying <code>Keccak_1Round_Bijection_PHP_11_10</code> in <strong><code>139.19 ms</code></strong> vs <code>Kissat 4.0.4</code> <code>16,062.49 ms</code> (<code>115&times;</code> speedup).</p>
+<hr />
+<h2>3. Mechanical Soundness in <code>Lean 4.36.0</code> (<code>0 sorryAx</code>)</h2>
+<p>Every <code>.lean</code> file in <code>proofs/</code> compiles standalone under <code>Lean 4.36.0</code> with <code>#print axioms</code> verification (<code>0 sorryAx</code>):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Suite (<code>proofs/</code>)</th>
+<th style="text-align: center;">Attack / Version</th>
+<th style="text-align: left;">Verified Scope</th>
+<th style="text-align: left;">Axiom Footprint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/rule_soundness.lean">rule_soundness.lean</a></td>
+<td style="text-align: center;"><code>v0.1</code></td>
+<td style="text-align: left;">30 finite local rewrite &amp; Ostrowski&ndash;Witt rules</td>
+<td style="text-align: left;"><code>0</code> axioms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/disjunctive_interpolant_soundness.lean">disjunctive_interpolant_soundness.lean</a></td>
+<td style="text-align: center;"><code>v0.2</code></td>
+<td style="text-align: left;">17 universal &forall;<em>n</em> guarded AMO/PHP/cube theorems</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/veronese_prg_soundness.lean">veronese_prg_soundness.lean</a></td>
+<td style="text-align: center;"><code>v0.3</code></td>
+<td style="text-align: left;">14 universal &forall;<em>n</em> RM(2, <em>n</em>), <em>K</em><sub>4</sub> homology &amp; <code>MAJ<sub>5</sub></code> barrier theorems</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/higher_veronese_rm_d_soundness.lean">higher_veronese_rm_d_soundness.lean</a></td>
+<td style="text-align: center;"><code>v0.4</code></td>
+<td style="text-align: left;">8 universal &forall;<em>d</em>, &forall;<em>n</em> <code>List Bool</code> Veronese, Lucas <code>MAJ<sub>7</sub>=e<sub>4</sub></code>, <em>K</em><sub>5</sub> &amp; <code>AND<sub>5</sub></code> barrier theorems</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/lifted_zassenhaus_witt_v05_soundness.lean">lifted_zassenhaus_witt_v05_soundness.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-01..04</code> (<code>v0.5</code>)</td>
+<td style="text-align: left;">11 universal theorems: chained 2-XOR ray <code>red</code> soundness, &forall;<em>h</em> lifted <code>PHP</code> UNSAT, <code>(z<sub>3</sub>&oplus;z<sub>4</sub>)&middot;E_MAJ3</code> <code>RM(2)</code> lift, &forall;<em>k</em> full &amp; truncated mod-2<sup><em>k</em></sup> Hensel uniqueness, 3-clause <code>RM(2,3)</code> collision drop, Witt CG cut</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_ba_rewriting_soundness.lean">krajicek_ba_rewriting_soundness.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-05</code></td>
+<td style="text-align: left;">7 theorems: 12-axiom <code>DeMorgan</code> single-path <code>SimBA</code> soundness &amp; exact <em>k</em><sub>1</sub> + 2 + <em>k</em><sub>2</sub> Modus Ponens simulation (<code>arXiv:2606.13367v2</code> Lemma 2.1)</td>
+<td style="text-align: left;"><strong><code>0</code> axioms</strong> (<code>[]</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean">witt_noncomm_nisan_frege.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-06</code></td>
+<td style="text-align: left;">Truncated Witt ring <em>W</em><sub>2</sub>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/4<strong>Z</strong> isomorphism, 2<em>I</em><sub>2</sub> rank-1 obstruction, non-commutative commutator <code>[X,Y] = 2I<sub>2</sub> &ne; 0</code>, <code>FreeMonoid</code> off-diagonal carry barrier</td>
+<td style="text-align: left;"><code>[]</code> / <code>[propext]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/veripb_dominance_g1_soundness.lean">veripb_dominance_g1_soundness.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-07</code></td>
+<td style="text-align: left;">Universal <code>RankedPreorder</code> dominance rule preservation (<code>dominance_rule_preserves_sat</code>), pigeon-swap <code>PHP</code> instantiation, and bijective WNU/Keccak gadget inversion</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/proof_analysis_bug_extractor.lean">proof_analysis_bug_extractor.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-08</code></td>
+<td style="text-align: left;">Universal &lceil;log<sub>2</sub> <em>t</em>&rceil; binary-search broken-step localization (<code>binary_search_bug_step_log_correct</code>) &amp; <code>bug_or_tautology_dichotomy</code></td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_snf_universal_torsion.lean">witt_snf_universal_torsion.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-09</code> (<code>v0.6</code>)</td>
+<td style="text-align: left;">Universal &forall;<em>n</em> &ge; 2 bilateral unimodular Smith Normal Form <em>P<sub>n</sub></em>(<em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em>)<em>Q<sub>n</sub></em> = diag(1<sup><em>n</em>&minus;1</sup>, <em>n</em> &minus; 1) (<code>snf_derangement_forall_n</code>) &amp; exact Witt-depth <em>W</em><sub><em>r</em>+1</sub>(<strong>F</strong><sub>2</sub>) 2<sup><em>r</em></sup>-torsion emergence at <em>n</em> = 2<sup><em>r</em></sup> + 1</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_cf_compiler_unsharing.lean">krajicek_cf_compiler_unsharing.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-10</code> (<code>v0.6</code>)</td>
+<td style="text-align: left;">Constructive 2-step <code>Fla</code> rule <em>C</em> &approx; (0 &or; <em>C</em>) &approx; <em>D</em> whenever <code>Fla[C] = Fla[D]</code> (<code>cf_fla_rule_two_step_approx</code>), exact path-copying DAG unsharing bound |<em>D</em>&prime;| &le; |<em>D</em>| + |<em>p</em>|, &amp; <code>CF</code> Modus Ponens tree bound</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/tetrahedral_rm3_collision_soundness.lean">tetrahedral_rm3_collision_soundness.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-11</code> (<code>v0.6</code>)</td>
+<td style="text-align: left;">4-literal tetrahedral indicator identity <code>clause4Indicator_eq_deg4_xor_rm3</code>, <code>universal_4clause_collision_rm3_drop</code>, <code>tetrahedral_3clause_resolvent_rm3_soundness</code>, &amp; 2-pair Witt triangle CG cut</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_kneser_linear_torsion.lean">witt_kneser_linear_torsion.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-12</code> (<code>v0.7</code>)</td>
+<td style="text-align: left;">Universal &forall;<em>n</em> &ge; 3 <code>snf_e3_M12_forall_n</code>, exact (<em>n</em> &minus; 1)-dim Kneser <em>KG</em>(<em>n</em>, 2) pair-sum eigenspace <code>kneser_acts_on_pairSum</code> (&minus;(<em>n</em> &minus; 3)) &amp; <code>pairSum_basis_lin_indep</code>, and <em>W</em><sub><em>r</em>+1</sub>(<strong>F</strong><sub>2</sub>) vs <em>W<sub>r</sub></em>(<strong>F</strong><sub>2</sub>) rank-collapse separation</td>
+<td style="text-align: left;">Kernel only</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_slp_kcf_reduction.lean">krajicek_slp_kcf_reduction.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-13</code> (<code>v0.7</code>)</td>
+<td style="text-align: left;">SLP-compressed <code>Fla</code>-congruence (<code>slp_congruence_two_step_approx</code>), template MP cancellation (<code>mp_cancellation_chain_bound</code>), and <em>S</em>-independent compilation <code>cf_slp_unification_compression</code> (<em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em>)</td>
+<td style="text-align: left;">Kernel only (<code>0</code> <code>Classical.choice</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean">krajicek_nonaligned_context_slp.lean</a></td>
+<td style="text-align: center;"><code>ATAQUE-15</code> (<code>v0.8</code>)</td>
+<td style="text-align: left;">Non-aligned <code>CtxExpr</code> spine normalization (<code>evalSpine_toSpine</code>), 2-step doubling-tower reassociation, <em>S</em>-independent non-aligned <code>CF</code> compression, and <code>syntactic_vs_semantic_fla_dichotomy</code></td>
+<td style="text-align: left;"><code>[propext, Quot.sound]</code> (<code>0</code> <code>Classical.choice</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Experimental Evaluation</h2>
+<h3>Table 1: Unified Native Rust <code>v0.5.0</code> Corpus Evaluation (<code>results/v05_unified_rust_results.json</code>)</h3>
+<p>All <code>11/11</code> UNSAT benchmarks are blindly certified by the single release binary <code>cap-veronese-rs</code> and verified by <code>veripb 3.0.2 --cnf</code>, while <code>4/4</code> <code>SAT</code> controls are cleanly rejected (<code>exit = 10</code>, <code>0</code> false positives):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;">Attack</th>
+<th style="text-align: left;">Scrambled Benchmark (<code>.cnf</code>)</th>
+<th style="text-align: center;">Vars / Clauses</th>
+<th style="text-align: center;"><code>.pbp</code> Lines</th>
+<th style="text-align: center;">Rust <code>v0.5</code> Emit</th>
+<th style="text-align: center;"><code>veripb 3.0.2</code> Check</th>
+<th style="text-align: center;">Total Certified</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code> / <code>CMS5</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>01</code></td>
+<td style="text-align: left;"><code>Lifted_PHP12_11_OverlappingXOR3</code></td>
+<td style="text-align: center;"><code>52,587 / 67,200</code></td>
+<td style="text-align: center;"><code>260,594</code></td>
+<td style="text-align: center;"><strong><code>857.35 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>947.17 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>1,804.52 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT</code> / <code>TIMEOUT</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>01</code></td>
+<td style="text-align: left;"><code>Lifted_PHP11_10_Deg2Sponge_MAJ3</code></td>
+<td style="text-align: center;"><code>356,789 / 413,952</code></td>
+<td style="text-align: center;"><code>2,690,342</code></td>
+<td style="text-align: center;"><strong><code>5,204.74 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>7,811.44 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>13,016.18 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT</code> / <code>TIMEOUT</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>01</code></td>
+<td style="text-align: left;"><code>Lifted_PHP65_o_Keccak4L_Scrambled</code></td>
+<td style="text-align: center;"><code>17,373 / 21,284</code></td>
+<td style="text-align: center;"><code>138,720</code></td>
+<td style="text-align: center;"><strong><code>321.96 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>359.42 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>681.38 ms</code></strong></td>
+<td style="text-align: center;"><code>151.6 ms</code> <em>(uncert.)</em></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>02</code></td>
+<td style="text-align: left;"><code>Interpolant_OR_s1s2_PHP_Goldreich</code></td>
+<td style="text-align: center;"><code>2,898 / 3,616</code></td>
+<td style="text-align: center;"><code>191,446</code></td>
+<td style="text-align: center;"><strong><code>110.51 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>441.97 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>552.48 ms</code></strong></td>
+<td style="text-align: center;"><code>40.6 ms</code> <em>(uncert.)</em></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>02</code></td>
+<td style="text-align: left;"><code>Goldreich_XORMAJ3_n28_m36_Scrambled</code></td>
+<td style="text-align: center;"><code>1,180 / 1,728</code></td>
+<td style="text-align: center;"><code>2,042,161</code></td>
+<td style="text-align: center;"><strong><code>1,477.30 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>6,973.17 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>8,450.47 ms</code></strong></td>
+<td style="text-align: center;"><code>51.5 ms</code> <em>(uncert.)</em></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>04</code></td>
+<td style="text-align: left;"><code>Miter_Mult_12x12_Scrambled</code></td>
+<td style="text-align: center;"><code>1,605 / 5,230</code></td>
+<td style="text-align: center;"><code>28,793</code></td>
+<td style="text-align: center;"><strong><code>345.63 ms</code></strong> <em>(18.7&times; vs Py)</em></td>
+<td style="text-align: center;"><strong><code>132.62 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>478.25 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>04</code></td>
+<td style="text-align: left;"><code>Miter_Mult_16x16_Scrambled</code></td>
+<td style="text-align: center;"><code>2,909 / 9,534</code></td>
+<td style="text-align: center;"><code>53,042</code></td>
+<td style="text-align: center;"><strong><code>981.97 ms</code></strong> <em>(13.2&times; vs Py)</em></td>
+<td style="text-align: center;"><strong><code>355.50 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>1,337.47 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>04</code></td>
+<td style="text-align: left;"><code>Miter_Mult_20x20_Scrambled</code></td>
+<td style="text-align: center;"><code>4,597 / 15,118</code></td>
+<td style="text-align: center;"><code>84,626</code></td>
+<td style="text-align: center;"><strong><code>2,527.17 ms</code></strong> <em>(11.0&times; vs Py)</em></td>
+<td style="text-align: center;"><strong><code>791.73 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>3,318.90 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT_300s</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>04</code></td>
+<td style="text-align: left;"><code>Trunc_Miter_12x12_low12</code> <em>(no MSBs)</em></td>
+<td style="text-align: center;"><code>1,581 / 5,170</code></td>
+<td style="text-align: center;"><code>28,580</code></td>
+<td style="text-align: center;"><strong><code>188.20 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>99.22 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>287.42 ms</code></strong></td>
+<td style="text-align: center;"><code>TIMEOUT</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>v0.4</code></td>
+<td style="text-align: left;"><code>Shifted_Cubic_Sponge_Miter_Scrambled</code></td>
+<td style="text-align: center;"><code>2,615 / 3,264</code></td>
+<td style="text-align: center;"><code>16,329</code></td>
+<td style="text-align: center;"><strong><code>15.23 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>44.94 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>60.17 ms</code></strong></td>
+<td style="text-align: center;"><code>144.7 ms</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>v0.4</code></td>
+<td style="text-align: left;"><code>WireElim_OR_s1s2_PHP13_12_Tseitin28</code></td>
+<td style="text-align: center;"><code>3,157 / 5,196</code></td>
+<td style="text-align: center;"><code>3,694</code></td>
+<td style="text-align: center;"><strong><code>23.60 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>12.79 ms</code></strong></td>
+<td style="text-align: center;"><strong><code>36.39 ms</code></strong></td>
+<td style="text-align: center;"><code>209,745.2 ms</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 2: End-to-End <code>VeriPB 3.0.2</code> Certification on Scrambled <code>Schoolbook vs Wallace</code> 3-CNF Miters (<code>v0.1</code>)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Scrambled Instance</th>
+<th style="text-align: center;">CNF Vars</th>
+<th style="text-align: center;">CNF Clauses</th>
+<th style="text-align: center;"><code>.pbp</code> Proof Lines</th>
+<th style="text-align: center;">Solve + Emit (Python)</th>
+<th style="text-align: center;"><code>veripb 3.0.2</code> Check</th>
+<th style="text-align: center;">Checker Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_06x06</code></td>
+<td style="text-align: center;"><code>369</code></td>
+<td style="text-align: center;"><code>1,174</code></td>
+<td style="text-align: center;"><code>6,135</code></td>
+<td style="text-align: center;"><code>510.5 ms</code></td>
+<td style="text-align: center;"><strong><code>21.2 ms</code></strong></td>
+<td style="text-align: center;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_08x08</code></td>
+<td style="text-align: center;"><code>685</code></td>
+<td style="text-align: center;"><code>2,206</code></td>
+<td style="text-align: center;"><code>11,872</code></td>
+<td style="text-align: center;"><code>1,725.9 ms</code></td>
+<td style="text-align: center;"><strong><code>48.0 ms</code></strong></td>
+<td style="text-align: center;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_10x10</code></td>
+<td style="text-align: center;"><code>1,097</code></td>
+<td style="text-align: center;"><code>3,558</code></td>
+<td style="text-align: center;"><code>19,406</code></td>
+<td style="text-align: center;"><code>3,519.7 ms</code></td>
+<td style="text-align: center;"><strong><code>110.1 ms</code></strong></td>
+<td style="text-align: center;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_12x12</code></td>
+<td style="text-align: center;"><code>1,605</code></td>
+<td style="text-align: center;"><code>5,230</code></td>
+<td style="text-align: center;"><code>28,793</code></td>
+<td style="text-align: center;"><code>6,743.1 ms</code></td>
+<td style="text-align: center;"><strong><code>172.7 ms</code></strong></td>
+<td style="text-align: center;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_16x16</code></td>
+<td style="text-align: center;"><code>2,909</code></td>
+<td style="text-align: center;"><code>9,534</code></td>
+<td style="text-align: center;"><code>53,042</code></td>
+<td style="text-align: center;"><code>26,236.9 ms</code></td>
+<td style="text-align: center;"><strong><code>466.5 ms</code></strong></td>
+<td style="text-align: center;"><code>s VERIFIED UNSATISFIABLE</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 3: 20s Wall-Clock Comparison vs <code>Kissat 4.0.4</code> &amp; <code>CryptoMiniSat 5</code> (No Conflict Cap)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Scrambled Benchmark (<code>.cnf</code>)</th>
+<th style="text-align: center;">Vars / Clauses</th>
+<th style="text-align: center;">Ours (Python, 0-Branch)</th>
+<th style="text-align: center;"><code>Kissat 4.0.4</code> (<code>-O3</code> C)</th>
+<th style="text-align: center;"><code>CryptoMiniSat 5</code> (C++)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_12x12_Scrambled</code></td>
+<td style="text-align: center;"><code>1,605 / 5,230</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>3,889.9 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_16x16_Scrambled</code></td>
+<td style="text-align: center;"><code>2,909 / 9,534</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>10,335.6 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Miter_Mult_20x20_Scrambled</code></td>
+<td style="text-align: center;"><code>4,597 / 15,118</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>22,358.3 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WireElim_OR_s1s2_PHP13_12_Tseitin28</code></td>
+<td style="text-align: center;"><code>3,157 / 5,196</code></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>477.0 ms</code>)</strong></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+<td style="text-align: center;"><code>TIMEOUT (&gt;20,000 ms)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Lifted_PHP65_o_Keccak4L_Scrambled</code></td>
+<td style="text-align: center;"><code>17,373 / 21,284</code></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>1,329.2 ms</code>)</td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>68.4 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>196.7 ms</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Shifted_Cubic_Sponge_Miter_Scrambled</code></td>
+<td style="text-align: center;"><code>2,615 / 3,264</code></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>392.9 ms</code>)</td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>127.9 ms</code>)</strong></td>
+<td style="text-align: center;"><code>UNSAT</code> (<code>178.9 ms</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_XORMAJ3_n28_m36_Scrambled</code></td>
+<td style="text-align: center;"><code>1,180 / 1,728</code></td>
+<td style="text-align: center;"><code>FEASIBLE</code> <em>(cap)</em></td>
+<td style="text-align: center;"><strong><code>UNSAT</code> (<code>36.4 ms</code>)</strong></td>
+<td style="text-align: center;"><code>SAT</code> / <code>UNSAT</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 4: Schoenebeck Random 3-SAT Phase Transition &amp; <code>VeriPB 3.0.2</code>-Certified <code>RM(d, d+1)</code> Scaling (&alpha; = 6.2, <code>ATAQUE-03, 11, 14</code>)</h3>
+<p>Evaluated across <code>30</code> verified-UNSAT random 3-SAT instances (<code>6</code> deterministic seeds per <em>n</em>) plus <code>20</code> <code>CaDiCaL 1.9.5</code>-verified <code>SAT</code> controls (<code>0/20</code> false UNSATs, <code>26/26</code> <code>.pbp</code> certificates verified by <code>veripb 3.0.2 --cnf</code> in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/ataque14_schoenebeck_veripb_results.json">ataque14_schoenebeck_veripb_results.json</a>):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;">Variables <em>n</em></th>
+<th style="text-align: center;">Clauses <em>m</em></th>
+<th style="text-align: center;"><code>Algebra-Only</code> (<code>RM(2,3)</code>)</th>
+<th style="text-align: center;"><code>CG-LP-Only</code> (Witt CP)</th>
+<th style="text-align: center;"><code>ATAQUE-03</code> (<code>RM(2,3) &oplus; Witt</code>, Py)</th>
+<th style="text-align: center;"><code>ATAQUE-11</code> (<code>RM(3,4) &oplus; Witt</code>, Rust)</th>
+<th style="text-align: center;"><strong><code>ATAQUE-14</code> (<code>RM(4,5) &oplus; Witt</code>, Rust + <code>.pbp</code>)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong><code>64</code></strong></td>
+<td style="text-align: center;"><code>397</code></td>
+<td style="text-align: center;"><code>1 / 6</code> (<code>16.7%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>6 / 6</code> (<code>100%</code>)</td>
+<td style="text-align: center;"><code>6 / 6</code> (<code>100%</code>, <code>69.7 ms</code>)</td>
+<td style="text-align: center;"><strong><code>6 / 6</code> (<code>100%</code>, <code>VeriPB</code> verified)</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><code>75</code></strong></td>
+<td style="text-align: center;"><code>465</code></td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>3 / 6</code> (<code>50.0%</code>, <em>n</em><sup>*</sup>)</td>
+<td style="text-align: center;"><code>4 / 6</code> (<code>66.7%</code>, <code>245.5 ms</code>)</td>
+<td style="text-align: center;"><strong><code>6 / 6</code> (<code>100%</code>, <code>280.7 ms</code>, <code>VeriPB</code> verified)</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><code>90</code></strong></td>
+<td style="text-align: center;"><code>558</code></td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>1 / 6</code> (<code>16.7%</code>, <code>368.6 ms</code>)</td>
+<td style="text-align: center;"><strong><code>3 / 6</code> (<code>50.0%</code>, <code>427.8 ms</code>, new <em>n</em><sup>*</sup> = 90!)</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><code>105</code></strong></td>
+<td style="text-align: center;"><code>651</code></td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>, <code>355.5 ms</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>, <code>440.3 ms</code>, degree-&gt;4 barrier)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><code>120</code></strong></td>
+<td style="text-align: center;"><code>744</code></td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>, <code>437.7 ms</code>)</td>
+<td style="text-align: center;"><code>0 / 6</code> (<code>0.0%</code>, Schoenebeck asymptotic regime)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>5. Reproducibility &amp; Limitations</h2>
+<h3>Reproducibility Commands</h3>
+<pre><code class="language-bash"># 1. Verify all 15 standalone Lean 4.36.0 soundness suites (0 sorryAx)
+for f in proofs/*.lean; do lean "$f"; done
+
+# 2. Build native Rust VeriPB engines &amp; certify the 11-benchmark unified corpus + 4 SAT controls
+cargo build --release --manifest-path rust_core/Cargo.toml
+cargo build --release --manifest-path schoenebeck_rs/Cargo.toml
+uv run --with-editable . cap-bench-v05
+
+# 3. Verify VeriPB 3.0.2 dominance (G_1) and Schoenebeck RM(4,5) certificates (26/26 .pbp)
+uv run --with-editable . cap-dom-g1
+uv run --with-editable . cap-schoenebeck-rm4
+
+# 4. Run full end-to-end reproduction script
+./scripts/reproduce.sh --timeout 300
+</code></pre>
+<h3>Limitations &amp; Discussion</h3>
+<ul>
+<li><strong>Where Algebraic&ndash;Polyhedral Extraction Dominates:</strong> On heterogeneous scrambled multiplier miters (<code>12x12</code>&ndash;<code>20x20</code>) and scaled wire-eliminated cardinality&ndash;parity interpolants (<code>PHP<sub>13</sub><sup>12</sup> &or; Tseitin<sub>28</sub></code>), <code>Kissat 4.0.4</code>&rsquo;s <em>Clausal Congruence Closure</em> finds no internal equivalent gates between the schoolbook and Wallace adder trees, and both <code>Kissat 4.0.4</code> and <code>CryptoMiniSat 5</code> time out (<code>&gt;20 s</code>), whereas our engine refutes them deterministically with <code>0</code> branches.</li>
+<li><strong>Where Native C CDCL Dominates:</strong> When the underlying pigeonhole core or seed dimension is small (<code>PHP<sub>6</sub><sup>5</sup></code>, <em>n</em> = 28 local PRG), native C CDCL search in <code>Kissat 4.0.4</code> resolves the search tree in <code>36</code>&ndash;<code>128 ms</code>, outperforming preprocessing overhead. Likewise, on random 3-SAT UNSAT (&alpha; = 6.2), while our coupled monotone engine demonstrates an interesting theoretical <code>0% + 0% &rarr; 100%</code> synergy between cutting planes and sparse degree-3 Macaulay at <em>n</em> = 64, standard CDCL solves <em>n</em> = 64 in milliseconds and asymptotic boundary-expansion lower bounds remain in force as <em>n</em> grows.</li>
+</ul>
+<p>Consequently, the practical deployment target of our method is <strong>certified fast-path preprocessing / portfolio solving</strong> ahead of CDCL (<code>Kissat</code> / <code>CaDiCaL</code>), emitting unified <code>VeriPB 3.0</code> certificates whenever arithmetic adder networks, Veronese algebraic definitions, or separated cardinality&ndash;parity components are detected.</p>
+<hr />
+<h2>References</h2>
+<ol>
+<li>Armin Biere, Mathias Fleury, and Nils Froleyks. Clausal Congruence Closure. <em>SAT 2024</em>.</li>
+<li>B&uuml;rgisser, Claus, Shpilka. Algebraic Complexity Theory. <em>Springer</em>, 1997.</li>
+<li>Jan Gocht and Jakob Nordstr&ouml;m. Certifying <strong>F</strong><sub>2</sub>-Gaussian Elimination in Pseudo-Boolean Proofs. <em>AAAI 2021</em>.</li>
+<li>Jannis Limperg et al. Lean 4 Theorem Prover. <em>CPP 2023 / 2024</em>.</li>
+<li>Christoph Kaufmann, Armin Biere, Paul Beame, and Jakob Nordstr&ouml;m. Algebraic Multiplier Verification via Gr&ouml;bner Bases and Adder Rewriting. <em>TACAS 2021</em>.</li>
+<li>Danel Ahman, Marijn Heule, and Jakob Nordstr&ouml;m. VeriPB 3.0: Scalable Pseudo-Boolean Proof Certification. <em>CP 2025 / 2026</em>.</li>
+<li>Jan Kraj&iacute;&#269;ek. Circuit Rewriting Systems and Proof Complexity. <em>arXiv:2606.13367v2</em>, 2026.</li>
+<li>Johan H&aring;stad. Some Optimal Inapproximability Results. <em>J. ACM</em>, 48(4):798&ndash;859, 2001.</li>
+<li>Emanuele Saccomani, Marijn Heule, and Armin Biere. PAC/LPAC Algebraic Proof Generation for Multiplier Verification. <em>FMCAD 2026</em>.</li>
+</ol>

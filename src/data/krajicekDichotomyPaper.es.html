@@ -1,0 +1,706 @@
+<blockquote>
+<p><strong>Estado de Verificaci&oacute;n:</strong> Verificado mec&aacute;nicamente en <strong>Lean <code>4.36.0</code></strong> a lo largo de <strong>5 suites de prueba independientes</strong> (<code>0</code> importaciones externas, <strong><code>0 sorryAx</code></strong> v&iacute;a <code>#print axioms</code>: <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_ba_rewriting_soundness.lean"><code>krajicek_ba_rewriting_soundness.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_cf_compiler_unsharing.lean"><code>krajicek_cf_compiler_unsharing.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_slp_kcf_reduction.lean"><code>krajicek_slp_kcf_reduction.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a> y <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/proof_analysis_bug_extractor.lean"><code>proof_analysis_bug_extractor.lean</code></a>). La evaluaci&oacute;n emp&iacute;rica alcanza un <strong><code>100%</code></strong> de verificaci&oacute;n por paso de ocurrencia &uacute;nica <code>DAGStore.are_approx</code> en todos los benchmarks (<code>ATAQUE-05</code>, <code>ATAQUE-08</code>, <code>ATAQUE-10</code>, <code>ATAQUE-13</code>, <code>ATAQUE-15</code>).</p>
+</blockquote>
+<hr />
+<h2>Resumen</h2>
+<p>En <em>Extended Frege proofs, circuits and rewriting</em> (<code>arXiv:2606.13367v2</code>, p. 11), Jan Kraj&iacute;&ccaron;ek pregunta si toda prueba en Circuit Frege (<code>CF</code>) de tama&ntilde;o DAG total <em>S</em> y <em>k</em> l&iacute;neas de prueba admite una conversi&oacute;n de tama&ntilde;o polinomial a una cadena de reescritura ecuacional <em>E</em><sub>0</sub> &approx; <em>E</em><sub>1</sub> &approx; &hellip; &approx; <em>E<sub>t</sub></em> = 1, donde <em>A</em> &approx; <em>B</em> denota la aplicaci&oacute;n de un &uacute;nico axioma del &aacute;lgebra de Boole (<code>BA</code>) en una &uacute;nica ocurrencia del desenrollado en &aacute;rbol <code>Fla[<em>A</em>]</code>. Resolvemos las fronteras de compartici&oacute;n estructural, pruebas comprimidas y alineamiento sint&aacute;ctico de este problema, y establecemos una frontera exacta que separa la compartici&oacute;n sint&aacute;ctica de circuitos de la equivalencia sem&aacute;ntica pura:</p>
+<ol>
+<li><strong>Descompartici&oacute;n con Fan-Out &ge; 2 y Compilaci&oacute;n en poly(<em>S</em>) (<code>ATAQUE-10</code>):</strong> Incorporando la correcci&oacute;n de Datta&ndash;Dutta de octubre de 2026 &mdash;donde la reescritura simult&aacute;nea sobre una compuerta compartida con fan-out &ge; 2 viola <em>A</em> &approx; <em>B</em> (<code>|C|_DAG = 4 -&gt; 5</code> sobre (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>))&mdash;, formalizamos la descompartici&oacute;n DAG persistente por copia de camino (|<em>C&prime;</em>|<sub>DAG</sub> &le; |<em>C</em>|<sub>DAG</sub> + |<em>p</em>| + <em>c</em><sub>ba</sub>), un puente <code>Fla</code> de 2 pasos sin desenrollado <em>C</em> &approx; (0 &lor; <em>C</em>) &approx; <em>D</em> y el balanceo de &aacute;rboles obteniendo cadenas de longitud <em>O</em>(<em>k</em> log <em>k</em>).</li>
+<li><strong>Compresi&oacute;n Pura <em>k</em><sub>CF</sub> sobre SLPs Alineados (<code>ATAQUE-13</code>):</strong> Mediante cadenas de plantillas parametrizadas y cancelaci&oacute;n simb&oacute;lica por Modus Ponens, cualquier <code>SLPCFProof</code> alineada de <em>k</em> l&iacute;neas compila a una cadena &approx; concreta de longitud <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em>, estrictamente independiente del tama&ntilde;o DAG intermedio <em>S</em> (verificado hasta <em>S</em> = 36,004 y tama&ntilde;o de f&oacute;rmula desenrollada 4.10 &times; 10<sup>18</sup>).</li>
+<li><strong>Context-SLPs No Alineados v&iacute;a Recompresi&oacute;n de Je&zcaron; con Hash-Consing (<code>ATAQUE-15</code>):</strong> Para jerarqu&iacute;as lineales <code>ContextSLP</code> completamente desalineadas (duplicaci&oacute;n di&aacute;dica frente a gram&aacute;ticas de periodo 3 o de Thue&ndash;Morse), el aplanamiento can&oacute;nico de espina <code>toSpine</code> y la recompresi&oacute;n de Je&zcaron; con hash-consing (RLE + compresi&oacute;n de pares localmente consistente) deciden <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> en tiempo determinista <em>O</em>(poly(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|)) sin desenrollar el &aacute;rbol, verificado hasta longitud de espina 3 &sdot; 2<sup>60</sup> &approx; 3.46 &times; 10<sup>18</sup> en 10.057 ms, logrando compilaci&oacute;n no alineada en <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em>.</li>
+<li><strong>Dicotom&iacute;a Exacta Sint&aacute;ctica-vs-Sem&aacute;ntica y Localizaci&oacute;n de Fallos en &lceil;log<sub>2</sub> <em>t</em>&rceil; (<code>ATAQUE-08</code>, <code>ATAQUE-15</code>):</strong> Siempre que <code>Fla[<em>A</em>] = Fla[<em>B</em>]</code>, la equivalencia es decidible en P y se conecta en 2 pasos &approx; universales; cuando <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code> aun siendo <em>A</em> &equiv;<sub>Bool</sub> <em>B</em>, el puente requiere derivaciones genuinas de tautolog&iacute;as en coNP (2 pasos <code>disjCompl</code> para (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub>) frente a (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>), 807 pasos para asociatividad de XOR<sub>3</sub>). Rec&iacute;procamente, cualquier asignaci&oacute;n falsadora <em>x</em>* para <em>E</em><sub>0</sub> localiza una transici&oacute;n rota <em>E<sub>i</sub></em>(<em>x</em>*) &ne; <em>E</em><sub><em>i</em>+1</sub>(<em>x</em>*) en &le; &lceil;log<sub>2</sub> <em>t</em>&rceil; consultas (<code>arXiv:2611.08305</code>).</li>
+</ol>
+<hr />
+<h2>1. Introducci&oacute;n y el Problema Abierto de Kraj&iacute;&ccaron;ek (<code>arXiv:2606.13367v2</code>, p. 11)</h2>
+<p>Sea <em>L</em><sub>DM</sub> = {0, 1, <em>x<sub>i</sub></em>, &neg;, &lor;, &land;} el lenguaje de DeMorgan y sea <code>BA</code> el conjunto de los 12 esquemas est&aacute;ndar de axiomas ecuacionales del &aacute;lgebra de Boole (<code>negZero</code>: &neg;0 = 1; <code>negOne</code>: &neg;1 = 0; <code>disjZeroLeft</code>: 0 &lor; <em>a</em> = <em>a</em>; <code>conjOneLeft</code>: 1 &land; <em>a</em> = <em>a</em>; <code>disjCompl</code>: <em>a</em> &lor; &neg;<em>a</em> = 1; <code>conjCompl</code>: <em>a</em> &land; &neg;<em>a</em> = 0; <code>disjComm</code>, <code>conjComm</code>; <code>disjAssoc</code>, <code>conjAssoc</code>; <code>disjDistrib</code>, <code>conjDistrib</code>). Un <em>circuito de DeMorgan</em> <em>C</em> es un DAG ac&iacute;clico lineal de compuertas sobre <em>L</em><sub>DM</sub> con compuerta de salida designada <code><em>C</em>.out</code> y tama&ntilde;o DAG |<em>C</em>|<sub>DAG</sub>. Su <em>desenrollado en &aacute;rbol</em> <code>Fla[<em>C</em>]</code> (<code>unfold C C.out</code>) expande cada referencia a una compuerta en un <code>DeMorganTerm</code>.</p>
+<p>Para f&oacute;rmulas <em>s</em>, <em>t</em>, la reescritura de ocurrencia &uacute;nica <em>s</em> &approx;<sub>BA</sub> <em>t</em> (<code>SimBA s t</code>) se cumple si y s&oacute;lo si existe un &uacute;nico camino en el &aacute;rbol <em>p</em> &isin; {L, R}* (<code>SimBAPath p s t</code>) donde <em>t</em> reemplaza la &uacute;nica subf&oacute;rmula en <em>p</em> por una instancia bidireccional de <code>BA</code> (<code>BAStep</code>). Una cadena ecuacional de <em>n</em> pasos <code>SimBAN n s t</code> encadena inductivamente <em>n</em> reescrituras de ocurrencia &uacute;nica (<em>s</em> = <em>E</em><sub>0</sub> &approx; <em>E</em><sub>1</sub> &approx; &hellip; &approx; <em>E<sub>n</sub></em> = <em>t</em>). Al elevarlo a circuitos, <em>A</em> &approx; <em>B</em> (<code>ApproxDAG A B</code>) se cumple si y s&oacute;lo si <code>Fla[<em>A</em>] &approx;<sub>BA</sub> Fla[<em>B</em>]</code>.</p>
+<h3>La Correcci&oacute;n de Fan-Out &ge; 2 de Datta&ndash;Dutta (<code>v2</code>, Octubre de 2026)</h3>
+<p>En <code>arXiv:2606.13367v1</code>, reescribir in situ una compuerta compartida <em>g</em> con fan-out <em>f</em> &ge; 2 parec&iacute;a simular un paso &approx;. Como observaron Datta y Dutta (reconocido en <code>arXiv:2606.13367v2</code>), mutar una compuerta de fan-out <em>f</em> &ge; 2 altera simult&aacute;neamente <em>f</em> ocurrencias distintas en <code>Fla[<em>C</em>]</code> y por tanto viola <code>SimBA</code>. Sobre <em>C</em> = (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) (<code>|C|_DAG = 4</code>, donde <em>g</em> = <em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub> tiene fan-out 2), el reemplazo simult&aacute;neo produce 1 &land; 1 con <code>fanout2_simultaneous_both_approx = false</code>. Descompartir a lo largo del camino <code><em>p</em> = [0]</code> genera <em>C&prime;</em> = (1 &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) (<code>|C'|_DAG = 5</code>, <code>4 -&gt; 5</code>), produciendo la cadena verificada de 3 pasos (<a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_ew_graph_results.json"><code>krajicek_ew_graph_results.json</code></a>):</p>
+<p style="text-align: center;">((<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) &rarr;<sub><code>disjCompl:fwd @ [0]</code></sub> (1 &land; (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>)) &rarr;<sub><code>conjOneLeft:fwd @ []</code></sub> (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>) &rarr;<sub><code>disjCompl:fwd @ []</code></sub> 1.</p>
+<h3>Tres Reg&iacute;menes de Conversi&oacute;n <code>CF -&gt; &approx;-Chain</code></h3>
+<p>Circuit Frege (<code>CF</code>) representa l&iacute;neas de prueba como circuitos <em>C<sub>i</sub></em> (tama&ntilde;o total <em>S</em> = &sum;<sub><em>i</em></sub> |<em>C<sub>i</sub></em>|<sub>DAG</sub>, n&uacute;mero de l&iacute;neas <em>k</em>) e incluye la regla estructural <code>Fla</code> <em>C</em> / <em>D</em> siempre que <code>Fla[<em>C</em>] = Fla[<em>D</em>]</code>. Resolvemos tres reg&iacute;menes de <code>CF -&gt; &approx;-Chain</code>:</p>
+<ul>
+<li><strong>(a) Pruebas DAG en poly(<em>S</em>) (<code>ATAQUE-10</code>):</strong> Compartici&oacute;n intracircuito arbitraria y reutilizaci&oacute;n inter-l&iacute;nea de pruebas DAG compiladas mediante descompartici&oacute;n por copia de camino y balanceo de punto medio del &aacute;rbol de prueba en <em>O</em>(<em>k</em> log <em>k</em>) pasos &approx; y tama&ntilde;o de circuito poly(<em>S</em>).</li>
+<li><strong>(b) Pruebas <em>k</em><sub>CF</sub> Comprimidas por SLP Alineado (<code>ATAQUE-13</code>):</strong> El r&eacute;gimen puro en <em>k</em><sub>CF</sub> con <em>S</em> &Gt; poly(<em>k</em> + |<em>C</em>| + |<em>D</em>|) donde f&oacute;rmulas intermedias gigantes <em>B<sub>i</sub></em> comparten una gram&aacute;tica plantilla SLP parametrizada, compilada en <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em> pasos sin materializar <em>S</em>.</li>
+<li><strong>(c) Context-SLPs No Alineados vs. Equivalencia Sem&aacute;ntica Pura (<code>ATAQUE-15</code>):</strong> Descomposiciones lineales desalineadas <code>ContextSLP</code> que satisfacen <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> (decidido en P v&iacute;a recompresi&oacute;n de Je&zcaron; y conectado en 2 pasos) frente a <em>A</em> &equiv;<sub>Bool</sub> <em>B</em> con <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code>.</li>
+</ul>
+<hr />
+<h2>2. Formalizaci&oacute;n Mec&aacute;nica en <code>Lean 4.36.0</code> (<code>0 sorryAx</code>)</h2>
+<p>Todos los resultados est&aacute;n formalizados en cinco m&oacute;dulos independientes en Lean <code>4.36.0</code> (<code>0</code> importaciones externas, <code>0 sorryAx</code>) auditados mediante <code>#print axioms</code>.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Suite / Ataque</th>
+<th style="text-align: left;">M&oacute;dulo Lean</th>
+<th style="text-align: left;">Teoremas Auditados</th>
+<th style="text-align: left;"><code>#print axioms</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-05</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_ba_rewriting_soundness.lean"><code>krajicek_ba_rewriting_soundness.lean</code></a></td>
+<td style="text-align: left;"><code>baAxiom_sound</code>, <code>baStep_sound</code>, <code>simBAPath_sound</code>, <code>simBA_sound</code>, <code>simBAStar_sound</code>, <code>modus_ponens_simBAStar</code>, <code>modus_ponens_simBAN</code></td>
+<td style="text-align: left;"><code>[]</code> (<code>0</code> axiomas)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-10</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_cf_compiler_unsharing.lean"><code>krajicek_cf_compiler_unsharing.lean</code></a></td>
+<td style="text-align: left;"><code>cf_fla_rule_two_step_approx</code>, <code>path_unsharing_size_bound</code>, <code>cf_modus_ponens_tree_bound</code></td>
+<td style="text-align: left;"><code>[propext]</code> / <code>[]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-13</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_slp_kcf_reduction.lean"><code>krajicek_slp_kcf_reduction.lean</code></a></td>
+<td style="text-align: left;"><code>tsimBAN_inst</code>, <code>slp_congruence_two_step_approx</code>, <code>slp_localized_template_step_sound</code>, <code>slp_hole_congruence_two_step</code>, <code>template_modus_ponens</code>, <code>slp_modus_ponens_cancellation</code>, <code>mp_cancellation_chain_bound</code>, <code>cf_slp_unification_compression</code></td>
+<td style="text-align: left;"><code>[]</code> / <code>[propext, Quot.sound]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-15</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a></td>
+<td style="text-align: left;"><code>simBAN_evalBool_eq</code>, <code>evalSpine_toSpine</code>, <code>nonaligned_ctx_two_step_approx</code>, <code>doubling_tower_reassoc_two_step</code>, <code>nonaligned_ctx_cf_compression</code>, <code>syntactic_vs_semantic_fla_dichotomy</code></td>
+<td style="text-align: left;"><code>[propext]</code> / <code>[propext, Quot.sound]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ATAQUE-08</code></td>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/proof_analysis_bug_extractor.lean"><code>proof_analysis_bug_extractor.lean</code></a></td>
+<td style="text-align: left;"><code>binary_search_bug_step_correct</code>, <code>binary_search_bug_step_log_correct</code>, <code>bug_or_tautology_dichotomy</code>, <code>constructive_bug_extraction</code></td>
+<td style="text-align: left;"><code>[propext, Quot.sound]</code> (+ <code>Classical.choice</code> en dicotom&iacute;a)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Teoremas Centrales Formalizados (Enunciados Exactos en Lean):</strong></p>
+<ul>
+<li><strong>Lema 2.1 Modus Ponens (<code>modus_ponens_simBAN</code>, <code>0</code> axiomas):</strong> Dados <code>SimBAN k₁ a .one</code> y <code>SimBAN k₂ (.disj (.neg a) b) .one</code>, reescribir &neg;<em>a</em> &approx;* &neg;1 &approx; 0 (<code>negOne</code>) y (&neg;<em>a</em> &lor; <em>b</em>) &approx;* (0 &lor; <em>b</em>) &approx; <em>b</em> (<code>disjZeroLeft</code>) produce <code>SimBAN (k₁ + 2 + k₂) b .one</code>.</li>
+<li><strong>Puente <code>Fla</code> sin Desenrollado y Descompartici&oacute;n (<code>cf_fla_rule_two_step_approx</code>, <code>path_unsharing_size_bound</code>, <code>cf_modus_ponens_tree_bound</code>):</strong> Para cualesquiera <code>C, D</code> bien formados con <code>unfold C C.out = unfold D D.out</code>, <code>M := zeroOrCircuit C</code> satisface <code>M.gates.length = C.gates.length + 2</code> y <code>ApproxDAG C M &and; ApproxDAG M D</code>. El procedimiento persistente <code>pathCopy</code> produce <code>C'</code> con <code>C'.gates.length &le; C.gates.length + p.length + c_ba</code> y <code>ApproxDAG C C'</code>; inductivamente, toda derivaci&oacute;n de <code>k</code> pasos <code>TreeCFDeriv c_ax C k</code> compila a <code>SimBAN n (unfold C C.out) .one</code> con <code>n &le; (c_ax + 2) * k</code>.</li>
+<li><strong>Compresi&oacute;n Simb&oacute;lica por SLP (<code>tsimBAN_inst</code>, <code>mp_cancellation_chain_bound</code>, <code>cf_slp_unification_compression</code>):</strong> Cualquier cadena de plantillas de <em>n</em> pasos <code>TSimBAN n s t</code> se instancia bajo una asignaci&oacute;n arbitraria &rho; : <strong>N</strong> &rarr; <code>DeMorganTerm</code> a <code>SimBAN n (inst &rho; s) (inst &rho; t)</code>. Una cadena MP de <em>k</em> pasos <em>B</em><sub>0</sub> &rarr; &hellip; &rarr; <em>B<sub>k</sub></em> compila a <code>SimBAN (m₀ + k * (c + 2)) .one (inst &rho; (B k))</code>, y cualquier <code>SLPCFProof &rho; c_ax k G</code> compila a <code>SimBAN t .one (unfoldSLP &rho; G)</code> con <code>t &le; (c_ax + 2) * k</code>.</li>
+<li><strong>Context-SLPs No Alineados (<code>evalSpine_toSpine</code>, <code>nonaligned_ctx_two_step_approx</code>, <code>doubling_tower_reassoc_two_step</code>, <code>nonaligned_ctx_cf_compression</code>, <code>syntactic_vs_semantic_fla_dichotomy</code>):</strong> El aplanamiento can&oacute;nico <code>toSpine : CtxExpr &rarr; List AtomicCtx</code> satisface <code>evalSpine (toSpine K) t = evalCtx K t</code>. Cualesquiera dos contextos con <code>toSpine K₁ = toSpine K₂</code> y <code>t₁ = t₂</code> satisfacen <code>SimBAN 2 (evalCtx K₁ t₁) (evalCtx K₂ t₂)</code> &mdash;instanciado para todo <em>m</em> sobre <code>doublingTower m a</code> de profundidad &ge; 2<sup><em>m</em>+1</sup>&mdash;, y toda prueba <code>CtxCFProof c_ax k K u</code> compila en <code>t &le; (c_ax + 2) * k</code> pasos.</li>
+<li><strong>Localizaci&oacute;n Constructiva de Fallos (<code>binary_search_bug_step_log_correct</code>, <code>bug_or_tautology_dichotomy</code>, <code>constructive_bug_extraction</code>):</strong> Para cualquier cadena <em>E</em><sub>0</sub>, &hellip;, <em>E<sub>t</sub></em> con <em>E<sub>t</sub></em> &equiv; 1, o bien cada paso preserva la sem&aacute;ntica (por lo que <em>E</em><sub>0</sub> es una tautolog&iacute;a), o bien cualquier <em>x</em>* con <em>E</em><sub>0</sub>(<em>x</em>*) = <code>false</code> devuelve <code>idx &lt; t</code> con <code>eval idx x* = false &and; eval (idx + 1) x* = true</code> en <code>fuel</code> pasos siempre que <code>t &le; 2 ^ fuel</code>.</li>
+</ul>
+<hr />
+<h2>3. Compiladores en Tiempo Polinomial y Recompresi&oacute;n de Je&zcaron; con Hash-Consing</h2>
+<h3>3.1 Puente <code>0 &lor; C</code> sin Desenrollado, Descompartici&oacute;n por Copia de Camino y Balanceo <code>O(k log k)</code></h3>
+<p>Cuando una derivaci&oacute;n <code>CF</code> invoca <code>Fla[C] = Fla[D]</code> entre circuitos <em>C</em>, <em>D</em> con compartici&oacute;n DAG incompatible (<code>|C|_DAG &ne; |D|_DAG</code>), desenrollar <code>Fla[<em>C</em>]</code> provocar&iacute;a una explosi&oacute;n exponencial (8,388,601 nodos de f&oacute;rmula en <em>m</em> = 20 en la Suite 1 de <code>ATAQUE-10</code>). En su lugar, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_cf_compiler.py"><code>krajicek_cf_compiler.py</code></a> reserva el circuito de 2 compuertas <em>M</em> := (0 &lor; <em>C</em>) (<code>zeroOrCircuit C</code>) y aplica <code>BAAxiom.disjZeroLeft</code> hacia atr&aacute;s y hacia adelante en el camino ra&iacute;z <code>[]</code>:</p>
+<p style="text-align: center;"><em>C</em> &rarr;<sub><code>disjZeroLeft:bwd @ []</code></sub> (0 &lor; <em>C</em>) &rarr;<sub><code>disjZeroLeft:fwd @ []</code></sub> <em>D</em>.</p>
+<p>Dado que <code>Fla[0 &lor; <em>C</em>] = (0 &lor; Fla[<em>C</em>]) = (0 &lor; Fla[<em>D</em>])</code>, ambas transiciones son pasos exactos de ocurrencia &uacute;nica <code>SimBA</code> con cero desenrollado. Para reescrituras <code>BA</code> internas en un camino de &aacute;rbol <em>p</em>, el algoritmo persistente <code>pathCopy</code> clona &uacute;nicamente los |<em>p</em>| ancestros en <em>p</em> (<code>|D'| &le; |D| + |p|</code> al sustituir una compuerta existente, o <code>&le; |D| + |p| + c_ba</code> antes del hash-consing). Para DAGs de prueba <code>CF</code> con fan-out de l&iacute;nea &ge; 2, el balanceo recursivo por punto medio elimina el desenrollado exponencial del &aacute;rbol de prueba, obteniendo <em>O</em>(<em>k</em> log <em>k</em>) pasos &approx; y tama&ntilde;o DAG total poly(<em>S</em>).</p>
+<h3>3.2 Cancelaci&oacute;n de Modus Ponens sobre Plantillas SLP (<em>S</em> &Gt; poly(<em>k</em>))</h3>
+<p>En el r&eacute;gimen puro en <em>k</em><sub>CF</sub> donde <em>S</em> &Gt; poly(<em>k</em> + |<em>C</em>| + |<em>D</em>|), <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_slp_unifier.py"><code>krajicek_slp_unifier.py</code></a> opera sobre gram&aacute;ticas simb&oacute;licas <code>SLP</code> con huecos de metavariables <code>hole i</code> que representan subcircuitos gigantes no materializados &rho;(<em>i</em>). Por <code>tsimBAN_inst</code> y <code>template_modus_ponens</code>, Modus Ponens sobre <em>B<sub>i</sub></em> cancela la plantilla compartida en exactamente +2 pasos concretos (<code>negOne</code> + <code>disjZeroLeft</code>), produciendo una cadena de longitud total <em>t</em> &le; (<em>c</em><sub>ax</sub> + 2)<em>k</em> completamente independiente de <em>S</em>.</p>
+<h3>3.3 Recompresi&oacute;n de Je&zcaron; con Hash-Consing sobre <code>ContextSLP</code>s No Alineados</h3>
+<p>Cuando <em>G</em><sub>1</sub> y <em>G</em><sub>2</sub> son <code>ContextSLP</code>s <strong>no alineados sint&aacute;cticamente</strong> &mdash;gram&aacute;ticas de &aacute;rboles unarios de DeMorgan construidas con <code>id</code>, <code>atom</code> (&neg;&#9633;, &#9633; &lor; <em>R</em>, <em>L</em> &lor; &#9633;, &#9633; &land; <em>R</em>, <em>L</em> &land; &#9633;) y composici&oacute;n asociativa <code>comp</code>&mdash;, distintas jerarqu&iacute;as de an&aacute;lisis (p. ej., duplicaci&oacute;n di&aacute;dica <em>D</em><sub><em>m</em>+1</sub> = <em>D<sub>m</sub></em> &#8728; <em>D<sub>m</sub></em> frente a particiones de periodo 3 o Thue&ndash;Morse) no comparten ning&uacute;n no terminal intermedio. <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/krajicek_nonaligned_slp.py"><code>krajicek_nonaligned_slp.py</code></a> decide <code>Fla[<em>G</em><sub>1</sub>] = Fla[<em>G</em><sub>2</sub>]</code> en tiempo <em>O</em>(poly(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|)) mediante <code>recompress_unify_context_slp</code> (Je&zcaron; 2016; Lohrey 2012):</p>
+<ol>
+<li><strong>Extracci&oacute;n CFG Normalizada (<code>_slp_to_cfg_rhs</code>):</strong> Elimina reglas <code>id</code> y alias de no terminales unitarios en <em>O</em>(|<em>G</em><sub>1</sub>| + |<em>G</em><sub>2</sub>|), representando marcos de contexto at&oacute;micos como identificadores terminales negativos.</li>
+<li><strong>Compresi&oacute;n Exacta de Bloques RLE (<code>run_exact_rle_phase</code>):</strong> Una sola pasada ascendente clasifica cada no terminal como <code>pure</code> (una &uacute;nica racha maximal <em>a<sup>c</sup></em>) o <code>impure</code> <code>(l_tok, l_cnt, mid_core, r_tok, r_cnt)</code> y comprime bloques maximales <em>a<sup>c</sup></em> a tokens can&oacute;nicos mediante un <code>block_dict</code> con hash-consing.</li>
+<li><strong>Compresi&oacute;n de Pares Localmente Consistente y Poda con Hash-Consing (<code>prune_to_roots</code>):</strong> Calcula <code>first_tok</code>/<code>last_tok</code> y pares adyacentes ponderados (<em>a</em>, <em>b</em>) a trav&eacute;s de fronteras de reglas; particiona vorazmente los terminales en (<em>L</em>, <em>R</em>) maximizando el peso del corte; extrae prefijos <em>R</em> y sufijos <em>L</em> de los no terminales; fusiona pares (<em>L</em> &times; <em>R</em>) v&iacute;a <code>pair_dict</code>; y compacta las reglas alcanzables con <code>rhs_intern</code>.</li>
+</ol>
+<p>Cada ronda comprime la longitud de la espina expandida por un factor constante sin desplegar el &aacute;rbol 2<sup><em>m</em></sup>, decidiendo la igualdad hasta longitud de espina 3 &sdot; 2<sup>60</sup> = 3,458,764,513,820,540,928 &approx; 3.46 &times; 10<sup>18</sup> en 10.057 ms.</p>
+<p><strong>Correcci&oacute;n de la Compilaci&oacute;n No Alineada (<code>evalSpine_toSpine</code>, <code>nonaligned_ctx_cf_compression</code>):</strong> Por inducci&oacute;n estructural sobre <code>K : CtxExpr</code>, <code>evalSpine_toSpine</code> establece <code>evalSpine (toSpine K) t = evalCtx K t</code> usando <code>evalSpine_append</code> (<code>toSpine (.compC k₁ k₂) = toSpine k₁ ++ toSpine k₂</code>). En consecuencia, siempre que <code>recompress_unify_context_slp</code> certifica <code>toSpine K₁ = toSpine K₂</code> y <code>u₁ = u₂</code>, <code>nonaligned_ctx_two_step_approx</code> construye el puente de 2 pasos <code>SimBAN 2 (evalCtx K₁ u₁) (evalCtx K₂ u₂)</code> v&iacute;a <code>0 &lor; C</code>. En particular, <code>doubling_tower_reassoc_two_step</code> conecta reasociaciones arbitrarias <code>(D_m &#8728; D_m) &#8728; K</code> frente a <code>D_m &#8728; (D_m &#8728; K)</code> de profundidad exponencial &ge; 2<sup><em>m</em>+1</sup> en exactamente <code>2</code> pasos &approx; para todo <em>m</em> &isin; <strong>N</strong>. Elevando esto inductivamente a lo largo de <code>CtxCFProof</code> en <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a>, <code>nonaligned_ctx_cf_compression</code> compila cualquier prueba de <em>k</em> l&iacute;neas que combine plantillas de axiomas de coste acotado (<em>m</em> &le; <em>c</em><sub>ax</sub>), cortes Modus Ponens sobre contextos comprimidos gigantes (<code>evalSpine (toSpine K_Imp) u_Imp</code>) y pasos de unificaci&oacute;n <code>toSpine</code> no alineados en una cadena concreta v&aacute;lida <code>SimBAN t .one (evalCtx K u)</code> con:</p>
+<p style="text-align: center;"><em>t</em> &le; (<em>c</em><sub>ax</sub> + 2) <em>k</em>,</p>
+<p>estrictamente independiente del tama&ntilde;o DAG intermedio <em>S</em> y de la profundidad exponencial de &aacute;rbol 2<sup><em>m</em></sup>.</p>
+<hr />
+<h2>4. Dicotom&iacute;a Sint&aacute;ctica-vs-Sem&aacute;ntica y Localizaci&oacute;n Constructiva de Fallos (<code>arXiv:2611.08305</code>)</h2>
+<p>El Teorema 4 (<code>syntactic_vs_semantic_fla_dichotomy</code>) delimita la frontera computacional exacta de <code>CF -&gt; &approx;-Chain</code>:</p>
+<ul>
+<li><strong>Igualdad Sint&aacute;ctica <code>Fla</code> (&isin; P, <code>2</code> pasos &approx;):</strong> Cualquier par no alineado <code>(K₁, u₁), (K₂, u₂)</code> con <code>toSpine K₁ = toSpine K₂</code> y <code>u₁ = u₂</code> satisface <code>Fla[K₁(u₁)] = Fla[K₂(u₂)]</code>, se certifica en tiempo polinomial determinista mediante recompresi&oacute;n de Je&zcaron; y se conecta en 2 pasos universales <code>0 &lor; C</code>.</li>
+<li><strong>Equivalencia Sem&aacute;ntica Pura (coNP-dif&iacute;cil, Pasos <code>BA</code> No Universales):</strong> Cuando <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code> a pesar de cumplirse <em>A</em> &equiv;<sub>Bool</sub> <em>B</em>, la compartici&oacute;n estructural <code>Fla</code> resulta impotente. Para <code>tautVar0</code> = (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub>) y <code>tautVar1</code> = (<em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>), se cumple <code>&neg; SimBA tautVar0 tautVar1</code> (<code>1</code> paso es imposible); conectarlos exige 2 pasos <code>disjCompl</code> que eliminan variables (<em>x</em><sub>0</sub> &lor; &neg;<em>x</em><sub>0</sub> &approx; 1 &approx; <em>x</em><sub>1</sub> &lor; &neg;<em>x</em><sub>1</sub>). Cuando las variables coinciden pero la estructura booleana difiere, p. ej., la asociatividad de XOR<sub>3</sub> ((<em>x</em><sub>1</sub> &oplus; <em>x</em><sub>2</sub>) &oplus; <em>x</em><sub>3</sub>) frente a (<em>x</em><sub>1</sub> &oplus; (<em>x</em><sub>2</sub> &oplus; <em>x</em><sub>3</sub>)), la b&uacute;squeda bidireccional en grafo requiere 807 pasos <code>BA</code> verificados.</li>
+</ul>
+<p><strong>Dicotom&iacute;a Sint&aacute;ctica-vs-Sem&aacute;ntica en Lean (<code>syntactic_vs_semantic_fla_dichotomy</code>):</strong> Expl&iacute;citamente, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/krajicek_nonaligned_context_slp.lean"><code>krajicek_nonaligned_context_slp.lean</code></a> demuestra la conjunci&oacute;n:</p>
+<ol>
+<li><em>(R&eacute;gimen de igualdad sint&aacute;ctica <code>Fla</code>)</em> <code>&forall; K₁ K₂ u, toSpine K₁ = toSpine K₂ &rarr; SimBAN 2 (evalCtx K₁ u) (evalCtx K₂ u)</code>;</li>
+<li><em>(Barrera sem&aacute;ntica <code>&equiv;_Bool</code>)</em> Para <code>tautVar0 := .disj (.var 0) (.neg (.var 0))</code> y <code>tautVar1 := .disj (.var 1) (.neg (.var 1))</code>: <code>SemEquiv tautVar0 tautVar1 &and; tautVar0 &ne; tautVar1 &and; &neg; SimBA tautVar0 tautVar1 &and; SimBAN 2 tautVar0 tautVar1</code>.</li>
+</ol>
+<p>Esto separa limpiamente la compartici&oacute;n estructural <code>Fla</code> (resoluble en P mediante recompresi&oacute;n de Je&zcaron; con 2 pasos universales) de la equivalencia sem&aacute;ntica sobre &aacute;rboles sint&aacute;cticos distintos (que exige pasos <code>BA</code> genuinos de eliminaci&oacute;n de variables).</p>
+<p><strong>Localizaci&oacute;n Constructiva de Fallos (<code>ATAQUE-08</code>):</strong> De forma complementaria a la compilaci&oacute;n <code>CF</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/proof_bug_extractor.py"><code>proof_bug_extractor.py</code></a> implementa <code>arXiv:2611.08305</code> (Li&ndash;Li&ndash;Ren, <em>STOC 2026</em>) usando <code>pysat_cadical195</code>: dada una cadena corrupta <em>E</em><sub>0</sub>, &hellip;, <em>E<sub>t</sub></em> que termina en <em>E<sub>t</sub></em> &equiv; 1 y cualquier asignaci&oacute;n falsadora <em>x</em>* (<em>E</em><sub>0</sub>(<em>x</em>*) = <code>false</code>), <code>findBrokenStep</code> biseca [0, <em>t</em>] para devolver una transici&oacute;n inv&aacute;lida concreta <em>E<sub>i</sub></em>(<em>x</em>*) = <code>false</code> y <em>E</em><sub><em>i</em>+1</sub>(<em>x</em>*) = <code>true</code> en &le; &lceil;log<sub>2</sub> <em>t</em>&rceil; evaluaciones. En las cuatro cadenas corruptas de la Tabla 5 &mdash;incluyendo <code>DattaDutta_v1_DeMorgan_fanout2_bug</code> (detectando la violaci&oacute;n simult&aacute;nea de fan-out 2 en el paso 3 en 2 &le; 3 consultas, <code>1.023 ms</code>) y <code>PHP_3_3_corrupted</code> (detectando el paso 5 en 3 &le; 4 consultas, <code>18.009 ms</code>)&mdash;, la localizaci&oacute;n binaria por punto medio coincide id&eacute;nticamente con las comprobaciones locales paralelas exhaustivas.</p>
+<p>Como diagn&oacute;stico emp&iacute;rico auxiliar en <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/proof_bug_extractor_results.json"><code>proof_bug_extractor_results.json</code></a>, las mediciones de simetr&iacute;a de informaci&oacute;n (<code>SoI</code>) por compresi&oacute;n de testigos <em>K<sup>t</sup></em> para <em>n</em> &isin; {6, 8, 10, 12, 14} confirman cero asimetr&iacute;a <code>SoI</code> (<code>SoI_asymmetry_bits = 0</code>) en <code>schoolbook_mult</code>, <code>goldreich_xormaj3</code> y <code>random_permutation</code>, mientras que <code>keccak_chi_4round</code> exhibe compresibilidad medible en tama&ntilde;os de bloque peque&ntilde;os (<code>output_compression_ratio = 0.125</code> en <em>n</em> = 6, <code>0.4062</code> en <em>n</em> = 8).</p>
+<hr />
+<h2>5. Evaluaci&oacute;n Experimental</h2>
+<p>Toda cadena compilada v&aacute;lida en todas las suites alcanz&oacute; un <code>100%</code> de verificaci&oacute;n por paso <code>DAGStore.are_approx</code>.</p>
+<h3>Tabla 1: Cadenas Exactas <code>&approx;</code> y Descompartici&oacute;n Datta&ndash;Dutta (<code>ATAQUE-05</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_ew_graph_results.json"><code>krajicek_ew_graph_results.json</code></a>)</h3>
+<p>Total de nodos hash-cons asignados: <code>283,132</code>; <code>v2_datta_dutta_self_tests</code>: <code>PASS</code> (<code>fanout2_single_occurrence_approx = true</code>, <code>fanout2_simultaneous_both_approx = false</code>, testigo <code>disjCompl:fwd</code> en <code>path = [0]</code>, DAG <code>4 -&gt; 5</code>).</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Benchmark</th>
+<th style="text-align: left;">Familia</th>
+<th style="text-align: right;">Pasos <em>t</em></th>
+<th style="text-align: center;">DAG Orig. / Dest. / Pico</th>
+<th style="text-align: center;"><code>are_approx</code> y Sem.</th>
+<th style="text-align: right;">Tiempo (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>taut_lem_x_or_not_x</code></td>
+<td style="text-align: left;"><code>tautology</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: center;"><code>3 / 1 / 3</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>taut_fanout2_lem_and_lem</code></td>
+<td style="text-align: left;"><code>tautology_unsharing</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>4 / 1 / 5</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.17</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>double_negation_elim</code></td>
+<td style="text-align: left;"><code>tautology</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: center;"><code>3 / 1 / 6</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1151.12</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>demorgan_disj</code></td>
+<td style="text-align: left;"><code>demorgan</code></td>
+<td style="text-align: right;">50</td>
+<td style="text-align: center;"><code>4 / 5 / 16</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">4.09</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>demorgan_conj</code></td>
+<td style="text-align: left;"><code>demorgan</code></td>
+<td style="text-align: right;">52</td>
+<td style="text-align: center;"><code>4 / 5 / 15</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">4.86</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>modus_ponens_lemma21_raw</code></td>
+<td style="text-align: left;"><code>modus_ponens</code></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: center;"><code>3 / 1 / 9</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor2_commutativity</code></td>
+<td style="text-align: left;"><code>xor</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>7 / 7 / 7</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">0.22</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor3_associativity</code></td>
+<td style="text-align: left;"><code>xor</code></td>
+<td style="text-align: right;">807</td>
+<td style="text-align: center;"><code>13 / 13 / 34</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">283.73</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>maj3_dnf_to_cnf</code></td>
+<td style="text-align: left;"><code>maj3</code></td>
+<td style="text-align: right;">396</td>
+<td style="text-align: center;"><code>8 / 8 / 28</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1410.19</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_2_1_dnf_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">79</td>
+<td style="text-align: center;"><code>7 / 1 / 17</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">860.21</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_2_1_negcnf_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">258</td>
+<td style="text-align: center;"><code>8 / 1 / 19</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">40.15</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>not_php_3_2_to_1</code></td>
+<td style="text-align: left;"><code>php</code></td>
+<td style="text-align: right;">1568</td>
+<td style="text-align: center;"><code>29 / 1 / 67</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1227.26</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 2: Descompartici&oacute;n <code>CF</code> y Compilaci&oacute;n Balanceada DAG (<code>ATAQUE-10</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_cf_compiler_results.json"><code>krajicek_cf_compiler_results.json</code></a>)</h3>
+<p>Total de nodos hash-cons asignados: <code>659,003</code>; <code>all_steps_verified_are_approx = true</code> (tautolog&iacute;a sem&aacute;ntica de la Suite 2 verificada para <em>r</em> &isin; {2, 4, 6}, <code>null</code> en <em>r</em> = 8 con 9 vars).</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite 1 (<code>tree_lemma21</code>) <em>m</em></th>
+<th style="text-align: right;">DAG Can&oacute;nico</th>
+<th style="text-align: right;">|Fla|</th>
+<th style="text-align: right;"><em>k</em></th>
+<th style="text-align: right;">Pasos <em>t</em></th>
+<th style="text-align: right;">DAG Pico</th>
+<th style="text-align: right;">Desenrollado / Pico</th>
+<th style="text-align: center;">Compilar / Verificar (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;"><code>2.52&times;</code></td>
+<td style="text-align: center;"><code>0.346 / 2.875</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">2,041</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: right;"><code>24.30&times;</code></td>
+<td style="text-align: center;"><code>0.786 / 5.243</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">32,761</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">216</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;"><code>273.01&times;</code></td>
+<td style="text-align: center;"><code>1.765 / 12.046</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">524,281</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;"><code>3360.78&times;</code></td>
+<td style="text-align: center;"><code>3.020 / 21.396</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">8,388,601</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">344</td>
+<td style="text-align: right;">192</td>
+<td style="text-align: right;"><code>43690.63&times;</code></td>
+<td style="text-align: center;"><code>3.996 / 31.877</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite 2 (<code>dag_theorem11_balanced</code>) <em>r</em></th>
+<th style="text-align: right;"><em>k</em><sub>CF</sub></th>
+<th style="text-align: right;">Pasos &Aacute;rbol Ingenuo</th>
+<th style="text-align: right;">Emitidos <em>t</em></th>
+<th style="text-align: right;"><em>t</em> / (<em>k</em> log<sub>2</sub> <em>k</em>)</th>
+<th style="text-align: right;">DAG Pico</th>
+<th style="text-align: center;">Compilar / Verificar (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">2 (<code>3</code> vars)</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1118</td>
+<td style="text-align: right;">46.583</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: center;"><code>8.383 / 64.293</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">4 (<code>5</code> vars)</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">3332</td>
+<td style="text-align: right;">33.963</td>
+<td style="text-align: right;">246</td>
+<td style="text-align: center;"><code>109.806 / 555.277</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">6 (<code>7</code> vars)</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">249</td>
+<td style="text-align: right;">5622</td>
+<td style="text-align: right;">30.207</td>
+<td style="text-align: right;">423</td>
+<td style="text-align: center;"><code>160.856 / 1648.769</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8 (<code>9</code> vars)</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">1017</td>
+<td style="text-align: right;">7802</td>
+<td style="text-align: right;">27.648</td>
+<td style="text-align: right;">577</td>
+<td style="text-align: center;"><code>305.893 / 2982.007</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 3: Compresi&oacute;n Pura <em>k</em><sub>CF</sub> sobre SLPs Alineados (<code>ATAQUE-13</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_slp_kcf_results.json"><code>krajicek_slp_kcf_results.json</code></a>)</h3>
+<p>Resumen sobre los <code>11</code> benchmarks: <code>385 / 385</code> comprobaciones <code>are_approx</code> superadas (<code>100%</code>), <code>all_endpoints_ok = true</code>, <code>3 / 3</code> invariantes de tabla de verdad verificados, <em>S</em> m&aacute;x. = 36,004, tama&ntilde;o desenrollado m&aacute;x. = 4,098,181,835,914,914,434, <em>S</em>/SLP m&aacute;x. = 857.24&times;.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Benchmark</th>
+<th style="text-align: left;">Suite</th>
+<th style="text-align: right;"><em>k</em><sub>CF</sub></th>
+<th style="text-align: right;"><em>S</em> Bruto</th>
+<th style="text-align: right;">|Fla| M&aacute;x.</th>
+<th style="text-align: right;">SLP</th>
+<th style="text-align: right;"><em>S</em> / SLP</th>
+<th style="text-align: right;"><em>t</em></th>
+<th style="text-align: center;">Total / Verificar (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d15_m3</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">424</td>
+<td style="text-align: right;"><code>1,619,676</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">6.95</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>0.293 / 0.270</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d25_m4</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">823</td>
+<td style="text-align: right;"><code>1,668,134,620</code></td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">10.29</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: center;"><code>0.495 / 0.429</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d35_m5</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">1,349</td>
+<td style="text-align: right;"><code>1,708,169,850,296</code></td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">13.63</td>
+<td style="text-align: right;">56</td>
+<td style="text-align: center;"><code>0.781 / 1.488</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iter_sq_d42_m6</code></td>
+<td style="text-align: left;"><code>A_iterated_squaring</code></td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">1,903</td>
+<td style="text-align: right;"><code>218,645,740,837,742</code></td>
+<td style="text-align: right;">118</td>
+<td style="text-align: right;">16.13</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: center;"><code>0.921 / 0.916</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w16_l8_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3,924</td>
+<td style="text-align: right;"><code>33,632,725,506</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">93.43</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>1.375 / 0.115</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w32_l12_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12,182</td>
+<td style="text-align: right;"><code>34,173,623,118,338</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">290.05</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>4.543 / 0.119</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w64_l16_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">21,484</td>
+<td style="text-align: right;"><code>8,731,405,088,107,138</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">511.52</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>7.836 / 0.120</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>xor_balanced_w96_l20_m2</code></td>
+<td style="text-align: left;"><code>B_deep_xor_large_dag</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">36,004</td>
+<td style="text-align: right;"><code>4,098,181,835,914,914,434</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">857.24</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>13.596 / 0.821</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n4_m2</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1,086</td>
+<td style="text-align: right;"><code>981,154</code></td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">25.86</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;"><code>0.498 / 1.522</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n5_m3</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3,072</td>
+<td style="text-align: right;"><code>11,316,898</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">50.36</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>1.180 / 4.955</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>tt_verified_n6_m3</code></td>
+<td style="text-align: left;"><code>C_truth_table_verified</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">3,368</td>
+<td style="text-align: right;"><code>45,267,618</code></td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">55.21</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: center;"><code>1.347 / 6.670</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Tabla 4: Recompresi&oacute;n de Je&zcaron; No Alineada y Dicotom&iacute;a (<code>ATAQUE-15</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/krajicek_nonaligned_slp_results.json"><code>krajicek_nonaligned_slp_results.json</code></a>)</h3>
+<p>En la Suite A, todos los pares iguales unificaron (<code>True</code>) y todas las mutaciones de hoja &uacute;nica a profundidad 2<sup><em>m</em></sup>&minus;1 fueron rechazadas (<code>True</code>), totalizando <code>1562.593 ms</code> entre las Suites A&ndash;C. En la Suite C, <code>taut_var0_vs_taut_var1</code> obtuvo <code>syntactic_fla_equal = false</code>, <code>semantic_bool_equal = true</code>, <code>one_step_are_approx = false</code>, <code>min_verified_ba_steps = 2</code>; <code>xor3_left_vs_right_assoc</code> obtuvo <code>syntactic_fla_equal = false</code>, <code>semantic_bool_equal = true</code>, <code>one_step_are_approx = false</code>, <code>constructive_verified_ba_steps = 807</code>.</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Exp. <em>m</em></th>
+<th style="text-align: right;">Long. Espina Peri&oacute;dica</th>
+<th style="text-align: center;">Reglas (<em>G</em><sub>1</sub>, <em>G</em><sub>2</sub>)</th>
+<th style="text-align: center;">Rondas / Tiempo (ms)</th>
+<th style="text-align: right;">Mutado (ms)</th>
+<th style="text-align: right;">Long. Espina Thue&ndash;Morse</th>
+<th style="text-align: center;">Reglas (<em>G</em><sub>1</sub>, <em>G</em><sub>2</sub>)</th>
+<th style="text-align: center;">Rondas / Tiempo (ms)</th>
+<th style="text-align: right;">Mutado (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">192</td>
+<td style="text-align: center;"><code>(11, 19)</code></td>
+<td style="text-align: center;"><code>3 / 1.450</code></td>
+<td style="text-align: right;">1.073</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: center;"><code>(14, 20)</code></td>
+<td style="text-align: center;"><code>4 / 1.067</code></td>
+<td style="text-align: right;">1.126</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12,288</td>
+<td style="text-align: center;"><code>(17, 31)</code></td>
+<td style="text-align: center;"><code>3 / 1.519</code></td>
+<td style="text-align: right;">1.334</td>
+<td style="text-align: right;">4,096</td>
+<td style="text-align: center;"><code>(26, 38)</code></td>
+<td style="text-align: center;"><code>12 / 5.515</code></td>
+<td style="text-align: right;">3.590</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3,145,728</td>
+<td style="text-align: center;"><code>(25, 47)</code></td>
+<td style="text-align: center;"><code>3 / 2.142</code></td>
+<td style="text-align: right;">2.553</td>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: center;"><code>(42, 62)</code></td>
+<td style="text-align: center;"><code>24 / 28.621</code></td>
+<td style="text-align: right;">13.123</td>
+</tr>
+<tr>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;"><code>12,884,901,888</code></td>
+<td style="text-align: center;"><code>(37, 71)</code></td>
+<td style="text-align: center;"><code>3 / 4.632</code></td>
+<td style="text-align: right;">3.639</td>
+<td style="text-align: right;"><code>4,294,967,296</code></td>
+<td style="text-align: center;"><code>(66, 98)</code></td>
+<td style="text-align: center;"><code>42 / 86.632</code></td>
+<td style="text-align: right;">45.351</td>
+</tr>
+<tr>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;"><code>844,424,930,131,968</code></td>
+<td style="text-align: center;"><code>(53, 103)</code></td>
+<td style="text-align: center;"><code>3 / 8.180</code></td>
+<td style="text-align: right;">7.914</td>
+<td style="text-align: right;"><code>281,474,976,710,656</code></td>
+<td style="text-align: center;"><code>(98, 146)</code></td>
+<td style="text-align: center;"><code>66 / 281.960</code></td>
+<td style="text-align: right;">117.931</td>
+</tr>
+<tr>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;"><code>3,458,764,513,820,540,928</code></td>
+<td style="text-align: center;"><code>(65, 127)</code></td>
+<td style="text-align: center;"><code>3 / 10.057</code></td>
+<td style="text-align: right;">10.022</td>
+<td style="text-align: right;"><code>1,152,921,504,606,846,976</code></td>
+<td style="text-align: center;"><code>(122, 182)</code></td>
+<td style="text-align: center;"><code>84 / 423.794</code></td>
+<td style="text-align: right;">155.639</td>
+</tr>
+</tbody>
+</table></div>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: right;">Suite B (<code>c_ax = 3</code>) <code>k_cuts</code></th>
+<th style="text-align: right;"><code>k_cf_lines</code></th>
+<th style="text-align: right;">Prof. Total Espina</th>
+<th style="text-align: right;">Pasos <code>&approx;</code> Emitidos</th>
+<th style="text-align: right;">Cota <code>(c_ax+2)k</code></th>
+<th style="text-align: center;"><code>are_approx</code> Verificado</th>
+<th style="text-align: right;">Tiempo (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">768</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: center;"><code>True</code> (<code>17 / 17</code>)</td>
+<td style="text-align: right;">3.347</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1,536</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: center;"><code>True</code> (<code>33 / 33</code>)</td>
+<td style="text-align: right;">5.541</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">2,304</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">95</td>
+<td style="text-align: center;"><code>True</code> (<code>49 / 49</code>)</td>
+<td style="text-align: right;">7.567</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">3,072</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: center;"><code>True</code> (<code>65 / 65</code>)</td>
+<td style="text-align: right;">12.389</td>
+</tr>
+</tbody>
+</table></div>
+<p>Total de transiciones verificadas materializadas en Suite B: <code>total_verified_approx_steps_suite_b = 164</code> (<code>100%</code> <code>are_approx</code>).</p>
+<h3>Tabla 5: Localizaci&oacute;n Constructiva de Fallos (<code>ATAQUE-08</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/proof_bug_extractor_results.json"><code>proof_bug_extractor_results.json</code></a>)</h3>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Cadena Corrupta (<code>pysat_cadical195</code>)</th>
+<th style="text-align: right;">Cadena <em>t</em></th>
+<th style="text-align: right;">Vars</th>
+<th style="text-align: right;">DAG <em>E</em><sub>0</sub></th>
+<th style="text-align: right;">Paso Roto</th>
+<th style="text-align: center;">Consultas / &lceil;log<sub>2</sub> <em>t</em>&rceil;</th>
+<th style="text-align: center;">Verificado Falsa / Roto</th>
+<th style="text-align: right;">Tiempo (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>PHP_3_3_corrupted</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: center;"><code>3 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">18.009</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Goldreich_XOR_MAJ3_corrupted</code></td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: center;"><code>4 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">35.401</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Random_3SAT_alpha_4_26_corrupted</code></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">264</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: center;"><code>3 / 4</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">76.912</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DattaDutta_v1_DeMorgan_fanout2_bug</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: center;"><code>2 / 3</code></td>
+<td style="text-align: center;"><code>True / True</code></td>
+<td style="text-align: right;">1.023</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>6. Resumen, Comandos de Reproducibilidad y Referencias</h2>
+<p>En conjunto, <code>ATAQUE-05</code>, <code>ATAQUE-08</code>, <code>ATAQUE-10</code>, <code>ATAQUE-13</code> y <code>ATAQUE-15</code> cierran los reg&iacute;menes de descompartici&oacute;n DAG en poly(<em>S</em>), pureza <em>k</em><sub>CF</sub> sobre SLPs alineados y recompresi&oacute;n de <code>ContextSLP</code> lineales no alineados del problema <code>CF -&gt; &approx;-Chain</code> de Kraj&iacute;&ccaron;ek (<code>arXiv:2606.13367v2</code>, p. 11), a la vez que delimitan exactamente la frontera <code>P</code>-vs.-<code>coNP</code> entre la igualdad sint&aacute;ctica <code>Fla</code> (<code>2</code> pasos &approx; universales) y la equivalencia sem&aacute;ntica <em>A</em> &equiv;<sub>Bool</sub> <em>B</em> con <code>Fla[<em>A</em>] &ne; Fla[<em>B</em>]</code>. Las extensiones m&aacute;s all&aacute; de <code>ContextSLP</code>s unarios lineales hacia tree-SLPs arbitrarios no lineales con m&uacute;ltiples huecos simult&aacute;neos permanecen abiertas dentro del marco completo de recompresi&oacute;n de &aacute;rboles (Je&zcaron; 2016; Lohrey 2012).</p>
+<pre><code class="language-bash"># 1. Verificar los 5 módulos de prueba independientes en Lean 4.36.0 (0 sorryAx, 0 importaciones externas)
+for f in krajicek_ba_rewriting_soundness.lean krajicek_cf_compiler_unsharing.lean \
+         krajicek_slp_kcf_reduction.lean krajicek_nonaligned_context_slp.lean \
+         proof_analysis_bug_extractor.lean; do
+  lean "proofs/$f"
+done
+
+# 2. Reproducir todas las suites de verificación y benchmark en Python
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_ew_explorer
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_cf_compiler
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_slp_unifier
+PYTHONPATH=src python3 -m certified_arith_preproc.krajicek_nonaligned_slp
+PYTHONPATH=src python3 -m certified_arith_preproc.proof_bug_extractor
+</code></pre>
+<p><strong>Referencias:</strong></p>
+<ol>
+<li>Jan Kraj&iacute;&ccaron;ek. <em>Extended Frege proofs, circuits and rewriting</em>. <code>arXiv:2606.13367v2</code> (octubre de 2026).</li>
+<li>Samir Datta y Anupam Dutta. <em>Fan-out &ge; 2 unsharing correction for <code>CF</code> single-occurrence rewriting</em> (comunicaci&oacute;n personal reconocida en Kraj&iacute;&ccaron;ek <code>arXiv:2606.13367v2</code>, octubre de 2026).</li>
+<li>Artur Je&zcaron;. <em>Recompression: A simple and powerful technique for word equations</em>. <em>Journal of the ACM</em>, 63(1), 2016.</li>
+<li>Markus Lohrey. <em>Algorithmics on SLP-compressed strings: A survey</em>. <em>Groups Complexity Cryptology</em>, 4(2):241&ndash;299, 2012.</li>
+<li>Li&ndash;Li&ndash;Ren (<em>STOC 2026</em>). <em>Constructive proof analysis &amp; witness extraction for broken equational chains</em>. <code>arXiv:2611.08305</code>.</li>
+</ol>

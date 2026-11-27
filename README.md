@@ -7,7 +7,7 @@ Portafolio estático en **Astro**, disponible en español e inglés. Presenta pr
 - **Meson:** apps de negocio, clientes con comunidad social y reparto; red local P2P, editor visual de mesas, shell y Store interna de módulos.
 - **Comercio web:** proyecto independiente en Next.js, React, TypeScript y Supabase. El checkout actual es una demostración.
 - **Dos proyectos Astro:** un sitio de servicios y un prototipo QR/NFC de identificación de emergencia. El prototipo requiere validación de seguridad, privacidad y operación antes de cualquier uso real.
-- **Laboratorio:** 17 reportes técnicos bilingües con PDF descargable (Cockpit v2.2, Meson/Brasas/Axion y certificación SAT en Lean 4 + VeriPB 3.0.2), más muestras independientes en Rust, C, ensamblador x86-64, C++, Swift y PHP. Las pruebas de Rust, C/ensamblador, C++ y PHP se ejecutaron localmente; Swift sigue pendiente de ejecutar en un equipo con sus herramientas.
+- **Laboratorio:** 21 reportes técnicos bilingües con PDF descargable (Cockpit v2.2, Meson/Brasas/Axion y certificación SAT / Complejidad de Pruebas en Lean 4.36.0 + VeriPB 3.0.2), más muestras independientes en Rust, C, ensamblador x86-64, C++, Swift y PHP. Las pruebas de Rust, C/ensamblador, C++ y PHP se ejecutaron localmente; Swift sigue pendiente de ejecutar en un equipo con sus herramientas.
 
 Los diagramas y gráficos del portafolio son ilustraciones conceptuales. Los casos describen implementación revisada en código; no atribuyen métricas, usuarios ni resultados comerciales sin evidencia.
 

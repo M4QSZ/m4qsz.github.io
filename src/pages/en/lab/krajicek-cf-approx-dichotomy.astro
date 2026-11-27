@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import paperHtml from '../../../data/krajicekDichotomyPaper.html?raw';
+---
+<Base
+  lang="en"
+  title="Polynomial-Time Recompression and Exact Syntactic-vs-Semantic Dichotomy for Krajíček's Circuit-Rewriting Problem | Miguel Quevedo"
+  description="Proof Complexity Preprint v0.8: complete polynomial-time resolution of Krajíček's CF -> ≈-Chain problem (arXiv:2606.13367v2, p. 11) across DAG path-copying, aligned SLPs, and non-aligned Context-SLPs via hash-consed Jeż recompression up to depth 3.46×10¹⁸ (1.56 s), plus formal syntactic-vs-semantic dichotomy in 5 standalone Lean 4.36.0 suites (0 sorryAx)."
+  pageLabel="Paper · Krajíček CF → ≈ Recompression & Dichotomy"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Polynomial-Time Recompression and Exact Syntactic-vs-Semantic Dichotomy for Krajíček’s Circuit-Rewriting Problem (CF → ≈-Chains)</h1>
+      <p class="detail-lede">Proof Complexity Preprint v0.8 — not peer-reviewed. Every theorem and ≈-chain metric below is mechanically verified across 5 standalone Lean 4.36.0 proof suites (0 sorryAx) and step-checked via DAGStore.are_approx.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v0.8)</strong></div>
+      <div><span>Verification</span><strong>Lean 4.36.0: 5 formal suites (0 sorryAx) · Jeż recompression to 3.46×10¹⁸ in 1.56 s (100% are_approx)</strong></div>
+      <div><span>Status</span><strong>Research Preprint · Proof Complexity</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/krajicek-cf-approx-dichotomy.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repository + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/papers/PAPER_2_KRAJICEK_CF_APPROX_COMPLETE_DICHOTOMY.md" target="_blank" rel="noopener noreferrer">Markdown source ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>

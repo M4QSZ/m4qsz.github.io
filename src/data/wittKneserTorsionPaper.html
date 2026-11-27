@@ -1,0 +1,614 @@
+<blockquote>
+<p><strong>Status:</strong> Publication-ready manuscript (<code>CCC / ITCS / Algebraic Proof Complexity</code> format). Every universal <code>&forall;n</code> algebraic and spectral theorem is mechanically verified in standalone <code>Lean 4.36.0</code> across three zero-import, <code>0 sorryAx</code> proof suites (<a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_snf_universal_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_snf_universal_torsion.lean</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_kneser_linear_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion.lean</code></a>; <code>2,540</code> total lines), and all exact integer Smith Normal Form (<code>SNF<sub>Z</sub></code>) invariant-factor tables are reproduced by <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/witt_noncomm_ips_explorer.py" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_ips_explorer.py</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/witt_higher_torsion_snf.py" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf.py</code></a>, and <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/src/certified_arith_preproc/witt_kneser_nc_separation.py" target="_blank" rel="noopener noreferrer"><code>witt_kneser_nc_separation.py</code></a> in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_noncomm_ips_results.json" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_ips_results.json</code></a>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_higher_torsion_snf_results.json" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf_results.json</code></a>, and <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_kneser_linear_torsion_results.json" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion_results.json</code></a>.</p>
+</blockquote>
+<hr />
+<h2>Abstract</h2>
+<p>Nisan&rsquo;s partial-derivative matrix method characterizes algebraic branching program (ABP) complexity over fields in non-commutative variables and underlies lower bounds for non-commutative Ideal Proof System (<code>NC-IPS</code>) refutations. When arithmetic constraints are lifted from <strong>F</strong><sub>2</sub> to truncated 2-adic Witt rings <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>, however, carry polynomials vanish identically modulo 2 (e.g., 2<em>e</em><sub>2</sub><sup>sym</sup> &equiv; 0 (mod 2) and 4<em>C</em><sub>2</sub> &equiv; 0 (mod 4)) and zero divisors break field-based rank arguments: over <strong>Z</strong>/4<strong>Z</strong>, 2<em>I</em><sub>2</sub> has residue rank 0 modulo 2 yet cannot be factored as a single rank-1 outer product <em>u</em><em>v</em><sup>&top;</sup>.</p>
+<p>We resolve this 2-adic rank-obstruction barrier via universal &forall;<em>n</em> integer Smith Normal Form (<code>SNF<sub>Z</sub></code>) factorizations and exact spectral geometry of the Kneser graph <em>KG</em>(<em>n</em>, 2):</p>
+<ol>
+<li>For the degree-2 carry matrix <em>M</em><sub>1</sub>(<em>e</em><sub>2</sub><sup>sym</sup>) = <em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em>, explicit unimodular matrices <em>P<sub>n</sub></em>, <em>Q<sub>n</sub></em> &isin; GL<sub><em>n</em></sub>(<strong>Z</strong>) prove SNF<sub><strong>Z</strong></sub>(<em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em>) = diag(1<sup><em>n</em>&minus;1</sup>, <em>n</em> &minus; 1) for all <em>n</em> &ge; 2, pinning 2<sup><em>r</em></sup>-torsion emergence to Witt depth <em>k</em> = <em>r</em> + 1 at <em>n</em> = 2<sup><em>r</em></sup> + 1.</li>
+<li>For the degree-3 cut <em>M</em><sub>1,2</sub>(<em>e</em><sub>3</sub><sup>sym</sup>) &isin; <strong>Z</strong><sup><em>n</em> &times; <em>n</em><sup>2</sup></sup>, explicit bilateral unimodular factors reduce the matrix to diag(1<sup><em>n</em>&minus;1</sup>, <em>n</em> &minus; 2, 0, &hellip;, 0) for all <em>n</em> &ge; 3, shifting 2<sup><em>r</em></sup>-torsion emergence to <em>n</em> = 2<sup><em>r</em></sup> + 2.</li>
+<li>For the degree-4 middle cut <em>M</em><sub>2,2</sub>(<em>e</em><sub>4</sub><sup>sym</sup>)&mdash;whose non-redundant core is the adjacency matrix of <em>KG</em>(<em>n</em>, 2)&mdash;we prove that the injective pair-sum map <em>w<sub>v</sub></em>(<em>i</em>, <em>j</em>) = <em>v<sub>i</sub></em> + <em>v<sub>j</sub></em> embeds the (<em>n</em> &minus; 1)-dimensional zero-sum lattice <em>V</em><sub>0</sub> = {<em>v</em> &isin; <strong>Z</strong><sup><em>n</em></sup> : &sum;<sub><em>i</em></sub> <em>v<sub>i</sub></em> = 0} as an exact eigenspace of <em>KG</em>(<em>n</em>, 2) with eigenvalue &minus;(<em>n</em> &minus; 3). At odd <em>n</em> = 2<sup><em>r</em></sup> + 3, this produces a <strong>linear-rank block of <em>n</em> &minus; 1 simultaneous 2<sup><em>r</em></sup>-torsion invariant factors</strong>, forcing a module-rank jump of <em>n</em> &minus; 1 between <em>W<sub>r</sub></em>(<strong>F</strong><sub>2</sub>) and <em>W</em><sub><em>r</em>+1</sub>(<strong>F</strong><sub>2</sub>) (verified computationally up to <em>n</em> = 12, with 10 simultaneous 8-torsion factors at <em>n</em> = 11). On the exact 2nd Witt addition carry 4<em>C</em><sub>2</sub>(<em>x</em>) (mod 16), symmetrized NC Nisan rank reaches <em>C</em>(<em>n</em>, 2) = 45 at <em>n</em> = 10 against ordered commutative rank <em>n</em> &minus; 3 = 7 (<code>6.43&times;</code> separation). We conclude with a scope boundary citing <code>arXiv:2210.17429</code> explaining why these <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) torsion obstructions target extension-free systems (<code>NC-IPS</code> and <code>Frege</code>) rather than <code>Extended Frege</code> (<code>EF</code>).</li>
+</ol>
+<hr />
+<h2>1. Introduction &amp; Algebraic Proof Complexity over Witt Rings <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong></h2>
+<p>Over a field <strong>F</strong>, Nisan&rsquo;s theorem (1991) proves that the minimum size of a homogeneous non-commutative ABP computing <em>f</em> of degree <em>D</em> equals &sum;<sub><em>d</em>=0..<em>D</em></sub> rank<sub><strong>F</strong></sub>(<em>M<sub>d</sub></em>(<em>f</em>)), where <em>M<sub>d</sub></em>(<em>f</em>) has rows indexed by words <em>u</em> of length <em>d</em>, columns by words <em>v</em> of length <em>D</em> &minus; <em>d</em>, and entries equal to the coefficient of the concatenation <em>u</em> &middot; <em>v</em> in <em>f</em>. In algebraic proof complexity, Grochow and Pitassi (2018) introduced the Ideal Proof System (<code>IPS</code>), and subsequent work established super-polynomial separations and lower bounds for restricted fragments including non-commutative <code>IPS</code> (<code>NC-IPS</code>) and bounded-depth / multilinear <code>IPS</code> (Forbes, Shpilka, Tzameret, and Wigderson 2021; Limaye, Srinivasan, and Tavenas 2021).</p>
+<p>Boolean arithmetic circuits and carry chains, however, do not live natively over <strong>F</strong><sub>2</sub> alone: binary addition on <em>n</em> bits <em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em> &isin; {0, 1} generates carries <em>C</em><sub>1</sub>(<em>x</em>) = &lfloor;&sum; <em>x<sub>i</sub></em> / 2&rfloor; mod 2 and <em>C</em><sub>2</sub>(<em>x</em>) = &lfloor;&sum; <em>x<sub>i</sub></em> / 4&rfloor; mod 2 whose faithful algebraic embedding requires the ring of truncated 2-adic Witt vectors <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>. In <em>W</em><sub>2</sub>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/4<strong>Z</strong> (formalized in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a>), addition and multiplication on bit-pairs (<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>) &isin; <strong>F</strong><sub>2</sub><sup>2</sup> satisfy</p>
+<blockquote>
+<p>(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>) +<sub><em>W</em></sub> (<em>b</em><sub>0</sub>, <em>b</em><sub>1</sub>) = (<em>a</em><sub>0</sub> &oplus; <em>b</em><sub>0</sub>, <em>a</em><sub>1</sub> &oplus; <em>b</em><sub>1</sub> &oplus; (<em>a</em><sub>0</sub> &and; <em>b</em><sub>0</sub>)),<br />
+(<em>a</em><sub>0</sub>, <em>a</em><sub>1</sub>) &middot;<sub><em>W</em></sub> (<em>b</em><sub>0</sub>, <em>b</em><sub>1</sub>) = (<em>a</em><sub>0</sub> &and; <em>b</em><sub>0</sub>, (<em>a</em><sub>0</sub> &and; <em>b</em><sub>1</sub>) &oplus; (<em>a</em><sub>1</sub> &and; <em>b</em><sub>0</sub>)),</p>
+</blockquote>
+<p>with exact ring isomorphism <code>toZ4 : W2 &rarr; Fin 4</code> (<code>toZ4_add</code>, <code>toZ4_mul</code>) and integer carry identity 2(<em>x</em> &and; <em>y</em>) &equiv; <em>x</em> + <em>y</em> &minus; (<em>x</em> &oplus; <em>y</em>) (mod 4) (<code>witt_carry_mod4</code>). Lifting a Witt carry from <strong>F</strong><sub>2</sub> to <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) multiplies degree-2<sup><em>t</em></sup> carry components by 2<sup><em>t</em></sup>, placing them inside the zero-divisor ideal 2<sup><em>t</em></sup>(<strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>) where <strong>F</strong><sub>2</sub>-rank collapses to 0.</p>
+<p>In the non-commutative free monoid <strong>Z</strong>&lang;<em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>&rang;, moreover, symmetrized lifts behave radically differently from ordered commutative lifts. As formalized in <code>nc_commutator_nonzero</code> and <code>nc_square_off_diagonal_barrier</code>, the off-diagonal words <code>[1, 2]</code> and <code>[2, 1]</code> are distinct, so (<em>x</em><sub>1</sub> + <em>x</em><sub>2</sub>)<sup>2</sup> &minus; (<em>x</em><sub>1</sub><sup>2</sup> + 2<em>x</em><sub>1</sub><em>x</em><sub>2</sub> + <em>x</em><sub>2</sub><sup>2</sup>) = <em>x</em><sub>2</sub><em>x</em><sub>1</sub> &minus; <em>x</em><sub>1</sub><em>x</em><sub>2</sub> = &minus;[<em>x</em><sub>1</sub>, <em>x</em><sub>2</sub>] &ne; 0 unless the commutator axiom [<em>x</em><sub>1</sub>, <em>x</em><sub>2</sub>] = 0 is explicitly derived. Replacing <em>x<sub>i</sub> x<sub>j</sub></em> (<em>i</em> &lt; <em>j</em>) by its symmetrized lift <em>e<sub>d</sub></em><sup>sym</sup>(<em>x</em>) = &sum;<sub>distinct <em>i</em><sub>1</sub>, &hellip;, <em>i<sub>d</sub></em></sub> <em>x</em><sub><em>i</em><sub>1</sub></sub> &cdots; <em>x<sub>i<sub>d</sub></sub></em> turns sparse upper-triangular ordered matrices into full-rank combinatorial incidence and disjointness matrices whose <strong>Z</strong>-Smith Normal Form governs module rank over every Witt depth <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>).</p>
+<h3>1.1 Preliminaries: Bimodal Nisan Matrices, Fitting Rank, and M&ouml;bius Witt Lifting</h3>
+<p>For a non-commutative polynomial <em>f</em> = &sum;<sub><em>w</em></sub> <em>c<sub>w</sub> w</em> &isin; <strong>Z</strong>&lang;<em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>&rang; and cut <em>d</em> &isin; {0, &hellip;, <em>D</em>}, the <strong>Nisan partial-derivative matrix</strong> <em>M<sub>d</sub></em>(<em>f</em>) has rows indexed by words <em>u</em> &isin; [<em>n</em>]<sup><em>d</em></sup>, columns by words <em>v</em> &isin; [<em>n</em>]<sup><em>D</em>&minus;<em>d</em></sup>, and entries (<em>M<sub>d</sub></em>(<em>f</em>))<sub><em>u</em>,<em>v</em></sub> = <em>c</em><sub><em>u</em> &middot; <em>v</em></sub>; for inhomogeneous polynomials such as 4<em>C</em><sub>2</sub>(<em>x</em>), the <strong>bimodal Nisan matrix</strong> at cut <em>d</em> = 2 indexes rows by words of length 2 and columns by words of length &ge; 2. Over a principal ideal domain <strong>Z</strong>, <em>M</em> admits a Smith Normal Form <em>P M Q</em> = diag(<em>d</em><sub>1</sub>, &hellip;, <em>d<sub>r</sub></em>, 0, &hellip;, 0) with <em>P</em>, <em>Q</em> unimodular and 0 &lt; <em>d</em><sub>1</sub> &mid; <em>d</em><sub>2</sub> &mid; &cdots; &mid; <em>d<sub>r</sub></em>. Reducing modulo 2<sup><em>k</em></sup> yields invariant factors gcd(<em>d<sub>i</sub></em>, 2<sup><em>k</em></sup>), so the <strong><em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>)-module rank</strong> equals #{<em>i</em> : <em>v</em><sub>2</sub>(<em>d<sub>i</sub></em>) &lt; <em>k</em>} and the <strong>zero-divisor gap</strong> relative to <strong>F</strong><sub>2</sub> equals #{<em>i</em> : 1 &le; <em>v</em><sub>2</sub>(<em>d<sub>i</sub></em>) &lt; <em>k</em>}.</p>
+<p>For the 2nd Witt addition carry <em>C</em><sub>2</sub>(<em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>) = &lfloor;(&sum;<sub><em>i</em>=1..<em>n</em></sub> <em>x<sub>i</sub></em>)/4&rfloor; mod 2, discrete M&ouml;bius inversion over Hamming weight <em>s</em> = &sum;<sub><em>i</em>=1..<em>n</em></sub> <em>x<sub>i</sub></em> gives <em>C</em><sub>2</sub>(<em>x</em>) = &sum;<sub><em>k</em>=4..<em>n</em></sub> <em>a<sub>k</sub> e<sub>k</sub></em>(<em>x</em>) where <em>a<sub>k</sub></em> = &sum;<sub><em>j</em>=4..<em>k</em></sub> (&minus;1)<sup><em>k</em>&minus;<em>j</em></sup> <em>C</em>(<em>k</em>, <em>j</em>) (&lfloor;<em>j</em>/4&rfloor; mod 2). As recorded in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_higher_torsion_snf_results.json" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf_results.json</code></a> (<code>c2_witt_second_carry_Z16</code>), scaling into <em>W</em><sub>4</sub>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/16<strong>Z</strong> yields the exact congruence</p>
+<blockquote>
+<p>4<em>C</em><sub>2</sub>(<em>x</em>) &equiv; 4<em>e</em><sub>4</sub>(<em>x</em>) + 8<em>e</em><sub>6</sub>(<em>x</em>) + 8<em>e</em><sub>8</sub>(<em>x</em>) (mod 16) &nbsp;&nbsp;&nbsp;&nbsp; (<em>n</em> &le; 8),</p>
+</blockquote>
+<p>linking the degree-4 carry component directly to 4 &middot; <em>M</em><sub>2,2</sub>(<em>e</em><sub>4</sub><sup>sym</sup>) and hence to 4 &middot; <em>KG</em>(<em>n</em>, 2).</p>
+<hr />
+<h2>2. Universal Smith Normal Form &amp; Kneser <em>KG</em>(<em>n</em>, 2) Torsion Theorems</h2>
+<h3>2.1 Zero-Divisor Rank Obstruction and Non-Commutative Commutator (<code>ATAQUE-06</code>)</h3>
+<p>Over a ring <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>, rank cannot be read off modulo 2. Let <em>M</em> have integer Smith Normal Form invariant factors (<em>d</em><sub>1</sub>, &hellip;, <em>d<sub>r</sub></em>) with <em>d</em><sub>1</sub> &mid; <em>d</em><sub>2</sub> &mid; &cdots; &mid; <em>d<sub>r</sub></em>. Modulo 2<sup><em>k</em></sup>, the Fitting/module rank is the number of indices <em>i</em> with <em>v</em><sub>2</sub>(<em>d<sub>i</sub></em>) &lt; <em>k</em> (equivalently gcd(<em>d<sub>i</sub></em>, 2<sup><em>k</em></sup>) &lt; 2<sup><em>k</em></sup>), because multiplication by <em>d<sub>i</sub></em> annihilates <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong> if and only if 2<sup><em>k</em></sup> &mid; <em>d<sub>i</sub></em>. In <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a>, we mechanically prove the base 2-adic obstruction over <strong>Z</strong>/4<strong>Z</strong>:</p>
+<ul>
+<li><strong><code>two_id_mod2_vanishes</code>:</strong> 2<em>I</em><sub>2</sub> &equiv; 0 (mod 2) yet 2<em>I</em><sub>2</sub> &ne; 0 in <em>M</em><sub>2</sub>(<strong>Z</strong>/4<strong>Z</strong>).</li>
+<li><strong><code>two_id_not_rank1_z4</code>:</strong> &forall; <em>u</em>, <em>v</em> &isin; (<strong>Z</strong>/4<strong>Z</strong>)<sup>2</sup>, <em>u v</em><sup>&top;</sup> &ne; 2<em>I</em><sub>2</sub>; hence rank<sub><strong>Z</strong>/4<strong>Z</strong></sub>(2<em>I</em><sub>2</sub>) = 2 despite rank<sub><strong>F</strong><sub>2</sub></sub>(2<em>I</em><sub>2</sub>) = 0.</li>
+<li><strong><code>noncomm_commutator_witness</code>:</strong> The nilpotent matrices <em>X</em> = [[0, 2], [0, 0]] and <em>Y</em> = [[0, 0], [1, 0]] over <strong>Z</strong>/4<strong>Z</strong> satisfy [<em>X</em>, <em>Y</em>] = <em>X Y</em> &minus; <em>Y X</em> = 2<em>I</em><sub>2</sub> &ne; 0.</li>
+</ul>
+<h3>2.2 Universal SNF for <em>M</em><sub>1</sub>(<em>e</em><sub>2</sub><sup>sym</sup>) = <em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em> (<code>ATAQUE-09</code>)</h3>
+<p>For <em>e</em><sub>2</sub><sup>sym</sup>(<em>x</em>) = &sum;<sub><em>i</em> &ne; <em>j</em></sub> <em>x<sub>i</sub> x<sub>j</sub></em>, the degree-1 Nisan matrix is the <em>n</em> &times; <em>n</em> derangement matrix <em>D<sub>n</sub></em> = <em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em> (<code>derangementEntry</code>). Define <em>P<sub>n</sub></em>, <em>Q<sub>n</sub></em> &isin; <strong>Z</strong><sup><em>n</em> &times; <em>n</em></sup> (<code>P_mat</code>, <code>Q_mat</code>) by:</p>
+<ul>
+<li><strong>(<em>P<sub>n</sub></em>)<sub><em>i</em>,<em>j</em></sub>:</strong> &minus;1 if <em>i</em> &lt; <em>n</em> &minus; 1 and <em>j</em> = <em>i</em>; 1 if <em>i</em> &lt; <em>n</em> &minus; 1 and <em>j</em> = <em>n</em> &minus; 1; 1 if <em>i</em> = <em>n</em> &minus; 1 and <em>j</em> &lt; <em>n</em> &minus; 1; 2 &minus; <em>n</em> if <em>i</em> = <em>n</em> &minus; 1 and <em>j</em> = <em>n</em> &minus; 1; 0 otherwise.</li>
+<li><strong>(<em>Q<sub>n</sub></em>)<sub><em>i</em>,<em>j</em></sub>:</strong> 1 if <em>i</em> = <em>j</em> or <em>j</em> = <em>n</em> &minus; 1; 0 otherwise.</li>
+</ul>
+<p>with explicit integer inverses <code>P_inv</code> ((<em>P<sub>n</sub></em><sup>&minus;1</sup>)<sub><em>i</em>,<em>j</em></sub> = 0 if <em>i</em> &lt; <em>n</em> &minus; 1 and <em>i</em> = <em>j</em>, else 1) and <code>Q_inv</code> (1 on diagonal, &minus;1 on column <em>n</em> &minus; 1 above the diagonal).</p>
+<blockquote>
+<p><strong>Theorem 1 (<code>snf_derangement_forall_n</code>, &forall;<em>n</em> &ge; 2).</strong> <em>For every n &ge; 2, P<sub>n</sub> P<sub>n</sub><sup>&minus;1</sup> = P<sub>n</sub><sup>&minus;1</sup> P<sub>n</sub> = Q<sub>n</sub> Q<sub>n</sub><sup>&minus;1</sup> = Q<sub>n</sub><sup>&minus;1</sup> Q<sub>n</sub> = I<sub>n</sub> (<code>P_mul_P_inv</code>, <code>P_inv_mul_P</code>, <code>Q_mul_Q_inv</code>, <code>Q_inv_mul_Q</code>), and</em></p>
+<p><em>P<sub>n</sub> (J<sub>n</sub> &minus; I<sub>n</sub>) Q<sub>n</sub> = diag(1, &hellip;, 1, n &minus; 1).</em></p>
+<p><em>Consequently (<code>witt_depth_visibility_threshold</code>, <code>witt_snf_torsion_emergence</code>), at n = 2<sup>r</sup> + 1 (r &ge; 0), the top invariant factor n &minus; 1 = 2<sup>r</sup> satisfies (n &minus; 1) mod 2<sup>j</sup> = 0 for all j &le; r (rank n &minus; 1 in W<sub>&le;r</sub>(<strong>F</strong><sub>2</sub>)) and (n &minus; 1) mod 2<sup>r+1</sup> = 2<sup>r</sup> &ne; 0 (full rank n first emerges in W<sub>r+1</sub>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup>r+1</sup><strong>Z</strong>).</em></p>
+</blockquote>
+<h3>2.3 Universal SNF for <em>M</em><sub>1,2</sub>(<em>e</em><sub>3</sub><sup>sym</sup>) (<code>ATAQUE-12</code>, Part a)</h3>
+<p>For <em>e</em><sub>3</sub><sup>sym</sup>(<em>x</em>) = &sum;<sub>distinct <em>i</em>,<em>a</em>,<em>b</em></sub> <em>x<sub>i</sub> x<sub>a</sub> x<sub>b</sub></em>, the cut <em>d</em> = 1 Nisan matrix <em>M</em><sub>1,2</sub>(<em>e</em><sub>3</sub><sup>sym</sup>) &isin; {0, 1}<sup><em>n</em> &times; <em>n</em><sup>2</sup></sup> (<code>M12_e3</code>) has entry 1 at (<em>i</em>, <em>c</em>) iff <em>a</em> &ne; <em>b</em>, <em>i</em> &ne; <em>a</em>, <em>i</em> &ne; <em>b</em> where <em>c</em> = <em>a n</em> + <em>b</em>. In <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_kneser_linear_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion.lean</code></a>, we construct explicit closed-form unimodular factors:</p>
+<ul>
+<li>Left factor <code>P_e3 n</code> (&isin; GL<sub><em>n</em></sub>(<strong>Z</strong>)): for <em>i</em> &lt; <em>n</em> &minus; 2, row <em>i</em> is &delta;<sub><em>i</em></sub> &minus; &delta;<sub><em>n</em>&minus;2</sub>; row <em>n</em> &minus; 2 is &delta;<sub><em>n</em>&minus;1</sub>; row <em>n</em> &minus; 1 puts 3 &minus; <em>n</em> at column <em>n</em> &minus; 2 and 1 elsewhere. Its two-sided inverse <code>P_e3_inv</code> satisfies <code>P_e3_mul_inv</code> and <code>P_e3_inv_mul</code>.</li>
+<li>Right factor <code>Q_e3 n = PermQ n * U_e3 n</code> (&isin; GL<sub><em>n</em><sup>2</sup></sub>(<strong>Z</strong>)): <code>PermQ</code> implements the involution <code>sigmaQ</code> sending 0 &le; <em>x</em> &lt; <em>n</em> &minus; 2 to (<em>n</em> &minus; 1)<em>n</em> + <em>x</em>, <em>n</em> &minus; 2 to <em>n</em>, and <em>n</em> &minus; 1 to (<em>n</em> &minus; 1)<em>n</em> + (<em>n</em> &minus; 2), aligning the pivot columns so upper-triangular clearing <code>U_e3</code> (with inverse <code>U_e3_inv</code>) zeroes all columns <em>j</em> &ge; <em>n</em>.</li>
+</ul>
+<blockquote>
+<p><strong>Theorem 2 (<code>snf_e3_M12_forall_n</code>, &forall;<em>n</em> &ge; 3).</strong> <em>For every n &ge; 3, P<sub>e<sub>3</sub>,n</sub> P<sub>e<sub>3</sub>,n</sub><sup>&minus;1</sup> = I<sub>n</sub>, Q<sub>e<sub>3</sub>,n</sub> Q<sub>e<sub>3</sub>,n</sub><sup>&minus;1</sup> = I<sub>n<sup>2</sup></sub> (<code>Q_e3_mul_inv</code>, <code>Q_e3_inv_mul</code>), and</em></p>
+<p><em>P<sub>e<sub>3</sub>,n</sub> M<sub>1,2</sub>(e<sub>3</sub><sup>sym</sup>) Q<sub>e<sub>3</sub>,n</sub> = diag(1<sup>n&minus;1</sup>, n &minus; 2, 0, &hellip;, 0).</em></p>
+<p><em>Thus at n = 2<sup>r</sup> + 2 (r &ge; 1), the single 2<sup>r</sup>-torsion factor n &minus; 2 = 2<sup>r</sup> vanishes in W<sub>&le;r</sub>(<strong>F</strong><sub>2</sub>) and emerges at depth W<sub>r+1</sub>(<strong>F</strong><sub>2</sub>).</em></p>
+</blockquote>
+<h3>2.4 Kneser <em>KG</em>(<em>n</em>, 2) Pair-Sum Eigenspace &amp; Linear-Rank Torsion (<code>ATAQUE-12</code>, Part b)</h3>
+<p>While <em>e</em><sub>2</sub><sup>sym</sup> and <em>e</em><sub>3</sub><sup>sym</sup> yield only a <em>single</em> torsion factor (<em>O</em>(1) rank jump), the middle cut <em>M</em><sub>2,2</sub>(<em>e</em><sub>4</sub><sup>sym</sup>) &isin; {0, 1}<sup><em>n</em><sup>2</sup> &times; <em>n</em><sup>2</sup></sup> compresses without loss of SNF<sub><strong>Z</strong></sub> to the <em>C</em>(<em>n</em>, 2) &times; <em>C</em>(<em>n</em>, 2) adjacency matrix of the Kneser graph <em>KG</em>(<em>n</em>, 2), acting on symmetric pair functions <em>w</em>(<em>a</em>, <em>b</em>) via <code>(kneserAction n w i j)</code> = &sum;<sub><em>a</em>&lt;<em>b</em>, {<em>a</em>,<em>b</em>} &cap; {<em>i</em>,<em>j</em>} = &empty;</sub> <em>w</em>(<em>a</em>, <em>b</em>). Define the pair-sum map <code>pairSum</code> <em>w<sub>v</sub></em>(<em>i</em>, <em>j</em>) = <em>v<sub>i</sub></em> + <em>v<sub>j</sub></em> on the (<em>n</em> &minus; 1)-dimensional zero-sum lattice <em>V</em><sub>0</sub> = {<em>v</em> &isin; <strong>Z</strong><sup><em>n</em></sup> : &sum;<sub><em>i</em>=0..<em>n</em>&minus;1</sub> <em>v<sub>i</sub></em> = 0}, spanned by <code>zeroSumBasis</code> <em>e<sub>k</sub></em> = &delta;<sub><em>k</em></sub> &minus; &delta;<sub><em>n</em>&minus;1</sub> (0 &le; <em>k</em> &lt; <em>n</em> &minus; 1, <code>zeroSumBasis_in_V0</code>).</p>
+<blockquote>
+<p><strong>Theorem 3 (<code>pairSum_injective</code>, <code>pairSum_basis_lin_indep</code>, <code>kneser_acts_on_pairSum</code>, &forall;<em>n</em> &ge; 3).</strong></p>
+<ol>
+<li><em>For every n &ge; 3, v &mapsto; w<sub>v</sub> is injective on <strong>Z</strong><sup>n</sup> restricted to distinct pairs 0 &le; i &lt; j &lt; n (<code>pairSum_injective</code>, solving v<sub>i</sub> = (w<sub>0,i</sub> + w<sub>1,i</sub> &minus; w<sub>0,1</sub>)/2), and {w<sub>e<sub>0</sub></sub>, &hellip;, w<sub>e<sub>n&minus;2</sub></sub>} are linearly independent in <strong>Z</strong><sup>C(n, 2)</sup> (<code>pairSum_basis_lin_indep</code>).</em></li>
+<li><em>For every v &isin; V<sub>0</sub> and i &ne; j, <code>(kneserAction n (pairSum v) i j) = -(n - 3) * (pairSum v i j)</code> (<code>kneser_acts_on_pairSum</code>): doubling the sum over unordered pairs splits into &sum;<sub>a &notin; {i, j}</sub> (n &minus; 3) v<sub>a</sub> twice, and &sum;<sub>a &notin; {i, j}</sub> v<sub>a</sub> = &minus;(v<sub>i</sub> + v<sub>j</sub>) by v &isin; V<sub>0</sub>.</em></li>
+</ol>
+<p><em>Combining this (n &minus; 1)-dimensional integral eigenspace of eigenvalue &minus;(n &minus; 3) with the classical Kneser spectrum (Lov&aacute;sz 1979; Godsil and Royle 2001), the closed-form SNF<sub><strong>Z</strong></sub> of M<sub>2,2</sub>(e<sub>4</sub><sup>sym</sup>) ~ KG(n, 2) for n &ge; 4 is:</em></p>
+<ul>
+<li><em>For n even:</em> (1<sup><em>n</em>(<em>n</em>&minus;3)/2</sup>, (<em>n</em> &minus; 3)<sup><em>n</em>&minus;1</sup>, (<em>n</em> &minus; 2)(<em>n</em> &minus; 3)/2)</li>
+<li><em>For n odd:</em> (1<sup><em>n</em>(<em>n</em>&minus;3)/2</sup>, (<em>n</em> &minus; 3)/2, (<em>n</em> &minus; 3)<sup><em>n</em>&minus;2</sup>, (<em>n</em> &minus; 2)(<em>n</em> &minus; 3))</li>
+</ul>
+<p><em>For odd n = 2<sup>r</sup> + 3 (r &ge; 1), v<sub>2</sub>(n &minus; 3) = r and v<sub>2</sub>((n &minus; 3)/2) = r &minus; 1, yielding a <strong>linear-rank block of n &minus; 1 simultaneous invariant factors divisible by 2<sup>r</sup></strong> (n &minus; 2 copies of 2<sup>r</sup> and one of (2<sup>r</sup> + 1)2<sup>r</sup>), causing an &Omega;(n) rank jump of n &minus; 1 between W<sub>r</sub>(<strong>F</strong><sub>2</sub>) and W<sub>r+1</sub>(<strong>F</strong><sub>2</sub>).</em></p>
+</blockquote>
+<p>More explicitly, for every odd <em>n</em> = 2<sup><em>r</em></sup> + 3 (<em>r</em> &ge; 1):</p>
+<ul>
+<li>Over <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) with <em>k</em> &le; <em>r</em> &minus; 1, all <em>n</em> &minus; 1 factors of <em>V</em><sub>0</sub> vanish modulo 2<sup><em>k</em></sup> (rank <em>n</em>(<em>n</em> &minus; 3)/2);</li>
+<li>Over <em>W<sub>r</sub></em>(<strong>F</strong><sub>2</sub>), only the single factor (<em>n</em> &minus; 3)/2 = 2<sup><em>r</em>&minus;1</sup> emerges (rank <em>n</em>(<em>n</em> &minus; 3)/2 + 1);</li>
+<li>Over <em>W</em><sub><em>r</em>+1</sub>(<strong>F</strong><sub>2</sub>) &cong; <strong>Z</strong>/2<sup><em>r</em>+1</sup><strong>Z</strong>, all <em>n</em> &minus; 2 copies of <em>n</em> &minus; 3 = 2<sup><em>r</em></sup> and (<em>n</em> &minus; 2)(<em>n</em> &minus; 3) = (2<sup><em>r</em></sup> + 1)2<sup><em>r</em></sup> become units modulo 2<sup><em>r</em>+1</sup> times 2<sup><em>r</em></sup>, lifting the module rank by <em>n</em> &minus; 1 to full rank <em>C</em>(<em>n</em>, 2).</li>
+</ul>
+<hr />
+<h2>3. Mechanical Verification in <code>Lean 4.36.0</code> (<code>0 sorryAx</code>)</h2>
+<p>All three files compile standalone with <code>lean</code> (<code>4.36.0</code>), <code>0</code> external imports, <code>0</code> <code>sorry</code>, and <code>0</code> custom <code>axiom</code> declarations (<code>2,540</code> total lines). Where explicit <code>#print axioms</code> commands appear in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a> and <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_snf_universal_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_snf_universal_torsion.lean</code></a>, we directly observed the exact Lean kernel axiom footprints below:</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: left;">Suite (<code>proofs/</code>)</th>
+<th style="text-align: center;">Lines</th>
+<th style="text-align: left;">Audited Declarations (<code>#print axioms</code> / Kernel Check)</th>
+<th style="text-align: left;">Observed Axiom Footprint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a></td>
+<td style="text-align: center;"><code>293</code></td>
+<td style="text-align: left;"><code>toZ4_ofZ4</code>, <code>ofZ4_toZ4</code>, <code>toZ4Nat_add</code>, <code>toZ4Nat_mul</code>, <code>witt_carry_exact_nat</code>, <code>witt_carry_mod4</code>, <code>nc_commutator_nonzero</code>, <code>nc_square_off_diagonal_barrier</code></td>
+<td style="text-align: left;"><code>[]</code> (<code>0</code> axioms)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_noncomm_nisan_frege.lean" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_nisan_frege.lean</code></a></td>
+<td style="text-align: center;"><code>293</code></td>
+<td style="text-align: left;"><code>two_id_mod2_vanishes</code>, <code>two_id_not_rank1_z4</code>, <code>noncomm_commutator_witness</code></td>
+<td style="text-align: left;"><code>[propext]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_snf_universal_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_snf_universal_torsion.lean</code></a></td>
+<td style="text-align: center;"><code>567</code></td>
+<td style="text-align: left;"><code>P_mul_P_inv</code>, <code>P_inv_mul_P</code>, <code>Q_mul_Q_inv</code>, <code>Q_inv_mul_Q</code>, <code>snf_derangement_forall_n</code>, <code>witt_depth_visibility_threshold</code>, <code>witt_snf_torsion_emergence</code></td>
+<td style="text-align: left;"><code>[propext, Quot.sound]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/proofs/witt_kneser_linear_torsion.lean" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion.lean</code></a></td>
+<td style="text-align: center;"><code>1,680</code></td>
+<td style="text-align: left;"><code>P_e3_mul_inv</code>, <code>P_e3_inv_mul</code>, <code>Q_e3_mul_inv</code>, <code>Q_e3_inv_mul</code>, <code>snf_e3_M12_forall_n</code>, <code>zeroSumBasis_in_V0</code>, <code>pairSum_injective</code>, <code>pairSum_basis_lin_indep</code>, <code>kneser_acts_on_pairSum</code></td>
+<td style="text-align: left;">Compiles standalone (<code>0</code> imports, <code>0</code> <code>sorry</code>; <code>#print axioms</code> not appended in file)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2>4. Computational Invariant-Factor &amp; Witt-Carry Rank Evaluation</h2>
+<h3>Table 1: <code>e_2^sym</code> (<em>M</em><sub>1</sub> = <em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em>) Universal SNF (<em>n</em> = 2..17)</h3>
+<p>From <code>e2_sym_M1_derangement</code> in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_higher_torsion_snf_results.json" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf_results.json</code></a>:</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;"><em>n</em></th>
+<th style="text-align: left;">SNF<sub><strong>Z</strong></sub>(<em>J<sub>n</sub></em> &minus; <em>I<sub>n</sub></em>)</th>
+<th style="text-align: center;">max <em>v</em><sub>2</sub></th>
+<th style="text-align: center;">First Full Depth</th>
+<th style="text-align: center;"><em>W</em><sub>1</sub> (<strong>Z</strong>/2)</th>
+<th style="text-align: center;"><em>W</em><sub>2</sub> (<strong>Z</strong>/4)</th>
+<th style="text-align: center;"><em>W</em><sub>3</sub> (<strong>Z</strong>/8)</th>
+<th style="text-align: center;"><em>W</em><sub>4</sub> (<strong>Z</strong>/16)</th>
+<th style="text-align: center;"><em>W</em><sub>5</sub> (<strong>Z</strong>/32)</th>
+<th style="text-align: center;"><em>W</em><sub>6</sub> (<strong>Z</strong>/64)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: left;"><code>[1^1, 1]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: left;"><code>[1^2, 2]</code></td>
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: center;"><code>W_2</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><strong><code>3</code></strong></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>3</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: left;"><code>[1^3, 3]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: left;"><code>[1^4, 4]</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>W_3</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><strong><code>5</code></strong></td>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>5</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: left;"><code>[1^5, 5]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: left;"><code>[1^6, 6]</code></td>
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: center;"><code>W_2</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><strong><code>7</code></strong></td>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: center;"><code>7</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: left;"><code>[1^7, 7]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>9</code></td>
+<td style="text-align: left;"><code>[1^8, 8]</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>W_4</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><strong><code>9</code></strong></td>
+<td style="text-align: center;"><code>9</code></td>
+<td style="text-align: center;"><code>9</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: left;"><code>[1^9, 9]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: left;"><code>[1^{10}, 10]</code></td>
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: center;"><code>W_2</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><strong><code>11</code></strong></td>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: center;"><code>11</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: left;"><code>[1^{11}, 11]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>13</code></td>
+<td style="text-align: left;"><code>[1^{12}, 12]</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>W_3</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><strong><code>13</code></strong></td>
+<td style="text-align: center;"><code>13</code></td>
+<td style="text-align: center;"><code>13</code></td>
+<td style="text-align: center;"><code>13</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: left;"><code>[1^{13}, 13]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><code>14</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: left;"><code>[1^{14}, 14]</code></td>
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: center;"><code>W_2</code></td>
+<td style="text-align: center;"><code>14</code></td>
+<td style="text-align: center;"><strong><code>15</code></strong></td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: center;"><code>15</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: left;"><code>[1^{15}, 15]</code></td>
+<td style="text-align: center;"><code>0</code></td>
+<td style="text-align: center;"><code>W_1</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>17</code></td>
+<td style="text-align: left;"><code>[1^{16}, 16]</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>W_5</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><code>16</code></td>
+<td style="text-align: center;"><strong><code>17</code></strong></td>
+<td style="text-align: center;"><code>17</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 2: <code>ATAQUE-06</code> Witt Carry 2<em>e</em><sub>2</sub><sup>sym</sup> &amp; (&sum; <em>x<sub>i</sub></em>)<sup>3</sup> mod 4 Separation (<em>n</em> = 2..6)</h3>
+<p>From <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_noncomm_ips_results.json" target="_blank" rel="noopener noreferrer"><code>witt_noncomm_ips_results.json</code></a>:</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;"><em>n</em></th>
+<th style="text-align: left;"><em>e</em><sub>2</sub><sup>sym</sup> <em>M</em><sub>1</sub> (<strong>F</strong><sub>2</sub> / <strong>Q</strong> / inv<sub><strong>Z</strong>/4</sub>)</th>
+<th style="text-align: left;">2<em>e</em><sub>2</sub><sup>sym</sup> <em>M</em><sub>1</sub> (<strong>F</strong><sub>2</sub> / inv<sub><strong>Z</strong>/4</sub> / gap<sub><strong>Z</strong>/4</sub>)</th>
+<th style="text-align: center;">(&sum; <em>x<sub>i</sub></em>)<sup>3</sup> mod 4 <code>NC</code> ABP Bound</th>
+<th style="text-align: center;">(&sum; <em>x<sub>i</sub></em>)<sup>3</sup> mod 4 <code>Ord</code> ABP Bound</th>
+<th style="text-align: center;"><code>Comm / NC</code> Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: left;"><code>2 / 2 / [1, 1]</code></td>
+<td style="text-align: left;"><code>0 / [2, 2] / 2</code></td>
+<td style="text-align: center;"><code>4</code> (<code>d=1: [1]</code>)</td>
+<td style="text-align: center;"><code>6</code> (<code>d=1: [1^2]</code>)</td>
+<td style="text-align: center;"><code>1.5&times;</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: left;"><code>2 / 3 / [1, 1, 2]</code></td>
+<td style="text-align: left;"><code>0 / [2, 2] / 2</code></td>
+<td style="text-align: center;"><code>4</code> (<code>d=1: [1]</code>)</td>
+<td style="text-align: center;"><code>8</code> (<code>d=1: [1^3]</code>)</td>
+<td style="text-align: center;"><code>2.0&times;</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: left;"><code>4 / 4 / [1^4]</code></td>
+<td style="text-align: left;"><code>0 / [2^4] / 4</code></td>
+<td style="text-align: center;"><code>4</code> (<code>d=1: [1]</code>)</td>
+<td style="text-align: center;"><code>10</code> (<code>d=1: [1^4]</code>)</td>
+<td style="text-align: center;"><code>2.5&times;</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: left;"><code>4 / 5 / [1^4]</code> (<strong>Z</strong>/8: <code>[1^4, 4]</code>)</td>
+<td style="text-align: left;"><code>0 / [2^4] / 4</code></td>
+<td style="text-align: center;"><code>4</code> (<code>d=1: [1]</code>)</td>
+<td style="text-align: center;"><code>12</code> (<code>d=1: [1^5]</code>)</td>
+<td style="text-align: center;"><code>3.0&times;</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: left;"><code>6 / 6 / [1^6]</code></td>
+<td style="text-align: left;"><code>0 / [2^6] / 6</code></td>
+<td style="text-align: center;"><code>4</code> (<code>d=1: [1]</code>)</td>
+<td style="text-align: center;"><code>14</code> (<code>d=1: [1^6]</code>)</td>
+<td style="text-align: center;"><code>3.5&times;</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3>Table 3: <code>e_3^sym</code> (<em>M</em><sub>1,2</sub>) up to <em>n</em> = 12 and Kneser <em>KG</em>(<em>n</em>, 2) ~ <em>M</em><sub>2,2</sub>(<em>e</em><sub>4</sub><sup>sym</sup>) up to <em>n</em> = 11</h3>
+<p>From <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_higher_torsion_snf_results.json" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf_results.json</code></a> and <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_kneser_linear_torsion_results.json" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion_results.json</code></a>:</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;"><em>n</em></th>
+<th style="text-align: center;"><em>M</em><sub>1,2</sub>(<em>e</em><sub>3</sub><sup>sym</sup>) Dims</th>
+<th style="text-align: left;">SNF<sub><strong>Z</strong></sub>(<em>M</em><sub>1,2</sub>)</th>
+<th style="text-align: center;"><em>KG</em>(<em>n</em>, 2) <em>C</em>(<em>n</em>, 2)</th>
+<th style="text-align: left;">SNF<sub><strong>Z</strong></sub>(<em>KG</em>(<em>n</em>, 2)) Multiplicities</th>
+<th style="text-align: left;"><em>v</em><sub>2</sub> Spectrum</th>
+<th style="text-align: center;">Ranks <em>W</em><sub>1</sub> / <em>W</em><sub>2</sub> / <em>W</em><sub>3</sub> / <em>W</em><sub>4</sub> (<em>KG</em>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>3&times;9</code></td>
+<td style="text-align: left;"><code>[1^3]</code> (<code>max v_2=0</code>)</td>
+<td style="text-align: center;">&mdash;</td>
+<td style="text-align: left;">&mdash;</td>
+<td style="text-align: left;">&mdash;</td>
+<td style="text-align: center;">&mdash;</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>4&times;16</code></td>
+<td style="text-align: left;"><code>[1^3, 2]</code> (<code>max v_2=1</code>)</td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: left;"><code>1^6</code></td>
+<td style="text-align: left;"><code>0^6</code></td>
+<td style="text-align: center;"><code>6 / 6 / 6 / 6</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>5&times;25</code></td>
+<td style="text-align: left;"><code>[1^4, 3]</code> (<code>max v_2=0</code>)</td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: left;"><code>1^6, 2^3, 6^1</code></td>
+<td style="text-align: left;"><code>0^6, 1^4</code></td>
+<td style="text-align: center;"><code>6 / 10 / 10 / 10</code> (<code>+4</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>6&times;36</code></td>
+<td style="text-align: left;"><code>[1^5, 4]</code> (<code>max v_2=2</code>)</td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: left;"><code>1^9, 3^5, 6^1</code></td>
+<td style="text-align: left;"><code>0^{14}, 1^1</code></td>
+<td style="text-align: center;"><code>14 / 15 / 15 / 15</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: center;"><code>7&times;49</code></td>
+<td style="text-align: left;"><code>[1^6, 5]</code> (<code>max v_2=0</code>)</td>
+<td style="text-align: center;"><code>21</code></td>
+<td style="text-align: left;"><code>1^{14}, 2^1, 4^5, 20^1</code></td>
+<td style="text-align: left;"><code>0^{14}, 1^1, 2^6</code></td>
+<td style="text-align: center;"><code>14 / 15 / 21 / 21</code> (<code>+6</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>8&times;64</code></td>
+<td style="text-align: left;"><code>[1^7, 6]</code> (<code>max v_2=1</code>)</td>
+<td style="text-align: center;"><code>28</code></td>
+<td style="text-align: left;"><code>1^{20}, 5^7, 15^1</code></td>
+<td style="text-align: left;"><code>0^{28}</code></td>
+<td style="text-align: center;"><code>28 / 28 / 28 / 28</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>9</code></td>
+<td style="text-align: center;"><code>9&times;81</code></td>
+<td style="text-align: left;"><code>[1^8, 7]</code> (<code>max v_2=0</code>)</td>
+<td style="text-align: center;"><code>36</code></td>
+<td style="text-align: left;"><code>1^{27}, 3^1, 6^7, 42^1</code></td>
+<td style="text-align: left;"><code>0^{28}, 1^8</code></td>
+<td style="text-align: center;"><code>28 / 36 / 36 / 36</code> (<code>+8</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>10&times;100</code></td>
+<td style="text-align: left;"><code>[1^9, 8]</code> (<code>max v_2=3</code>)</td>
+<td style="text-align: center;"><code>45</code></td>
+<td style="text-align: left;"><code>1^{35}, 7^9, 28^1</code></td>
+<td style="text-align: left;"><code>0^{44}, 2^1</code></td>
+<td style="text-align: center;"><code>44 / 44 / 45 / 45</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: center;"><code>11&times;121</code></td>
+<td style="text-align: left;"><code>[1^{10}, 9]</code> (<code>max v_2=0</code>)</td>
+<td style="text-align: center;"><code>55</code></td>
+<td style="text-align: left;"><code>1^{44}, 4^1, 8^9, 72^1</code></td>
+<td style="text-align: left;"><code>0^{44}, 2^1, 3^{10}</code></td>
+<td style="text-align: center;"><code>44 / 44 / 45 / 55</code> (<strong><code>+10</code></strong>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>12&times;144</code></td>
+<td style="text-align: left;"><code>[1^{11}, 10]</code> (<code>max v_2=1</code>)</td>
+<td style="text-align: center;"><code>66</code></td>
+<td style="text-align: left;"><code>1^{54}, 9^{11}, 45^1</code></td>
+<td style="text-align: left;"><code>0^{66}</code></td>
+<td style="text-align: center;"><code>66 / 66 / 66 / 66</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>At <em>n</em> = 11 = 2<sup>3</sup> + 3, <em>KG</em>(11, 2) exhibits <strong><code>10</code> simultaneous 8-torsion factors</strong> (9 copies of 8 and 1 copy of 72, all with <em>v</em><sub>2</sub> = 3), driving a linear jump from rank <code>45</code> in <em>W</em><sub>3</sub>(<strong>F</strong><sub>2</sub>) = <strong>Z</strong>/8<strong>Z</strong> to full rank <code>55</code> in <em>W</em><sub>4</sub>(<strong>F</strong><sub>2</sub>) = <strong>Z</strong>/16<strong>Z</strong>. Moreover, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_kneser_linear_torsion_results.json" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion_results.json</code></a> confirms the exact <code>snf_Z</code> closed form for <em>M</em><sub>1,2</sub>(<em>e</em><sub>3</sub><sup>sym</sup>) through <em>n</em> = 14 (<code>[1^{12}, 11]</code> at <em>n</em> = 13, <code>[1^{13}, 12]</code> at <em>n</em> = 14 with <code>max v_2 = 2</code>, emerging at <em>W</em><sub>3</sub>).</p>
+<h3>Table 4: Exact 2nd Witt Carry 4<em>C</em><sub>2</sub>(<em>x</em>) (mod 16): Ordered Commutative vs Symmetrized NC-IPS</h3>
+<p>From <code>nc_ips_vs_ordered_4C2_mod16_n4_to_10</code> in <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_kneser_linear_torsion_results.json" target="_blank" rel="noopener noreferrer"><code>witt_kneser_linear_torsion_results.json</code></a> (cut <em>d</em> = 2):</p>
+<div class="paper-table-wrap" tabindex="0" role="region"><table class="paper-table">
+<thead>
+<tr>
+<th style="text-align: center;"><em>n</em></th>
+<th style="text-align: center;">Matrix Dims (<code>NC</code> / <code>Ord</code>)</th>
+<th style="text-align: center;">Ordered Rank (<strong>Z</strong>/16<strong>Z</strong>)</th>
+<th style="text-align: center;">NC Nisan Rank (<strong>Z</strong>/16<strong>Z</strong>)</th>
+<th style="text-align: center;">Gap</th>
+<th style="text-align: center;">Ratio (<code>NC / Ord</code>)</th>
+<th style="text-align: left;">Invariant Factors (<strong>Z</strong>/16<strong>Z</strong>) &amp; 4 &middot; <em>KG</em>(<em>n</em>, 2) Match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>6 &times; 6</code></td>
+<td style="text-align: center;"><code>1</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>6.00&times;</code></td>
+<td style="text-align: left;"><code>[4^6]</code> (<code>matches_4_times_KG_n_2_mod_16 = true</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>10 &times; 20</code></td>
+<td style="text-align: center;"><code>2</code></td>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>5.00&times;</code></td>
+<td style="text-align: left;"><code>[4^6, 8^4]</code> (<code>true</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>15 &times; 50</code></td>
+<td style="text-align: center;"><code>3</code></td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: center;"><code>12</code></td>
+<td style="text-align: center;"><code>5.00&times;</code></td>
+<td style="text-align: left;"><code>[4^{14}, 8^1]</code> (<code>true</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>7</code></td>
+<td style="text-align: center;"><code>21 &times; 112</code></td>
+<td style="text-align: center;"><code>4</code></td>
+<td style="text-align: center;"><code>15</code></td>
+<td style="text-align: center;"><code>11</code></td>
+<td style="text-align: center;"><code>3.75&times;</code></td>
+<td style="text-align: left;"><code>[4^{14}, 8^1]</code> (<code>true</code>; 6 factors of 16 vanish mod 16)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>8</code></td>
+<td style="text-align: center;"><code>28 &times; 238</code></td>
+<td style="text-align: center;"><code>5</code></td>
+<td style="text-align: center;"><code>28</code></td>
+<td style="text-align: center;"><code>23</code></td>
+<td style="text-align: center;"><code>5.60&times;</code></td>
+<td style="text-align: left;"><code>[4^{28}]</code> (<code>true</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>9</code></td>
+<td style="text-align: center;"><code>36 &times; 492</code></td>
+<td style="text-align: center;"><code>6</code></td>
+<td style="text-align: center;"><code>36</code></td>
+<td style="text-align: center;"><code>30</code></td>
+<td style="text-align: center;"><code>6.00&times;</code></td>
+<td style="text-align: left;"><code>[4^{28}, 8^8]</code> (<code>true</code>)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>10</code></td>
+<td style="text-align: center;"><code>45 &times; 1002</code></td>
+<td style="text-align: center;"><strong><code>7</code></strong> (<code>n - 3</code>)</td>
+<td style="text-align: center;"><strong><code>45</code></strong> (<em>C</em>(<em>n</em>, 2))</td>
+<td style="text-align: center;"><strong><code>38</code></strong></td>
+<td style="text-align: center;"><strong><code>6.4286&times;</code></strong></td>
+<td style="text-align: left;"><code>[4^{44}, 8^1]</code> (<code>false</code> vs <code>4*KG(10,2) = [4^{44}]</code> due to higher <em>e<sub>k</sub></em>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Notice two sharp phenomena in Table 4:</p>
+<ol>
+<li><strong>Linear-vs-Quadratic Rank Separation:</strong> Ordered commutative lifts of 4<em>C</em><sub>2</sub>(<em>x</em>) have <strong>Z</strong>/16<strong>Z</strong>-rank <em>n</em> &minus; 3 (<code>7</code> at <em>n</em> = 10), whereas symmetrized NC-IPS lifts reach <em>C</em>(<em>n</em>, 2) (<code>45</code> at <em>n</em> = 10), giving a <code>6.4286&times;</code> (<code>6.43&times;</code>) separation (<code>gap = 38</code>).</li>
+<li><strong>Witt-Depth Collapse at <em>n</em> = 7:</strong> Under 4&times; scaling, the 6 copies of 4-torsion in <em>C</em><sub>2</sub><sup>sym</sup> (<code>[1^{14}, 2, 4^6]</code> in <code>exact_C2_symmetrized_d2</code>, <a href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/results/witt_higher_torsion_snf_results.json" target="_blank" rel="noopener noreferrer"><code>witt_higher_torsion_snf_results.json</code></a>) become <code>16</code>-torsion (<code>[4^{14}, 8, 16^6]</code> in <code>exact_4C2_symmetrized_d2_Z16</code>), vanishing identically in <em>W</em><sub>4</sub>(<strong>F</strong><sub>2</sub>) = <strong>Z</strong>/16<strong>Z</strong> (dropping NC rank from <code>21</code> to <code>15</code>) before re-emerging at depth <em>W</em><sub>5</sub>(<strong>F</strong><sub>2</sub>) = <strong>Z</strong>/32<strong>Z</strong>.</li>
+</ol>
+<hr />
+<h2>5. Scope &amp; Barrier Analysis (<code>Frege</code> / <code>NC-IPS</code> vs <code>Extended Frege</code>)</h2>
+<p>It is essential to delimit precisely which proof systems are obstructed by these 2-adic Witt torsion gaps. Over <code>Extended Frege</code> (<code>EF</code>)&mdash;or equivalently <code>IPS</code> augmented with circuit/Tseitin extension variables&mdash;carry chains do <strong>not</strong> induce super-linear lower bounds: as established in carry-extension analyses (<code>arXiv:2210.17429</code>), introducing extension variables that explicitly name each half-adder and full-adder carry wire <em>c<sub>j</sub></em> computes &sum;<sub><em>i</em>=1..<em>n</em></sub> <em>x<sub>i</sub></em> modulo 2<sup><em>k</em></sup> via a linear-size circuit of depth <em>O</em>(log <em>n</em>) (or <em>O</em>(<em>n</em>) ripple chain), collapsing both Witt degree and proof size to linear.</p>
+<p>Conversely, in <strong>extension-free</strong> systems&mdash;specifically non-commutative <code>IPS</code> (<code>NC-IPS</code>), algebraic branching programs without auxiliary carry variables, and bounded-formula <code>Frege</code> proofs&mdash;variables are restricted to the input bits <em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>. Any <code>NC-IPS</code> refutation over <em>W<sub>k</sub></em>(<strong>F</strong><sub>2</sub>) must represent 4<em>C</em><sub>2</sub>(<em>x</em>) or its symmetrized carry ideal directly in the free monoid <strong>Z</strong>/2<sup><em>k</em></sup><strong>Z</strong>&lang;<em>x</em><sub>1</sub>, &hellip;, <em>x<sub>n</sub></em>&rang;, encountering both the off-diagonal commutator barrier <code>[x_i, x_j]</code> and the linear-rank (<em>n</em> &minus; 1)-dimensional 2<sup><em>r</em></sup>-torsion block of <em>KG</em>(<em>n</em>, 2) at depth <em>W</em><sub><em>r</em>+1</sub>(<strong>F</strong><sub>2</sub>) (<code>n = 2^r + 3</code>).</p>
+<h3>5.1 Open Directions</h3>
+<ol>
+<li><strong>Universal &forall;<em>n</em> Unimodular Factorization of <em>KG</em>(<em>n</em>, 2):</strong> Theorems 1 and 2 give explicit closed-form unimodular pairs (<em>P<sub>n</sub></em>, <em>Q<sub>n</sub></em>) for <em>e</em><sub>2</sub><sup>sym</sup> and <em>e</em><sub>3</sub><sup>sym</sup>, whereas Theorem 3 proves the (<em>n</em> &minus; 1)-dimensional &minus;(<em>n</em> &minus; 3)-eigenspace of <em>KG</em>(<em>n</em>, 2); constructing explicit bilateral unimodular matrices over <strong>Z</strong> for the full <em>C</em>(<em>n</em>, 2) &times; <em>C</em>(<em>n</em>, 2) Kneser SNF remains a clean formalization target.</li>
+<li><strong>Higher Witt Depths (<em>t</em> &ge; 3):</strong> Extending the Kneser <em>KG</em>(<em>n</em>, 2) pair-sum method to <em>KG</em>(<em>n</em>, 2<sup><em>t</em>&minus;1</sup>) and 2<sup><em>t</em></sup><em>C<sub>t</sub></em>(<em>x</em>) (mod 2<sup><em>k</em></sup>) (<code>e_{2^t}^{sym}</code>) promises super-linear <em>C</em>(<em>n</em>, 2<sup><em>t</em>&minus;1</sup> &minus; 1)-dimensional 2<sup><em>r</em></sup>-torsion blocks at <em>W<sub>r+t</sub></em>(<strong>F</strong><sub>2</sub>).</li>
+</ol>
+<hr />
+<h2>6. Reproducibility Commands &amp; References</h2>
+<pre><code class="language-bash"># 1. Verify all three standalone Lean 4.36.0 suites (0 imports, 0 sorryAx)
+lean proofs/witt_noncomm_nisan_frege.lean
+lean proofs/witt_snf_universal_torsion.lean
+lean proofs/witt_kneser_linear_torsion.lean
+
+# 2. Reproduce JSON invariant-factor, Kneser torsion, and 4*C_2 mod 16 tables
+uv run --with-editable . cap-witt-nc-ips   # -&gt; results/witt_noncomm_ips_results.json
+uv run --with-editable . cap-witt-snf      # -&gt; results/witt_higher_torsion_snf_results.json
+uv run --with-editable . cap-witt-kneser   # -&gt; results/witt_kneser_linear_torsion_results.json
+</code></pre>
+<h3>References</h3>
+<ol>
+<li>Noam Nisan. Lower bounds for non-commutative computation. In <em>Proc. 23rd ACM STOC</em>, pp. 410&ndash;418, 1991.</li>
+<li>Joshua A. Grochow and Toniann Pitassi. Circuit complexity, proof complexity, and polynomial identity testing: The Ideal Proof System. <em>J. ACM</em>, 65(6):37:1&ndash;37:59, 2018.</li>
+<li>Michael A. Forbes, Amir Shpilka, Iddo Tzameret, and Avi Wigderson. Proof complexity lower bounds from algebraic circuit complexity. <em>Theory of Computing</em>, 17(10):1&ndash;88, 2021.</li>
+<li>Nutan Limaye, Srikanth Srinivasan, and S&eacute;bastien Tavenas. Superpolynomial lower bounds against low-depth algebraic circuits. In <em>Proc. 62nd IEEE FOCS</em>, 2021.</li>
+<li>L&aacute;szl&oacute; Lov&aacute;sz. On the Shannon capacity of a graph. <em>IEEE Trans. Information Theory</em>, 25(1):1&ndash;7, 1979; and Chris Godsil and Gordon Royle, <em>Algebraic Graph Theory</em>, Springer GTM 207, 2001 (Kneser <em>KG</em>(<em>n</em>, <em>k</em>) spectra).</li>
+<li>Carry extension variables and <code>Extended Frege</code> vs extension-free systems: <code>arXiv:2210.17429</code>, 2022.</li>
+</ol>

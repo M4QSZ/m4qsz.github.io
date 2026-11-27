@@ -28,11 +28,11 @@ import { publicCrates } from '../../data/profile';
     </div>
 
     <div class="lab-section-head" id="papers-list">
-      <h2>Research &amp; Papers (18 technical reports · all with PDF)</h2>
-      <span>Bilingual technical reports across Cockpit v2.2 (6), Meson / Systems, Security &amp; Games (9), and certified SAT formal verification in Lean 4 + VeriPB 3.0.2 (3), each with verified evidence and downloadable PDFs</span>
+      <h2>Research &amp; Papers (21 technical reports · all with PDF)</h2>
+      <span>Bilingual technical reports across Cockpit v2.2 (6), Meson / Systems, Security &amp; Games (9), and certified SAT &amp; Proof Complexity in Lean 4.36.0 + VeriPB 3.0.2 (6), each with verified evidence and downloadable PDFs</span>
     </div>
 
-    <LabPaperFilter isEnglish={true} totalCount={18} />
+    <LabPaperFilter isEnglish={true} totalCount={21} />
 
     <div class="lab-grid" id="papers-grid">
       <article data-paper-cat="cockpit" data-paper-tags="paper 1 cockpit rust gpui mcp orchestrator">
@@ -238,6 +238,42 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
+      <article data-paper-cat="sat" data-paper-tags="paper 19 sat veripb rust lean 4 zassenhaus witt hensel veronese schoenebeck rm4 dom g1">
+        <span class="lab-card-label">Paper 19 · Technical Preprint v0.8 (not peer-reviewed) · Nov 2026</span>
+        <h2>Native Rust Lifted Zassenhaus, Witt–Hensel Peeling &amp; RM(4,5) Schoenebeck in VeriPB 3.0</h2>
+        <p>Native Rust engines (<code>cap-veronese-rs</code> &amp; <code>schoenebeck_rs</code>) certifying lifted gadget compositions <code>F ∘ g</code> up to <code>356,789</code> variables (<code>2.69M</code> <code>.pbp</code> lines in <code>13.02 s</code>), MSB-free mod-<code>2¹²</code> miters (<code>11×–18.7×</code> faster than Python), <code>G₁</code> dominance (<code>16/16</code>), and Schoenebeck random 3-SAT with <code>RM(4, 5)</code> shifting critical threshold <code>n*: 75 → 90</code> (<code>26/26</code> <code>veripb 3.0.2</code> proofs, <code>0/20</code> SAT FPs).</p>
+        <p class="lab-stack-line">Rust 1.100 · VeriPB 3.0.2 · RM(4, 5) · Lean 4.36.0 (15 suites, 0 sorryAx)</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/certified-lifted-zassenhaus-v08/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/certified-lifted-zassenhaus-v08/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/certified-lifted-zassenhaus-v08.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </article>
+      <article data-paper-cat="sat" data-paper-tags="paper 20 krajicek circuit frege recompression jez slp dichotomy lean 4 proof complexity">
+        <span class="lab-card-label">Paper 20 · Proof Complexity Preprint v0.8 (not peer-reviewed) · Nov 2026</span>
+        <h2>Polynomial-Time Jeż Recompression &amp; Exact Dichotomy for Krajíček’s CF → ≈ Problem</h2>
+        <p>Complete polynomial-time characterization of Krajíček’s open problem (<code>arXiv:2606.13367v2</code>, p. 11) across all three regimes: <code>poly(S)</code> via DAG path-copying, aligned-SLP <code>k_CF</code> compression (<code>t ≤ (c_ax + 2)k</code> independent of <code>S</code>), and non-aligned Context-SLPs via hash-consed Jeż recompression up to tree depth <code>3.46 × 10¹⁸</code> in <code>1.56 s</code>, formally separating <code>2</code>-step syntactic <code>Fla</code> equality from <code>coNP</code> Boolean equivalence.</p>
+        <p class="lab-stack-line">Lean 4.36.0 (5 suites, 0 sorryAx) · Jeż Recompression · Python · arXiv:2606.13367v2</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/krajicek-cf-approx-dichotomy/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/krajicek-cf-approx-dichotomy/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/krajicek-cf-approx-dichotomy.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </article>
+      <article data-paper-cat="sat" data-paper-tags="paper 21 witt rings kneser torsion smith normal form nisan nc-ips frege lean 4">
+        <span class="lab-card-label">Paper 21 · Algebraic Proof Complexity Preprint v0.8 (not peer-reviewed) · Nov 2026</span>
+        <h2>Universal ∀n 2<sup>r</sup>-Adic SNF &amp; Kneser KG(n, 2) Linear-Rank Torsion over Witt Rings W<sub>k</sub>(F₂)</h2>
+        <p>Universal <code>∀n</code> bilateral unimodular Smith Normal Form laws over <code>ℤ</code> for bimodal Nisan matrices of symmetrized carries (<code>e₂^sym</code>, <code>e₃^sym</code>) and proof that the <code>(n − 1)</code>-dimensional zero-sum lattice embeds as an exact eigenspace of Kneser <code>KG(n, 2)</code> (eigenvalue <code>−(n−3)</code>), yielding <code>n − 1</code> simultaneous <code>2<sup>r</sup></code>-torsion factors in <code>W<sub>r+1</sub>(F₂)</code> and a <code>6.43×</code> rank gap on <code>4C₂ mod 16</code> toward <code>NC-IPS</code> / <code>Frege</code>.</p>
+        <p class="lab-stack-line">Lean 4.36.0 (3 ∀n suites, 0 sorryAx) · Witt Rings W_k(F₂) · Kneser KG(n,2) · NC-IPS</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/witt-kneser-2adic-torsion/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/witt-kneser-2adic-torsion/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/witt-kneser-2adic-torsion.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+          <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </article>
     </div>
 
     <div class="lab-grid" style="margin-top:24px;">
@@ -258,6 +294,6 @@ import { publicCrates } from '../../data/profile';
         </article>
       ))}
     </div>
-    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 18 bilingual technical reports with PDFs: 6 on AI/MCP orchestration (Cockpit), 9 on systems, ERP, BaaS security/RLS telemetry, edge NLU, game engineering, and input telemetry (Meson/Brasas/Axion; 404/404 live Rust tests + 142+8 Unity tests verified), and 3 certified SAT research notes with VeriPB 3.0.2 proofs and 61 Lean 4 theorems (30 + 17 + 14 declarations, 0 sorryAx), with limitations and negative results explicitly documented.</p></div>
+    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 21 bilingual technical reports with PDFs: 6 on AI/MCP orchestration (Cockpit), 9 on systems, ERP, BaaS security/RLS telemetry, edge NLU, game engineering, and input telemetry (Meson/Brasas/Axion; 404/404 live Rust tests + 142+8 Unity tests verified), and 6 certified SAT &amp; Proof Complexity research preprints with VeriPB 3.0.2 proofs and 15 standalone Lean 4.36.0 suites (0 sorryAx), with limitations and negative results explicitly documented.</p></div>
   </main>
 </Base>

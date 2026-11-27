@@ -51,6 +51,9 @@ const papers = [
   'meson-brasas-game-architecture',
   'axion-biomechanical-input-telemetry',
   'meson-baas-rls-telemetry-audit',
+  'certified-lifted-zassenhaus-v08',
+  'krajicek-cf-approx-dichotomy',
+  'witt-kneser-2adic-torsion',
 ];
 
 const mimeTypes = {

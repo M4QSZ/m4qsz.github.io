@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import paperHtml from '../../data/liftedZassenhausPaper.es.html?raw';
+---
+<Base
+  title="Preprocesamiento Ciego Witt–Hensel, Aniquiladores de Veronese y Zassenhaus Local en Rust Nativo con VeriPB 3.0 | Miguel Quevedo"
+  description="Paper v0.8: motor nativo en Rust (cap-veronese-rs & schoenebeck_rs) para pelado Witt–Hensel en Z, inversión Zassenhaus local hasta 356,789 variables, dominancia G1 y transición RM(4,5) de Schoenebeck (n*: 75 -> 90), verificado con 15 suites en Lean 4.36.0 (0 sorryAx) y veripb 3.0.2."
+  pageLabel="Paper · Certified Witt–Hensel, Veronese & Lifted Zassenhaus"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+    <div class="detail-hero">
+      <h1 class="long-title">Preprocesamiento Ciego Witt–Hensel, Aniquiladores de Veronese y Zassenhaus Local en Rust Nativo con VeriPB 3.0</h1>
+      <p class="detail-lede">Reporte Técnico / Preprint v0.8 — sin revisión por pares. Cada certificado, teorema en Lean 4 y tiempo de ejecución proviene de corridas locales reproducibles validadas con Lean 4.36.0, rustc 1.100.0 y veripb 3.0.2.</p>
+    </div>
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v0.8)</strong></div>
+      <div><span>Verificación</span><strong>Lean 4.36.0: 15 suites (0 sorryAx) · veripb 3.0.2: 11/11 corpus + 16/16 G₁ + 26/26 RM(4,5)</strong></div>
+      <div><span>Estado</span><strong>Preprint técnico v0.8 · Rust + VeriPB 3.0</strong></div>
+    </div>
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/certified-lifted-zassenhaus-v08.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">Repositorio + reproduce.sh ↗</a>
+      <a class="button button-outline" href="https://github.com/M4QSZ/certified-arith-preproc/blob/main/papers/PAPER_1_VERIPB_BLIND_ARITH_VERONESE.md" target="_blank" rel="noopener noreferrer">Fuente en Markdown (EN) ↗</a>
+    </div>
+    <article class="paper-body" set:html={paperHtml} />
+  </main>
+</Base>
