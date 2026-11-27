@@ -1,0 +1,225 @@
+---
+interface Props {
+  isEnglish: boolean;
+  totalCount: number;
+}
+
+const { isEnglish, totalCount } = Astro.props;
+
+const categories = isEnglish
+  ? [
+      { id: 'all', label: `All (${totalCount})` },
+      { id: 'cockpit', label: 'Cockpit & MCP (6)' },
+      { id: 'meson', label: 'Meson, ERP & SQL (6)' },
+      { id: 'ai-games', label: 'Edge NLU, Games & Input (3)' },
+      { id: 'sat', label: 'SAT & Lean 4 (3)' },
+    ]
+  : [
+      { id: 'all', label: `Todos (${totalCount})` },
+      { id: 'cockpit', label: 'Cockpit & MCP (6)' },
+      { id: 'meson', label: 'Meson, ERP & SQL (6)' },
+      { id: 'ai-games', label: 'NLU, Juegos & Input (3)' },
+      { id: 'sat', label: 'SAT & Lean 4 (3)' },
+    ];
+---
+
+<search class="lab-controls" aria-label={isEnglish ? 'Search and filter technical papers' : 'Buscar y filtrar papers técnicos'}>
+  <form class="lab-search-form" id="lab-paper-filter-form" action="#papers-list" method="GET">
+    <div class="lab-search-row">
+      <div class="lab-search-field">
+        <label for="lab-paper-search" class="lab-search-label">
+          {isEnglish ? 'Search papers by topic, stack, or number' : 'Buscar papers por tema, stack o número'}
+        </label>
+        <div class="lab-search-input-wrap">
+          <input
+            type="search"
+            id="lab-paper-search"
+            name="q"
+            class="lab-search-input"
+            placeholder={isEnglish ? 'e.g. Rust, RLS, WAL, Lean 4, CRDT, Paper 18…' : 'ej. Rust, RLS, WAL, Lean 4, CRDT, Paper 18…'}
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            enterkeyhint="search"
+          />
+          <button
+            type="button"
+            id="lab-paper-clear"
+            class="lab-clear-btn"
+            hidden
+          >
+            {isEnglish ? 'Clear' : 'Limpiar'}
+          </button>
+        </div>
+      </div>
+      <div class="lab-count-wrap">
+        <p id="lab-paper-status" class="lab-paper-status" role="status" aria-live="polite" aria-atomic="true">
+          {isEnglish ? `Showing ${totalCount} of ${totalCount} papers` : `Mostrando ${totalCount} de ${totalCount} papers`}
+        </p>
+      </div>
+    </div>
+
+    <div class="lab-filter-chips" role="group" aria-label={isEnglish ? 'Filter by research track' : 'Filtrar por línea de investigación'}>
+      {categories.map((cat, idx) => (
+        <button
+          type="button"
+          class:list={['filter-chip', idx === 0 && 'is-active']}
+          data-lab-cat={cat.id}
+          aria-pressed={idx === 0 ? 'true' : 'false'}
+        >
+          {cat.label}
+        </button>
+      ))}
+    </div>
+  </form>
+</search>
+
+<div id="lab-paper-empty" class="lab-empty-state" hidden>
+  <p>
+    {isEnglish
+      ? 'No papers match the current search and category filter.'
+      : 'Ningún paper coincide con la búsqueda y categoría seleccionadas.'}
+  </p>
+  <button type="button" id="lab-paper-reset" class="button button-outline">
+    {isEnglish ? 'Reset filters' : 'Restablecer filtros'}
+  </button>
+</div>
+
+<script is:inline define:vars={{ isEnglish, totalCount }}>
+  (() => {
+    const normalize = (value) =>
+      String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+
+    const init = () => {
+      const form = document.getElementById('lab-paper-filter-form');
+      const input = document.getElementById('lab-paper-search');
+      const clearBtn = document.getElementById('lab-paper-clear');
+      const resetBtn = document.getElementById('lab-paper-reset');
+      const statusEl = document.getElementById('lab-paper-status');
+      const emptyEl = document.getElementById('lab-paper-empty');
+      const grid = document.getElementById('papers-grid');
+      if (!form || !input || !grid || !statusEl || !emptyEl) return;
+
+      const catButtons = Array.from(form.querySelectorAll('[data-lab-cat]'));
+      const cards = Array.from(grid.querySelectorAll('article[data-paper-cat]'));
+      const indexedCards = cards.map((card) => ({
+        el: card,
+        cat: card.getAttribute('data-paper-cat') || 'all',
+        text: normalize(card.textContent + ' ' + (card.getAttribute('data-paper-tags') || '')),
+      }));
+
+      let activeCat = 'all';
+      let announceTimer = 0;
+
+      const formatStatus = (visible, query) => {
+        if (isEnglish) {
+          return query
+            ? `Showing ${visible} of ${totalCount} papers for "${query}"`
+            : `Showing ${visible} of ${totalCount} papers`;
+        }
+        return query
+          ? `Mostrando ${visible} de ${totalCount} papers para «${query}»`
+          : `Mostrando ${visible} de ${totalCount} papers`;
+      };
+
+      const syncUrl = (query, cat) => {
+        try {
+          const url = new URL(window.location.href);
+          if (query) url.searchParams.set('q', query);
+          else url.searchParams.delete('q');
+          if (cat && cat !== 'all') url.searchParams.set('cat', cat);
+          else url.searchParams.delete('cat');
+          window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+        } catch {}
+      };
+
+      const apply = (immediateAnnounce = false) => {
+        const rawQuery = input.value.trim();
+        const tokens = normalize(rawQuery).split(/\s+/).filter(Boolean);
+        let visible = 0;
+
+        for (const item of indexedCards) {
+          const catMatch = activeCat === 'all' || item.cat === activeCat;
+          const textMatch = tokens.length === 0 || tokens.every((tok) => item.text.includes(tok));
+          const show = catMatch && textMatch;
+          item.el.hidden = !show;
+          if (show) visible += 1;
+        }
+
+        if (clearBtn) clearBtn.hidden = rawQuery.length === 0 && activeCat === 'all';
+        emptyEl.hidden = visible > 0;
+        syncUrl(rawQuery, activeCat);
+
+        window.clearTimeout(announceTimer);
+        if (immediateAnnounce) {
+          statusEl.textContent = formatStatus(visible, rawQuery);
+        } else {
+          announceTimer = window.setTimeout(() => {
+            statusEl.textContent = formatStatus(visible, rawQuery);
+          }, 220);
+        }
+      };
+
+      const setCategory = (cat) => {
+        activeCat = cat;
+        for (const btn of catButtons) {
+          const active = btn.getAttribute('data-lab-cat') === activeCat;
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        }
+        apply(true);
+      };
+
+      const resetAll = () => {
+        input.value = '';
+        setCategory('all');
+        input.focus();
+      };
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        apply(true);
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          if (event.isComposing || event.keyCode === 229) return;
+          apply(true);
+        }
+      });
+
+      input.addEventListener('input', () => apply(false));
+      if (clearBtn) clearBtn.addEventListener('click', resetAll);
+      if (resetBtn) resetBtn.addEventListener('click', resetAll);
+
+      form.addEventListener('click', (event) => {
+        const btn = event.target instanceof Element ? event.target.closest('[data-lab-cat]') : null;
+        if (!btn) return;
+        setCategory(btn.getAttribute('data-lab-cat') || 'all');
+      });
+
+      // Restore initial query/category from URL if present
+      const params = new URLSearchParams(window.location.search);
+      const initQ = params.get('q');
+      const initCat = params.get('cat');
+      if (initQ) input.value = initQ;
+      if (initCat && catButtons.some((b) => b.getAttribute('data-lab-cat') === initCat)) {
+        setCategory(initCat);
+      } else if (initQ) {
+        apply(true);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

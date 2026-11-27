@@ -28,6 +28,7 @@ import Base from '../../../layouts/Base.astro';
       <a class="button button-outline" href="/laboratorio/meson-nosql-to-sql/">Leer reporte en Español ↗</a>
       <a class="text-link" style="margin-top:0" href="/en/lab/meson-finance-erp/">Paper 5: Finance &amp; Fiscal ↗</a>
       <a class="text-link" style="margin-top:0" href="/en/lab/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-baas-rls-telemetry-audit/">Paper 18: Live RLS &amp; WAL Audit ↗</a>
     </div>
 
     <div class="paper-kpis-wrap">
@@ -147,7 +148,7 @@ import Base from '../../../layouts/Base.astro';
           <h2>6. Architectural trade-offs &amp; threats to validity</h2>
           <ul>
             <li><strong>Deliberate FK omission on outbox projections:</strong> omitting strict foreign keys on cloud projection tables prevents offline retry deadlocks at the cost of enforcing cross-table referential validation in domain reconcilers and automated tests.</li>
-            <li><strong>Pending empirical billing/latency benchmark (<code>[TBD]</code>):</strong> while all 18 SQL scripts, 59 RLS policies, and 324 Supabase Dart modules are live in the monorepo with zero Firestore remnants, paired pre/post p50/p95 query latency and monthly billing logs were not archived prior to cutover; this report therefore documents code-verified architecture rather than an A/B cost study.</li>
+            <li><strong>Git-to-Staging deployment drift (audited in <a href="/en/lab/meson-baas-rls-telemetry-audit/">Paper 18</a>):</strong> while all 18 hardened SQL scripts (Stages 2–3: PN-Counter CRDT, <code>cash_sessions</code>, <code>apply_inventory_stock_dispatch_v1</code>, and 59 JWT-scoped policies) and 324 Supabase Dart modules are verified in the monorepo with zero Firestore remnants, a follow-up live catalog audit of the pre-production instance (<code>112</code> tables, <code>59</code> migrations, <code>411</code> policies) confirmed deployment drift: staging still runs Stage-1 <code>apply_inventory_stock_delta</code>, and paired pre/post Firestore vs. PostgreSQL latency/billing logs were not archived prior to cutover.</li>
           </ul>
         </section>
       </div>

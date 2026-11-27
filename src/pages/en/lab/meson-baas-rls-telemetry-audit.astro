@@ -1,0 +1,360 @@
+---
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  lang="en"
+  title="Paper 18: The Green-Linter Illusion in Multi-Tenant BaaS — Empirical RLS, Git-to-Staging Drift & Realtime WAL Audit | Miguel Quevedo"
+  description="Technical Report v1.0 — Read-only empirical pre-production audit of a 112-table, 411-RLS-policy PostgreSQL 17.11 / Supabase super-app database: 0 critical Advisor errors alongside 97.1% (399/411) BOLA policies, Git-to-staging schema drift vs. Paper 11, SECURITY DEFINER/Edge trust boundaries, and 72.9% SQL execution time consumed by 41 Realtime tables."
+  pageLabel="Paper 18 · BaaS Multi-Tenant & RLS Audit"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/en/lab/">← Back to technical lab</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">The Green-Linter Illusion in Multi-Tenant BaaS: Empirical Pre-Production Audit of RLS Policies, Git-to-Staging Drift, <code>SECURITY DEFINER</code>/Edge Trust Boundaries &amp; Realtime WAL Overhead</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (November 2026) — Read-only empirical pre-production audit of the PostgreSQL 17.11 (Supabase) backend shared by Meson's 8 applications: <code>112</code> tables across <code>10</code> domains, <code>411</code> RLS policies, <code>59</code> migrations, <code>238</code> indexes, <code>14</code> PL/pgSQL functions, <code>3</code> Edge Functions, and live <code>pg_stat_statements</code> telemetry. All project identifiers and test accounts are anonymized.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Author &amp; date</span><strong>M4QSZ · November 2026 (v1.0)</strong></div>
+      <div><span>Audited instance (read-only)</span><strong>PostgreSQL 17.11 (pre-production / staging, zero real customers) · <code>112</code> tables · <code>59</code> migrations</strong></div>
+      <div><span>Core finding</span><strong><code>0</code> critical Linter errors vs. <code>399/411</code> (<code>97.1%</code>) BOLA policies + <code>72.9%</code> SQL time in Realtime WAL</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">Download Print-Ready PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-baas-rls-telemetry-audit/">Leer reporte en Español ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-nosql-to-sql/">Paper 11: NoSQL → SQL Cutover ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-offline-mesh/">Paper 7: Offline P2P &amp; Mesh ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Empirical measurements from pre-production PostgreSQL 17.11">
+        <div class="paper-kpi"><strong>112 / 112 RLS</strong><span><code>411</code> active policies · <code>0</code> critical Advisor errors · <code>59</code> live migrations</span></div>
+        <div class="paper-kpi"><strong>97.1% BOLA</strong><span><code>399 / 411</code> policies without row-owner or <code>entity_id</code> check (<code>8</code> owner-scoped)</span></div>
+        <div class="paper-kpi"><strong>72.9% WAL</strong><span><code>169.5 s / 232.7 s</code> and <code>78.6%</code> of SQL calls from <code>41</code> Realtime tables</span></div>
+        <div class="paper-kpi"><strong>238 Indexes</strong><span><code>235</code> B-Tree · <code>3</code> GIN · <code>109</code> unused · <code>15</code> unindexed FKs · <code>14</code> RPCs</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Report index (7 sections)</summary>
+      <nav aria-label="Report sections">
+        <a href="#topology">1. Read-only methodology &amp; 112-table live topology</a>
+        <a href="#linter-illusion">2. The Green-Linter Illusion: syntactic taxonomy of 411 RLS policies</a>
+        <a href="#trust-boundaries">3. Trust boundaries in <code>SECURITY DEFINER</code> RPCs &amp; Edge Functions</a>
+        <a href="#drift">4. Silent Git-to-Staging schema drift vs. Paper 11</a>
+        <a href="#realtime-sql">5. Realtime WAL tax (<code>pg_stat_statements</code>), indexes &amp; SQL engines</a>
+        <a href="#protocol">6. Deterministic 5-gate pre-production hardening protocol</a>
+        <a href="#validity">7. Threats to validity &amp; responsible disclosure</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Report navigation">
+        <a href="#topology">1. 112-Table Topology</a>
+        <a href="#linter-illusion">2. Green-Linter Illusion</a>
+        <a href="#trust-boundaries">3. RPCs &amp; Edge</a>
+        <a href="#drift">4. Git↔Staging Drift</a>
+        <a href="#realtime-sql">5. Realtime WAL &amp; SQL</a>
+        <a href="#protocol">6. 5-Gate Protocol</a>
+        <a href="#validity">7. Validity</a>
+      </aside>
+      <div class="case-content">
+        <section id="topology">
+          <h2>1. Read-only methodology &amp; 112-table live topology</h2>
+          <p>
+            Following the repository-level Firestore-to-PostgreSQL cutover documented in <a href="/en/lab/meson-nosql-to-sql/">Paper 11</a>, we ran a direct <strong>read-only</strong> catalog audit against Meson's live pre-production PostgreSQL 17.11 (Supabase) backend (staging environment with zero real commercial customers). We inspected <code>pg_tables</code>, <code>pg_policies</code>, <code>pg_proc</code>, <code>pg_trigger</code>, <code>pg_index</code>, <code>pg_constraint</code>, <code>pg_publication_tables</code>, <code>extensions.pg_stat_statements</code>, official Supabase Advisor outputs (<code>get_advisors</code>), and the deployed source of all 3 active Edge Functions.
+          </p>
+          <p>
+            The live staging database spans <strong>112 tables in <code>public</code></strong>, <strong>59 applied migrations</strong> (<code>20260512 → 20260925</code>), <strong>93 foreign-key constraints</strong> across <code>60</code> tables, <strong>238 indexes</strong> (<code>235</code> B-Tree, <code>3</code> GIN, <code>112</code> primary keys, <code>17</code> non-PK unique indexes, and <code>1</code> partial index), <strong>14 PL/pgSQL functions</strong>, <strong>12 triggers</strong>, <strong>1 view</strong> (<code>profiles</code>, verified with <code>security_invoker=true</code>), and <strong>8 Storage buckets</strong> (<code>7</code> public + private <code>tts_cache</code> capped at <code>5 MB</code>).
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p18-t1">
+            <table class="paper-table">
+              <caption id="en-p18-t1">Table 1 · Empirical breakdown of Meson's 112 staging tables across 10 functional domains</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Functional domain</th>
+                  <th scope="col" class="num">Tables</th>
+                  <th scope="col">Representative relations</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">POS, Floor &amp; Operations</th>
+                  <td class="num" data-label="Tables">25</td>
+                  <td data-label="Relations"><code>orders</code>, <code>kitchen_orders</code>, <code>bar_orders</code>, <code>tables</code>, <code>floors</code>, <code>floor_blocks</code> (<code>1,591</code> rows), <code>menu_items</code>, <code>reservations</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">HR, Atelier &amp; RBAC</th>
+                  <td class="num" data-label="Tables">12</td>
+                  <td data-label="Relations"><code>employees</code>, <code>roles</code>, <code>user_roles</code>, <code>entity_permissions</code>, <code>asistencia_logs</code>, <code>job_offers</code>, <code>hire_requests</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Delivery, Comms &amp; Mesh</th>
+                  <td class="num" data-label="Tables">12</td>
+                  <td data-label="Relations"><code>delivery_orders</code>, <code>driver_emergencies</code>, <code>mesh_relay_payloads</code>, <code>call_signals</code>, <code>chat_rooms</code>, <code>chat_messages</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Social / Radar</th>
+                  <td class="num" data-label="Tables">11</td>
+                  <td data-label="Relations"><code>radar_posts</code>, <code>radar_shots</code>, <code>radar_stories</code>, <code>radar_follows</code>, <code>radar_hashtags</code>, <code>radar_notifications</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Identity, CRM &amp; Reviews</th>
+                  <td class="num" data-label="Tables">11</td>
+                  <td data-label="Relations"><code>users</code>, <code>user_profiles</code>, <code>clients</code>, <code>business_profiles</code>, <code>customer_profiles</code>, <code>reviews</code>, <code>client_favorites</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Inventory, BOM &amp; Supply</th>
+                  <td class="num" data-label="Tables">11</td>
+                  <td data-label="Relations"><code>inventory</code>, <code>inventory_lots</code>, <code>inventory_transactions</code>, <code>production_formulas</code>, <code>production_batches</code>, <code>autostock_logs</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">B2B / B2C Marketplace</th>
+                  <td class="num" data-label="Tables">11</td>
+                  <td data-label="Relations"><code>marketplace_products</code>, <code>marketplace_orders</code>, <code>marketplace_brand_metrics</code>, <code>marketplace_featured_brands</code>, <code>marketplace_returns</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Platform Finance, Licensing &amp; Audit</th>
+                  <td class="num" data-label="Tables">10</td>
+                  <td data-label="Relations"><code>change_logs</code> (<code>662</code> rows · <code>1.67 MB</code>), <code>meson_commissions</code>, <code>meson_finance_summaries</code>, <code>activation_keys</code>, <code>app_licenses</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Device Hub, IoT &amp; Signage</th>
+                  <td class="num" data-label="Tables">5</td>
+                  <td data-label="Relations"><code>devices</code>, <code>iot_devices</code>, <code>iot_scenes</code>, <code>display_channels</code>, <code>media_items</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Edge NLU &amp; AI Telemetry</th>
+                  <td class="num" data-label="Tables">4</td>
+                  <td data-label="Relations"><code>ai_query_log</code>, <code>ai_feedback</code>, <code>ai_custom_keywords</code>, <code>anomaly_alerts</code></td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row">Total <code>public</code> schema</th>
+                  <td class="num" data-label="Tables">112</td>
+                  <td data-label="Relations"><code>112/112</code> RLS ON · <code>411</code> policies · <code>93</code> FKs · <code>238</code> indexes · <code>41</code> Realtime tables</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="linter-illusion">
+          <h2>2. The Green-Linter Illusion: syntactic taxonomy of 411 RLS policies</h2>
+          <p>
+            Our central empirical finding is a <strong>structural gap between automated BaaS linter compliance and true multi-tenant authorization</strong>. Running Supabase's official Security Advisor (<code>get_advisors(type='security')</code>) reports <strong><code>0</code> critical errors</strong> and only <code>4</code> <code>WARN</code> notices (<code>3</code> <code>SECURITY DEFINER</code> RPCs executable by <code>authenticated</code> and disabled HIBP leaked-password checks). Every single table (<code>112/112</code>) has <code>relrowsecurity = true</code> and <code>0</code> tables lack policies.
+          </p>
+          <p>
+            Yet syntactically classifying all <strong>411 policies</strong> in <code>pg_policies</code> reveals that <strong>97.1% (<code>399/411</code>)</strong> exhibit <em>Authentication without Authorization</em> (OWASP API1: BOLA/IDOR):
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p18-t2">
+            <table class="paper-table">
+              <caption id="en-p18-t2">Table 2 · Empirical classification of all 411 RLS policies in live staging</caption>
+              <thead>
+                <tr>
+                  <th scope="col">RLS predicate class</th>
+                  <th scope="col">Operations</th>
+                  <th scope="col" class="num">Policies</th>
+                  <th scope="col" class="num">%</th>
+                  <th scope="col">Security implication</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Unconditional <code>USING (true)</code></th>
+                  <td data-label="Operations"><code>SELECT</code></td>
+                  <td class="num" data-label="Policies">111</td>
+                  <td class="num" data-label="%">27.0%</td>
+                  <td data-label="Implication">Any signed-in user (and in 39 policies <code>anon</code>/<code>public</code>) can read operational tables including <code>orders</code>, <code>employees</code>, <code>activation_keys</code>, <code>change_logs</code>, and <code>meson_finance_summaries</code>.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>(SELECT auth.uid()) IS NOT NULL</code></th>
+                  <td data-label="Operations"><code>INSERT</code> (71), <code>UPDATE</code> (72), <code>DELETE</code> (72)</td>
+                  <td class="num" data-label="Policies">215</td>
+                  <td class="num" data-label="%">52.3%</td>
+                  <td data-label="Implication">Satisfies the performance linter's InitPlan rule and avoids literal <code>USING (true)</code> warnings (<code>0024</code>), yet permits cross-tenant updates and deletes.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>(SELECT auth.role()) = 'authenticated'</code></th>
+                  <td data-label="Operations"><code>INSERT</code> (27), <code>UPDATE</code> (23), <code>DELETE</code> (23)</td>
+                  <td class="num" data-label="Policies">73</td>
+                  <td class="num" data-label="%">17.8%</td>
+                  <td data-label="Implication">Deprecated role-only predicate enforcing authentication without ownership or <code>entity_id</code> isolation (and silently passed by anonymous sessions if enabled).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Non-null shape checks only (<code>entity_id IS NOT NULL</code> / amount ≥ 0)</th>
+                  <td data-label="Operations"><code>INSERT</code> (2), <code>UPDATE</code> (1)</td>
+                  <td class="num" data-label="Policies">3</td>
+                  <td class="num" data-label="%">0.7%</td>
+                  <td data-label="Implication">Checks column presence rather than verifying caller membership in that tenant.</td>
+                </tr>
+                <tr>
+                  <th scope="row">True row ownership (<code>auth.uid() = user_id | id | hwid</code>)</th>
+                  <td data-label="Operations"><code>SELECT</code> (2), <code>INSERT</code> (4), <code>UPDATE</code> (2), <code>DELETE</code> (1)</td>
+                  <td class="num" data-label="Policies">9</td>
+                  <td class="num" data-label="%">2.2%</td>
+                  <td data-label="Implication">Only subset with enforceable user/license isolation (including <code>app_licenses</code> joined to <code>employees.owner_uid</code>).</td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row">Audited total · JWT <code>entity_id</code> policies</th>
+                  <td data-label="Operations">All</td>
+                  <td class="num" data-label="Policies">411 (0 JWT)</td>
+                  <td class="num" data-label="%">100.0%</td>
+                  <td data-label="Implication"><code>399/411</code> (<code>97.1%</code>) lack per-row/per-tenant authorization despite <code>0</code> critical Linter errors.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Causal mechanism:</strong> during iterative linter-remediation migrations (<code>fix_security_lints</code>, <code>fix_permissive_rls_policies</code>), replacing write-side <code>USING (true)</code> with <code>((SELECT auth.uid()) IS NOT NULL)</code> clears both permissive-policy warnings and per-row planner re-evaluation warnings simultaneously. The dashboard turns green while tenant boundaries remain open. To close this gap deterministically, we introduce a <strong>single-query PostgreSQL BOLA Auditor</strong> over <code>pg_policies</code> designed to run as a pre-production CI gate:
+          </p>
+          <pre class="sample-code"><code>-- Deterministic pre-production CI gate: surfaces BOLA policies missed by standard linters
+SELECT tablename, cmd, policyname, qual, with_check
+FROM pg_policies
+WHERE schemaname = 'public'
+  AND NOT ((coalesce(qual,'') || ' ' || coalesce(with_check,''))
+           ~* '(entity_id\s*=|owner_id\s*=|owner_uid\s*=|user_id\s*=|hwid\s*=|\bid\s*=\s*\(\s*select\s+auth\.uid)')
+  AND tablename NOT IN ('app_versions','marketplace_categories','marketplace_brands','marketplace_products')
+ORDER BY tablename, cmd;</code></pre>
+        </section>
+
+        <section id="trust-boundaries">
+          <h2>3. Trust boundaries in <code>SECURITY DEFINER</code> RPCs &amp; Edge Functions</h2>
+          <p>
+            Even strict table RLS fails if privileged entry points (<code>SECURITY DEFINER</code> SQL functions or Edge Functions instantiating an admin client with the privileged <code>service_role</code> key) omit caller-scope enforcement. Table 3 summarizes our audit of all <code>14</code> PL/pgSQL functions and <code>3</code> deployed Edge Functions:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p18-t3">
+            <table class="paper-table">
+              <caption id="en-p18-t3">Table 3 · Server-side trust boundary audit across privileged RPCs and Edge Functions</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Component</th>
+                  <th scope="col">Privilege</th>
+                  <th scope="col">Observed design &amp; pre-production gap</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>get_entity_delta(p_entity_id, p_since)</code></th>
+                  <td data-label="Privilege"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Finding">Packs 12 tables (menus, floors, tables, inventory, latest 100 orders, 50 KDS, 50 bar, fixed costs) into one JSONB payload to avoid 12 PostgREST round-trips on offline POS reconnect. <strong>Gap:</strong> accepts arbitrary <code>p_entity_id</code> without checking <code>auth.uid()</code> membership (cross-tenant IDOR).</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>apply_inventory_stock_delta(...)</code></th>
+                  <td data-label="Privilege"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Finding">Performs idempotent stock updates via <code>inventory_transactions.mutation_id</code> and row-level <code>UPDATE</code> locking. <strong>Gap:</strong> validates <code>inventory.entity_id</code> against caller-supplied <code>p_entity_id</code> instead of a server-verified JWT claim or membership table.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>claim_activation_key_rpc(short_key)</code></th>
+                  <td data-label="Privilege"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Finding"><strong>Sound pattern:</strong> requires <code>auth.uid() IS NOT NULL</code>, acquires pessimistic <code>SELECT ... FOR UPDATE</code> on <code>activation_keys</code> to prevent double-claim races, and atomically upserts <code>app_licenses</code>.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>generate-activation-key</code> (Edge)</th>
+                  <td data-label="Privilege"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Finding">Mints <code>XXXX-XXXX-XXXX-XXXX</code> keys via privileged client without JWT or super-admin validation (staging test convenience; mandatory gate before production).</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>migrate-firebase-users</code> (Edge)</th>
+                  <td data-label="Privilege"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Finding">One-off staging migration helper still deployed active with hardcoded test accounts and a static staging password; must be deleted prior to production launch.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>register-user</code> (Edge)</th>
+                  <td data-label="Privilege"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Finding">Atomic multi-table onboarding (Auth + <code>users</code> + <code>user_roles</code> + <code>locales</code> + <code>employees</code>) with auto-confirmed email and client-selected role; convenient in staging, requires verification and rate limiting before onboarding real tenants.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="drift">
+          <h2>4. Silent Git-to-Staging schema drift vs. Paper 11</h2>
+          <p>
+            Cross-checking the repository SQL scripts audited in <a href="/en/lab/meson-nosql-to-sql/">Paper 11</a> against the live staging catalog uncovered substantial <strong>Git-to-Instance schema drift</strong>, a recurring failure mode when rapid product modules iterate via dashboard/MCP migrations alongside local DDL scripts:
+          </p>
+          <ul>
+            <li><strong>Hardened contracts not yet rolled out:</strong> <code>cash_sessions</code>, <code>cash_movements</code>, <code>pos_payments</code>, <code>inventory_crdt_nodes</code>, <code>inventory_stock_dispatch_receipts</code>, <code>merge_inventory_crdt_state</code>, and <code>apply_inventory_stock_dispatch_v1</code> are verified in git (Paper 11) but <strong>absent from staging</strong>, which still executes Stage-1 <code>apply_inventory_stock_delta</code> and contains only <code>1</code> partial index.</li>
+            <li><strong>7× broader live surface than local scripts:</strong> the staging catalog holds <code>59</code> migrations and <code>112</code> tables versus the <code>18</code> local scripts (<code>16</code> tables) because Marketplace, Social Radar, Atelier HR, IoT/Signage, and Delta-Sync were evolved directly on the staging DB.</li>
+            <li><strong>Methodological takeaway:</strong> static repository audits alone cannot attest cloud deployment state; credible systems papers must separate <em>repo-verified DDL</em> from <em>catalog-verified production state</em> via direct <code>pg_catalog</code> introspection or <code>supabase db diff</code>.</li>
+          </ul>
+        </section>
+
+        <section id="realtime-sql">
+          <h2>5. Realtime WAL tax (<code>pg_stat_statements</code>), indexes &amp; SQL engines</h2>
+          <p>
+            Inspecting <code>extensions.pg_stat_statements</code> surfaced a counter-intuitive infrastructure cost driver in multi-app BaaS deployments that subscribe broad table sets to <code>supabase_realtime</code>:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="en-p18-t4">
+            <table class="paper-table">
+              <caption id="en-p18-t4">Table 4 · Live <code>pg_stat_statements</code> telemetry, index health &amp; server SQL engines</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Measured signal</th>
+                  <th scope="col" class="num">Observed value</th>
+                  <th scope="col">Operational interpretation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>supabase_realtime</code> WAL &amp; publication queries</th>
+                  <td class="num" data-label="Value"><code>169,516.1 ms</code> (<code>19,198</code> calls)</td>
+                  <td data-label="Interpretation">Accounts for <strong>72.9%</strong> of total observed SQL execution time (<code>232,668.6 ms</code>) and <strong>78.6%</strong> of all calls (<code>24,411</code>), averaging <code>8.70 ms</code> per WAL poll across <strong>41 subscribed tables</strong>.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Total indexes vs. unused / unindexed FKs</th>
+                  <td class="num" data-label="Value"><code>238</code> (<code>109</code> unused · <code>15</code> FKs)</td>
+                  <td data-label="Interpretation"><code>45.8%</code> of indexes show zero scans in staging (<code>235</code> B-Tree + <code>3</code> GIN) alongside <code>15</code> unindexed foreign keys (<code>devices</code>, <code>iot_*</code>, <code>media_items</code>, <code>restaurant_reviews</code>, <code>waiter_reviews</code>, <code>driver_emergencies</code>).</td>
+                </tr>
+                <tr>
+                  <th scope="row">SQL Marketplace ranking engine</th>
+                  <td class="num" data-label="Value"><code>2</code> RPCs (<code>auto_feature_top_*</code>)</td>
+                  <td data-label="Interpretation">Computes weighted scores <code>3·sales + 1·visits + 2·auto_purchases + 1.5·carts − 5·returns</code> and refreshes Top-N featured brands/products while preserving manual curation (<code>is_manual = true</code>).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Audit triggers &amp; ambiguity-free PIN generator</th>
+                  <td class="num" data-label="Value"><code>12</code> triggers (<code>662</code> logs · <code>1.67 MB</code>)</td>
+                  <td data-label="Interpretation"><code>audit_trigger_func</code> captures full <code>OLD/NEW</code> JSONB diffs across <code>orders</code>, <code>employees</code>, <code>menu_items</code>, and <code>inventory</code> (largest relation on disk). <code>generate_meson_pin()</code> issues <code>M-XXXXXX</code> codes excluding confusing <code>O/I</code> glyphs via 4 triggers.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="protocol">
+          <h2>6. Deterministic 5-gate pre-production hardening protocol</h2>
+          <p>
+            Before onboarding real customers (regardless of desktop client evolution toward Rust/GPUI), this audit distills five binary CI/CD release gates:
+          </p>
+          <ol>
+            <li><strong>Gate 1 — Zero-BOLA <code>pg_policies</code> check:</strong> require <code>0</code> rows returned by the Section 2 auditor across all tenant-scoped tables; replace <code>USING (true)</code> and <code>auth.uid() IS NOT NULL</code> with verified tenant membership predicates (<code>app_metadata</code> JWT claim or indexed <code>entity_permissions</code> lookup).</li>
+            <li><strong>Gate 2 — Mandatory membership checks in <code>SECURITY DEFINER</code> RPCs:</strong> assert <code>auth.uid()</code> membership inside <code>get_entity_delta</code> and cut stock mutations over to the hardened <code>apply_inventory_stock_dispatch_v1</code> contract (<code>FOR UPDATE</code> + <code>SHA-256</code>).</li>
+            <li><strong>Gate 3 — Edge Function lockdown:</strong> delete <code>migrate-firebase-users</code>, enforce JWT + admin role checks on <code>generate-activation-key</code>, and restrict privileged role self-assignment on <code>register-user</code>.</li>
+            <li><strong>Gate 4 — Git-to-Cloud schema reconciliation:</strong> snapshot the canonical schema via <code>supabase db pull</code> / declarative schemas and disallow untracked ad-hoc DDL edits.</li>
+            <li><strong>Gate 5 — Realtime publication pruning &amp; FK indexing:</strong> narrow <code>supabase_realtime</code> from <code>41</code> tables down to true sub-second streaming tables (<code>orders</code>, <code>kitchen_orders</code>, <code>bar_orders</code>, <code>tables</code>, <code>delivery_orders</code>, <code>chat_messages</code>, <code>call_signals</code>, <code>driver_emergencies</code>) and add covering indexes on the <code>15</code> unindexed foreign keys.</li>
+          </ol>
+        </section>
+
+        <section id="validity">
+          <h2>7. Threats to validity &amp; responsible disclosure</h2>
+          <ul>
+            <li><strong>Staging-only environment (zero real customers):</strong> the audited instance contains staging test accounts (<code>56</code> <code>auth.users</code>, <code>87</code> test orders) rather than live customer PII; findings represent pre-launch architectural validation, not a production breach.</li>
+            <li><strong>Low-OLTP amplification in <code>pg_stat_statements</code>:</strong> Realtime WAL polling's <code>72.9%</code> share of SQL time is amplified by low staging query volume (<code>87</code> orders). Under heavy production OLTP its relative percentage will shrink, though the fixed WAL publication overhead of <code>41</code> tables remains avoidable waste.</li>
+            <li><strong>Deliberate anonymization:</strong> project references, test emails, and literal staging secrets are omitted; all measurements were collected under a <strong>read-only</strong> personal access token.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">Download PDF ↗</a>
+      <a class="button button-outline" href="/laboratorio/meson-baas-rls-telemetry-audit/">Leer en Español ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/meson-nosql-to-sql/">Paper 11: NoSQL → SQL ↗</a>
+      <a class="text-link" style="margin-top:0" href="/en/lab/">Back to technical lab ↗</a>
+    </div>
+  </main>
+</Base>

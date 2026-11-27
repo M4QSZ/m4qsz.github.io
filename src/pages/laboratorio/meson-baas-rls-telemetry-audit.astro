@@ -1,0 +1,359 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Paper 18: La Ilusión del Linter Verde en BaaS Multi-Tenant — Auditoría Empírica RLS, Deriva Git↔Staging y Costo WAL Realtime | Miguel Quevedo"
+  description="Technical Report v1.0 — Auditoría empírica pre-producción solo lectura de una BD PostgreSQL 17.11 / Supabase de 112 tablas y 411 políticas RLS: 0 errores en Advisor frente a 97.1% (399/411) políticas BOLA, deriva Git↔Staging respecto a Paper 11, fronteras SECURITY DEFINER/Edge y 72.9% del tiempo SQL absorbido por 41 tablas Realtime."
+  pageLabel="Paper 18 · BaaS Multi-Tenant & RLS Audit"
+>
+  <main id="contenido" class="detail-main wrap paper-wide">
+    <a class="back-link" href="/laboratorio/">← Volver al laboratorio técnico</a>
+
+    <div class="detail-hero">
+      <h1 class="long-title">La Ilusión del Linter Verde en BaaS Multi-Tenant: Auditoría Empírica de RLS, Deriva Git↔Staging, Fronteras <code>SECURITY DEFINER</code>/Edge y Costo WAL de Realtime</h1>
+      <p class="detail-lede">
+        Technical Report v1.0 (Noviembre 2026) — Auditoría empírica pre-producción en solo lectura sobre la instancia PostgreSQL 17.11 (Supabase) que respalda las 8 apps de Meson: <code>112</code> tablas en <code>10</code> dominios, <code>411</code> políticas RLS, <code>59</code> migraciones, <code>238</code> índices, <code>14</code> funciones PL/pgSQL, <code>3</code> Edge Functions y telemetría real de <code>pg_stat_statements</code>. Todos los identificadores de proyecto y cuentas de prueba han sido anonimizados.
+      </p>
+    </div>
+
+    <div class="detail-meta">
+      <div><span>Autor y fecha</span><strong>M4QSZ · Noviembre 2026 (v1.0)</strong></div>
+      <div><span>Instancia auditada (solo lectura)</span><strong>PostgreSQL 17.11 (pre-producción / staging, sin clientes reales) · <code>112</code> tablas · <code>59</code> migraciones</strong></div>
+      <div><span>Hallazgo central</span><strong><code>0</code> errores críticos en Linter vs. <code>399/411</code> (<code>97.1%</code>) políticas BOLA + <code>72.9%</code> tiempo SQL en Realtime WAL</strong></div>
+    </div>
+
+    <div class="cv-actions">
+      <a class="button button-primary" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-baas-rls-telemetry-audit/">Read full report in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-nosql-to-sql/">Paper 11: Migración NoSQL → SQL ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Paper 7: Sync LAN &amp; Mesh ↗</a>
+    </div>
+
+    <div class="paper-kpis-wrap">
+      <div class="paper-kpis" aria-label="Métricas empíricas medidas en PostgreSQL 17.11 pre-producción">
+        <div class="paper-kpi"><strong>112 / 112 RLS</strong><span><code>411</code> políticas activas · <code>0</code> errores críticos en Advisor · <code>59</code> migraciones</span></div>
+        <div class="paper-kpi"><strong>97.1% BOLA</strong><span><code>399 / 411</code> políticas sin filtro de dueño ni <code>entity_id</code> (solo <code>8</code> con ownership)</span></div>
+        <div class="paper-kpi"><strong>72.9% WAL</strong><span><code>169.5 s / 232.7 s</code> y <code>78.6%</code> de llamadas SQL por <code>41</code> tablas Realtime</span></div>
+        <div class="paper-kpi"><strong>238 Índices</strong><span><code>235</code> B-Tree · <code>3</code> GIN · <code>109</code> sin uso · <code>15</code> FKs sin índice · <code>14</code> RPCs</span></div>
+      </div>
+    </div>
+
+    <details class="paper-toc">
+      <summary>Índice del reporte (7 secciones)</summary>
+      <nav aria-label="Secciones del reporte">
+        <a href="#topologia">1. Metodología solo lectura y topología real de 112 tablas</a>
+        <a href="#ilusion-linter">2. La Ilusión del Linter Verde: taxonomía sintáctica de 411 políticas RLS</a>
+        <a href="#fronteras">3. Fronteras de confianza en RPCs <code>SECURITY DEFINER</code> y Edge Functions</a>
+        <a href="#deriva">4. Deriva silenciosa Git ↔ Staging respecto a Paper 11</a>
+        <a href="#realtime-sql">5. Impuesto WAL de Realtime (<code>pg_stat_statements</code>), índices y motores SQL</a>
+        <a href="#protocolo">6. Protocolo determinista pre-producción (5 puertas verificables)</a>
+        <a href="#validez">7. Amenazas a la validez y divulgación responsable</a>
+      </nav>
+    </details>
+
+    <div class="case-layout">
+      <aside aria-label="Navegación del reporte">
+        <a href="#topologia">1. Topología (112 tablas)</a>
+        <a href="#ilusion-linter">2. Ilusión del Linter</a>
+        <a href="#fronteras">3. RPCs &amp; Edge</a>
+        <a href="#deriva">4. Deriva Git↔Staging</a>
+        <a href="#realtime-sql">5. Realtime WAL &amp; SQL</a>
+        <a href="#protocolo">6. Protocolo 5 puertas</a>
+        <a href="#validez">7. Validez</a>
+      </aside>
+      <div class="case-content">
+        <section id="topologia">
+          <h2>1. Metodología solo lectura y topología real de 112 tablas</h2>
+          <p>
+            Tras la migración de Firestore a PostgreSQL/Supabase documentada a nivel de repositorio en <a href="/laboratorio/meson-nosql-to-sql/">Paper 11</a>, ejecutamos una auditoría empírica directa en <strong>solo lectura</strong> contra el catálogo vivo de la instancia pre-producción de Meson (PostgreSQL 17.11, sin tráfico comercial ni PII de clientes reales). Inspeccionamos <code>pg_tables</code>, <code>pg_policies</code>, <code>pg_proc</code>, <code>pg_trigger</code>, <code>pg_index</code>, <code>pg_constraint</code>, <code>pg_publication_tables</code>, <code>extensions.pg_stat_statements</code>, los avisos de <code>get_advisors</code> y el código fuente de las 3 Edge Functions desplegadas.
+          </p>
+          <p>
+            La arquitectura consolidada abarca <strong>112 tablas en <code>public</code></strong>, <strong>59 migraciones</strong> (<code>20260512 → 20260925</code>), <strong>93 llaves foráneas</strong> repartidas en <code>60</code> tablas, <strong>238 índices</strong> (<code>235</code> B-Tree, <code>3</code> GIN, <code>112</code> claves primarias, <code>17</code> únicos no-PK y <code>1</code> índice parcial), <strong>14 funciones PL/pgSQL</strong>, <strong>12 triggers</strong>, <strong>1 vista</strong> (<code>profiles</code>, con <code>security_invoker=true</code> verificado) y <strong>8 buckets</strong> de Storage (<code>7</code> públicos + <code>tts_cache</code> privado con límite <code>5 MB</code>).
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p18-t1">
+            <table class="paper-table">
+              <caption id="es-p18-t1">Tabla 1 · Distribución real de las 112 tablas de Meson por dominio operativo en staging</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Dominio funcional</th>
+                  <th scope="col" class="num">Tablas</th>
+                  <th scope="col">Entidades representativas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">POS, Sala y Operaciones</th>
+                  <td class="num" data-label="Tablas">25</td>
+                  <td data-label="Entidades"><code>orders</code>, <code>kitchen_orders</code>, <code>bar_orders</code>, <code>tables</code>, <code>floors</code>, <code>floor_blocks</code> (<code>1,591</code> filas), <code>menu_items</code>, <code>reservations</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">RR.HH., Atelier y RBAC</th>
+                  <td class="num" data-label="Tablas">12</td>
+                  <td data-label="Entidades"><code>employees</code>, <code>roles</code>, <code>user_roles</code>, <code>entity_permissions</code>, <code>asistencia_logs</code>, <code>job_offers</code>, <code>hire_requests</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Delivery, Comms y Mesh</th>
+                  <td class="num" data-label="Tablas">12</td>
+                  <td data-label="Entidades"><code>delivery_orders</code>, <code>driver_emergencies</code>, <code>mesh_relay_payloads</code>, <code>call_signals</code>, <code>chat_rooms</code>, <code>chat_messages</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Social / Radar</th>
+                  <td class="num" data-label="Tablas">11</td>
+                  <td data-label="Entidades"><code>radar_posts</code>, <code>radar_shots</code>, <code>radar_stories</code>, <code>radar_follows</code>, <code>radar_hashtags</code>, <code>radar_notifications</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Identidad, CRM y Reseñas</th>
+                  <td class="num" data-label="Tablas">11</td>
+                  <td data-label="Entidades"><code>users</code>, <code>user_profiles</code>, <code>clients</code>, <code>business_profiles</code>, <code>customer_profiles</code>, <code>reviews</code>, <code>client_favorites</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Inventario, BOM y Compras</th>
+                  <td class="num" data-label="Tablas">11</td>
+                  <td data-label="Entidades"><code>inventory</code>, <code>inventory_lots</code>, <code>inventory_transactions</code>, <code>production_formulas</code>, <code>production_batches</code>, <code>autostock_logs</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Marketplace B2B / B2C</th>
+                  <td class="num" data-label="Tablas">11</td>
+                  <td data-label="Entidades"><code>marketplace_products</code>, <code>marketplace_orders</code>, <code>marketplace_brand_metrics</code>, <code>marketplace_featured_brands</code>, <code>marketplace_returns</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Finanzas Plataforma, Licencias y Audit</th>
+                  <td class="num" data-label="Tablas">10</td>
+                  <td data-label="Entidades"><code>change_logs</code> (<code>662</code> filas · <code>1.67 MB</code>), <code>meson_commissions</code>, <code>meson_finance_summaries</code>, <code>activation_keys</code>, <code>app_licenses</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">Device Hub, IoT y Cartelería</th>
+                  <td class="num" data-label="Tablas">5</td>
+                  <td data-label="Entidades"><code>devices</code>, <code>iot_devices</code>, <code>iot_scenes</code>, <code>display_channels</code>, <code>media_items</code></td>
+                </tr>
+                <tr>
+                  <th scope="row">NLU Edge y Telemetría IA</th>
+                  <td class="num" data-label="Tablas">4</td>
+                  <td data-label="Entidades"><code>ai_query_log</code>, <code>ai_feedback</code>, <code>ai_custom_keywords</code>, <code>anomaly_alerts</code></td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row">Total esquema <code>public</code></th>
+                  <td class="num" data-label="Tablas">112</td>
+                  <td data-label="Entidades"><code>112/112</code> RLS activo · <code>411</code> políticas · <code>93</code> FKs · <code>238</code> índices · <code>41</code> tablas Realtime</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="ilusion-linter">
+          <h2>2. La Ilusión del Linter Verde: taxonomía sintáctica de 411 políticas RLS</h2>
+          <p>
+            El resultado más importante de esta auditoría es una <strong>brecha estructural entre cumplimiento de linter y aislamiento multi-tenant real</strong>. Al ejecutar el Security Advisor oficial de Supabase (<code>get_advisors(type='security')</code>), la instancia devuelve <strong><code>0</code> errores críticos</strong> y únicamente <code>4</code> advertencias de nivel <code>WARN</code> (<code>3</code> funciones <code>SECURITY DEFINER</code> ejecutables por <code>authenticated</code> y protección HIBP desactivada). Todas las <code>112</code> tablas tienen <code>relrowsecurity = true</code> y <code>0</code> tablas carecen de políticas.
+          </p>
+          <p>
+            Sin embargo, al clasificar sintácticamente el conjunto completo de <strong>411 políticas</strong> en <code>pg_policies</code>, descubrimos que el <strong>97.1% (<code>399/411</code>)</strong> sufre <em>Authentication without Authorization</em> (OWASP API1: BOLA/IDOR):
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p18-t2">
+            <table class="paper-table">
+              <caption id="es-p18-t2">Tabla 2 · Clasificación empírica de las 411 políticas RLS en producción/staging</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Clase de predicado RLS</th>
+                  <th scope="col">Operaciones</th>
+                  <th scope="col" class="num">Políticas</th>
+                  <th scope="col" class="num">%</th>
+                  <th scope="col">Implicación de seguridad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>USING (true)</code> incondicional</th>
+                  <td data-label="Operaciones"><code>SELECT</code></td>
+                  <td class="num" data-label="Políticas">111</td>
+                  <td class="num" data-label="%">27.0%</td>
+                  <td data-label="Implicación">Cualquier sesión (y en 39 casos <code>anon</code>/<code>public</code>) lee tablas operativas como <code>orders</code>, <code>employees</code>, <code>activation_keys</code>, <code>change_logs</code> o <code>meson_finance_summaries</code>.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>(SELECT auth.uid()) IS NOT NULL</code></th>
+                  <td data-label="Operaciones"><code>INSERT</code> (71), <code>UPDATE</code> (72), <code>DELETE</code> (72)</td>
+                  <td class="num" data-label="Políticas">215</td>
+                  <td class="num" data-label="%">52.3%</td>
+                  <td data-label="Implicación">Satisface la optimización InitPlan del linter de rendimiento y evita la regla <code>0024</code> de <code>USING (true)</code>, pero permite mutar/borrar filas de cualquier otro tenant.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>(SELECT auth.role()) = 'authenticated'</code></th>
+                  <td data-label="Operaciones"><code>INSERT</code> (27), <code>UPDATE</code> (23), <code>DELETE</code> (23)</td>
+                  <td class="num" data-label="Políticas">73</td>
+                  <td class="num" data-label="%">17.8%</td>
+                  <td data-label="Implicación">Antipatrón deprecado: equivale a comprobar sesión activa sin ownership ni <code>entity_id</code> (y falla ante sesiones anónimas si se activan).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Solo nulidad (<code>entity_id IS NOT NULL</code> / monto ≥ 0)</th>
+                  <td data-label="Operaciones"><code>INSERT</code> (2), <code>UPDATE</code> (1)</td>
+                  <td class="num" data-label="Políticas">3</td>
+                  <td class="num" data-label="%">0.7%</td>
+                  <td data-label="Implicación">Valida forma de la fila, no pertenencia al tenant del JWT.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Propiedad real de fila (<code>auth.uid() = user_id | id | hwid</code>)</th>
+                  <td data-label="Operaciones"><code>SELECT</code> (2), <code>INSERT</code> (4), <code>UPDATE</code> (2), <code>DELETE</code> (1)</td>
+                  <td class="num" data-label="Políticas">9</td>
+                  <td class="num" data-label="%">2.2%</td>
+                  <td data-label="Implicación">Único subconjunto con aislamiento efectivo por usuario/licencia (incluye <code>app_licenses</code> con vínculo a <code>employees.owner_uid</code>).</td>
+                </tr>
+                <tr class="paper-summary">
+                  <th scope="row">Total auditado · Políticas con JWT <code>entity_id</code></th>
+                  <td data-label="Operaciones">Todas</td>
+                  <td class="num" data-label="Políticas">411 (0 JWT)</td>
+                  <td class="num" data-label="%">100.0%</td>
+                  <td data-label="Implicación"><code>399/411</code> (<code>97.1%</code>) sin autorización por fila ni tenant pese a <code>0</code> errores en el Linter.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Mecanismo causal de la ilusión:</strong> durante migraciones iterativas de endurecimiento (<code>fix_security_lints</code>, <code>fix_permissive_rls_policies</code>), sustituir <code>USING (true)</code> por <code>((SELECT auth.uid()) IS NOT NULL)</code> en escrituras elimina simultáneamente las advertencias de política siempre verdadera y las de reevaluación por fila del planificador. El tablero queda "en verde", pero la frontera multi-tenant sigue siendo inexistente. Para automatizar su detección proponemos un <strong>auditor SQL determinista de 1 consulta</strong> sobre <code>pg_policies</code> que exige un predicado explícito de pertenencia (<code>entity_id</code>, <code>owner_id</code>, <code>user_id</code> o subconsulta de membresía) en toda tabla no-catálogo antes de permitir promoción a producción.
+          </p>
+          <pre class="sample-code"><code>-- Auditor determinista pre-producción: detecta políticas BOLA que pasan el Linter en verde
+SELECT tablename, cmd, policyname, qual, with_check
+FROM pg_policies
+WHERE schemaname = 'public'
+  AND NOT ((coalesce(qual,'') || ' ' || coalesce(with_check,''))
+           ~* '(entity_id\s*=|owner_id\s*=|owner_uid\s*=|user_id\s*=|hwid\s*=|\bid\s*=\s*\(\s*select\s+auth\.uid)')
+  AND tablename NOT IN ('app_versions','marketplace_categories','marketplace_brands','marketplace_products')
+ORDER BY tablename, cmd;</code></pre>
+        </section>
+
+        <section id="fronteras">
+          <h2>3. Fronteras de confianza en RPCs <code>SECURITY DEFINER</code> y Edge Functions</h2>
+          <p>
+            Incluso con políticas RLS estrictas en tablas, una arquitectura BaaS colapsa si los puntos de entrada con privilegios elevados (<code>SECURITY DEFINER</code> o clientes admin con clave <code>service_role</code> en Edge Functions) no replican las comprobaciones de pertenencia. La Tabla 3 resume la auditoría de las <code>14</code> funciones PL/pgSQL y <code>3</code> Edge Functions activas:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p18-t3">
+            <table class="paper-table">
+              <caption id="es-p18-t3">Tabla 3 · Auditoría de fronteras de confianza en servidor (RPCs críticos y Edge Functions)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Componente</th>
+                  <th scope="col">Privilegio</th>
+                  <th scope="col">Diseño observado y riesgo pre-producción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>get_entity_delta(p_entity_id, p_since)</code></th>
+                  <td data-label="Privilegio"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Hallazgo">Consolida 12 tablas (menú, pisos, mesas, inventario, últimas 100 órdenes, 50 KDS, 50 barra, costos fijos) en 1 solo payload JSONB al reconectar un POS offline. <strong>Riesgo:</strong> acepta cualquier <code>p_entity_id</code> sin verificar que <code>auth.uid()</code> pertenezca a esa entidad (IDOR cross-tenant).</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>apply_inventory_stock_delta(...)</code></th>
+                  <td data-label="Privilegio"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Hallazgo">Aplica descuento idempotente vía <code>inventory_transactions.mutation_id</code> y bloqueo de fila en <code>UPDATE</code>. <strong>Riesgo:</strong> contrasta <code>inventory.entity_id</code> contra el argumento <code>p_entity_id</code> enviado por el cliente, sin validarlo contra <code>auth.jwt()</code> ni tabla de membresía.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>claim_activation_key_rpc(short_key)</code></th>
+                  <td data-label="Privilegio"><code>SECURITY DEFINER</code></td>
+                  <td data-label="Hallazgo"><strong>Patrón correcto:</strong> exige <code>auth.uid() IS NOT NULL</code>, adquiere bloqueo pesimista <code>SELECT ... FOR UPDATE</code> sobre <code>activation_keys</code>, impide doble reclamo y hace <code>UPSERT</code> atómico en <code>app_licenses</code>.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>generate-activation-key</code> (Edge)</th>
+                  <td data-label="Privilegio"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Hallazgo">Inserta llaves <code>XXXX-XXXX-XXXX-XXXX</code> con cliente privilegiado sin validar JWT ni rol de super-administrador (configurado para pruebas internas; bloqueante para producción).</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>migrate-firebase-users</code> (Edge)</th>
+                  <td data-label="Privilegio"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Hallazgo">Script temporal de migración de cuentas de staging aún desplegado como activo con lista estática de usuarios de prueba y contraseña por defecto; debe eliminarse antes de producción.</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>register-user</code> (Edge)</th>
+                  <td data-label="Privilegio"><code>verify_jwt: false</code> + admin</td>
+                  <td data-label="Hallazgo">Flujo de alta atómica (Auth + <code>users</code> + <code>user_roles</code> + <code>locales</code> + <code>employees</code>) con auto-confirmación de correo y selección de rol desde el payload cliente; adecuado para demos rápidas, pero requiere verificación y rate-limit antes de producción.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="deriva">
+          <h2>4. Deriva silenciosa Git ↔ Staging respecto a Paper 11</h2>
+          <p>
+            Cruzar los scripts SQL del repositorio (auditados en <a href="/laboratorio/meson-nosql-to-sql/">Paper 11</a>) contra el catálogo vivo evidenció una <strong>deriva estructural Git ↔ Instancia</strong> habitual en proyectos que evolucionan en paralelo con migraciones aplicadas por consola/MCP:
+          </p>
+          <ul>
+            <li><strong>Contratos endurecidos aún no desplegados en staging:</strong> las tablas <code>cash_sessions</code>, <code>cash_movements</code>, <code>pos_payments</code>, <code>inventory_crdt_nodes</code>, <code>inventory_stock_dispatch_receipts</code> y los RPCs <code>merge_inventory_crdt_state</code> y <code>apply_inventory_stock_dispatch_v1</code> existen y están verificados en el monorepo (Paper 11), pero <strong>no han sido aplicados</strong> todavía sobre la instancia remota, que sigue operando con <code>apply_inventory_stock_delta</code> (Fase 1) y <code>1</code> solo índice parcial.</li>
+            <li><strong>Esquema remoto 7× más amplio que los scripts locales:</strong> la instancia viva acumula <code>59</code> migraciones y <code>112</code> tablas frente a los <code>18</code> scripts locales (<code>16</code> tablas), porque los módulos de Marketplace, Social Radar, Atelier HR, IoT/Signage y Delta-Sync se iteraron directamente sobre la BD de pruebas.</li>
+            <li><strong>Lección metodológica:</strong> en reportes técnicos de sistemas, auditar únicamente el repositorio Git puede sobreestimar el nivel de endurecimiento efectivo en la nube; toda afirmación de despliegue debe respaldarse con introspección directa de <code>pg_catalog</code> o <code>supabase db diff</code>.</li>
+          </ul>
+        </section>
+
+        <section id="realtime-sql">
+          <h2>5. Impuesto WAL de Realtime (<code>pg_stat_statements</code>), índices y motores SQL</h2>
+          <p>
+            El análisis de <code>extensions.pg_stat_statements</code> reveló un patrón de costo de infraestructura poco intuitivo en despliegues BaaS con muchas tablas suscritas a <code>supabase_realtime</code>:
+          </p>
+          <div class="paper-table-wrap" tabindex="0" role="region" aria-labelledby="es-p18-t4">
+            <table class="paper-table">
+              <caption id="es-p18-t4">Tabla 4 · Telemetría real de <code>pg_stat_statements</code> y salud de índices en staging</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Métrica medida</th>
+                  <th scope="col" class="num">Valor real</th>
+                  <th scope="col">Interpretación operativa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Lecturas WAL + catálogo <code>supabase_realtime</code></th>
+                  <td class="num" data-label="Valor"><code>169,516.1 ms</code> (<code>19,198</code> calls)</td>
+                  <td data-label="Interpretación"><strong>72.9%</strong> del tiempo total de ejecución SQL (<code>232,668.6 ms</code>) y <strong>78.6%</strong> de todas las llamadas (<code>24,411</code>), con media de <code>8.70 ms</code> en el polling WAL sobre <strong>41 tablas</strong> publicadas.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Índices totales vs. sin uso / FKs sin índice</th>
+                  <td class="num" data-label="Valor"><code>238</code> (<code>109</code> sin uso · <code>15</code> FKs)</td>
+                  <td data-label="Interpretación"><code>45.8%</code> de índices sin lecturas en staging (<code>235</code> B-Tree + <code>3</code> GIN) coexistiendo con <code>15</code> llaves foráneas sin índice de cobertura (<code>devices</code>, <code>iot_*</code>, <code>media_items</code>, <code>restaurant_reviews</code>, <code>waiter_reviews</code>, <code>driver_emergencies</code>).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Motor de ranking Marketplace en SQL</th>
+                  <td class="num" data-label="Valor"><code>2</code> RPCs (<code>auto_feature_top_*</code>)</td>
+                  <td data-label="Interpretación">Recalcula puntajes ponderados <code>3·ventas + 1·visitas + 2·autocompras + 1.5·carritos − 5·devoluciones</code> y promociona el Top-N preservando registros curados manualmente (<code>is_manual = true</code>).</td>
+                </tr>
+                <tr>
+                  <th scope="row">Auditoría automática y generador de PIN</th>
+                  <td class="num" data-label="Valor"><code>12</code> triggers (<code>662</code> logs · <code>1.67 MB</code>)</td>
+                  <td data-label="Interpretación"><code>audit_trigger_func</code> serializa snapshots <code>OLD/NEW</code> en JSONB para <code>orders</code>, <code>employees</code>, <code>menu_items</code> e <code>inventory</code> (mayor tabla por volumen en disco). <code>generate_meson_pin()</code> emite códigos <code>M-XXXXXX</code> sin caracteres ambiguos <code>O/I</code> vía 4 triggers.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="protocolo">
+          <h2>6. Protocolo determinista pre-producción (5 puertas verificables)</h2>
+          <p>
+            Antes de incorporar clientes reales (independientemente de la evolución del cliente de escritorio hacia Rust/GPUI), el análisis deriva una lista de salida verificable en CI en 5 puertas binarias:
+          </p>
+          <ol>
+            <li><strong>Puerta 1 — Cero BOLA en <code>pg_policies</code>:</strong> ejecutar el auditor SQL de la Sección 2 exigiendo <code>0</code> filas devueltas en tablas multi-tenant; sustituir <code>USING (true)</code> y <code>auth.uid() IS NOT NULL</code> por validación de membresía por <code>entity_id</code> (vía claim <code>app_metadata</code> o tabla <code>entity_permissions</code> indexada).</li>
+            <li><strong>Puerta 2 — Membresía obligatoria en <code>SECURITY DEFINER</code>:</strong> inyectar verificación <code>auth.uid()</code> + pertenencia a <code>p_entity_id</code> en <code>get_entity_delta</code> y migrar el descuento de stock al contrato v1 endurecido (<code>apply_inventory_stock_dispatch_v1</code> con <code>FOR UPDATE</code> y <code>SHA-256</code>).</li>
+            <li><strong>Puerta 3 — Cierre de Edge Functions:</strong> eliminar <code>migrate-firebase-users</code>, habilitar verificación JWT + comprobación de rol administrador en <code>generate-activation-key</code> y restringir auto-asignación de roles privilegiados en <code>register-user</code>.</li>
+            <li><strong>Puerta 4 — Reconciliación Git ↔ Nube:</strong> capturar el esquema canónico mediante <code>supabase db pull</code> / migraciones declarativas y prohibir cambios ad-hoc fuera de control de versiones.</li>
+            <li><strong>Puerta 5 — Poda de publicación Realtime e índices FK:</strong> reducir <code>supabase_realtime</code> de <code>41</code> tablas a únicamente las tablas con necesidad real de push sub-segundo (<code>orders</code>, <code>kitchen_orders</code>, <code>bar_orders</code>, <code>tables</code>, <code>delivery_orders</code>, <code>chat_messages</code>, <code>call_signals</code>, <code>driver_emergencies</code>) y crear índices en las <code>15</code> FKs descubiertas.</li>
+          </ol>
+        </section>
+
+        <section id="validez">
+          <h2>7. Amenazas a la validez y divulgación responsable</h2>
+          <ul>
+            <li><strong>Entorno pre-producción sin clientes reales:</strong> las <code>56</code> cuentas en <code>auth.users</code>, <code>87</code> órdenes y credenciales de prueba corresponden a un entorno staging interno. Las cifras reflejan arquitectura y configuración reales, no un incidente con datos de terceros.</li>
+            <li><strong>Sesgo de carga baja en <code>pg_stat_statements</code>:</strong> la proporción de <code>72.9%</code> del tiempo SQL atribuible al polling WAL de Realtime se amplifica cuando el volumen OLTP es bajo (<code>87</code> órdenes); en producción con alto tráfico el porcentaje relativo bajaría, aunque el costo base fijo de mantener <code>41</code> tablas en la publicación sigue siendo innecesario.</li>
+            <li><strong>Anonimización deliberada:</strong> se omiten <code>project_ref</code>, direcciones de correo de prueba y literales de configuración sensible; la auditoría se ejecutó con un token de acceso personal de <strong>solo lectura</strong>.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <a class="button button-primary" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">Descargar PDF (EN) ↗</a>
+      <a class="button button-outline" href="/en/lab/meson-baas-rls-telemetry-audit/">Read in English ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-nosql-to-sql/">Paper 11: NoSQL → SQL ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/">Volver al laboratorio ↗</a>
+    </div>
+  </main>
+</Base>

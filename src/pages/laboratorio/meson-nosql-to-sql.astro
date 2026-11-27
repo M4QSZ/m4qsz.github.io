@@ -27,6 +27,7 @@ import Base from '../../layouts/Base.astro';
       <a class="button button-outline" href="/en/lab/meson-nosql-to-sql/">Read full report in English ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/meson-finance-erp/">Paper 5: Finanzas &amp; Fiscal ↗</a>
       <a class="text-link" style="margin-top:0" href="/laboratorio/meson-offline-mesh/">Paper 7: Sync LAN &amp; Mesh ↗</a>
+      <a class="text-link" style="margin-top:0" href="/laboratorio/meson-baas-rls-telemetry-audit/">Paper 18: Auditoría Live RLS &amp; WAL ↗</a>
     </div>
 
     <div class="paper-kpis-wrap">
@@ -146,7 +147,7 @@ import Base from '../../layouts/Base.astro';
           <h2>6. Compromisos arquitectónicos y amenazas a la validez</h2>
           <ul>
             <li><strong>Compromiso deliberado (Sin FKs en proyecciones outbox):</strong> sacrificar llaves foráneas estrictas en tablas alimentadas por outbox evita bloqueos de entrega offline, trasladando la integridad referencial a reconciliadores de dominio y pruebas automatizadas.</li>
-            <li><strong>Evaluación empírica pendiente (<code>[TBD]</code>):</strong> aunque los scripts SQL, políticas RLS y 324 archivos Supabase están en producción en el monorepo (sin trazas de Firestore), no se registraron latencias p50/p95 pareadas ni facturación comparativa Firestore vs. PostgreSQL antes del corte; se documenta como arquitectura verificada en código, no como benchmark A/B de costos.</li>
+            <li><strong>Estado de despliegue Git ↔ Staging (verificado en <a href="/laboratorio/meson-baas-rls-telemetry-audit/">Paper 18</a>):</strong> aunque los 18 scripts SQL endurecidos (Fases 2–3: PN-Counter CRDT, <code>cash_sessions</code>, contrato <code>apply_inventory_stock_dispatch_v1</code> y 59 políticas JWT) y los 324 archivos Supabase están verificados en el monorepo sin trazas de Firestore, una auditoría posterior en vivo sobre la instancia pre-producción (<code>112</code> tablas, <code>59</code> migraciones, <code>411</code> políticas) demostró deriva de despliegue: staging aún opera en Fase 1 (<code>apply_inventory_stock_delta</code>) y tampoco se archivaron benchmarks A/B pareados Firestore vs. PostgreSQL antes del corte.</li>
           </ul>
         </section>
       </div>

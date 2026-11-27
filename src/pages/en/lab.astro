@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import LabPaperFilter from '../../components/LabPaperFilter.astro';
 import { labSamples } from '../../data/labSamples';
 import { publicCrates } from '../../data/profile';
 ---
@@ -26,12 +27,15 @@ import { publicCrates } from '../../data/profile';
       ))}
     </div>
 
-    <div class="lab-section-head">
-      <h2>Research &amp; Papers (17 technical reports · all with PDF)</h2>
-      <span>Bilingual technical reports across Cockpit v2.2 (6), Meson / Systems &amp; Games (8), and certified SAT formal verification in Lean 4 + VeriPB 3.0.2 (3), each with verified test suites and downloadable PDFs</span>
+    <div class="lab-section-head" id="papers-list">
+      <h2>Research &amp; Papers (18 technical reports · all with PDF)</h2>
+      <span>Bilingual technical reports across Cockpit v2.2 (6), Meson / Systems, Security &amp; Games (9), and certified SAT formal verification in Lean 4 + VeriPB 3.0.2 (3), each with verified evidence and downloadable PDFs</span>
     </div>
-    <div class="lab-grid">
-      <article>
+
+    <LabPaperFilter isEnglish={true} totalCount={18} />
+
+    <div class="lab-grid" id="papers-grid">
+      <article data-paper-cat="cockpit" data-paper-tags="paper 1 cockpit rust gpui mcp orchestrator">
         <span class="lab-card-label">Paper 1 · Technical Report v2.2 · Nov 2026</span>
         <h2>Cockpit v2.2: Native Multi-CLI Orchestrator</h2>
         <p>Native Rust + GPUI desktop orchestrator (~78k LOC, 57 runtime modules, 228 tests) and concurrent stdio MCP server unifying Claude Code, Codex CLI, Antigravity, and OpenCode. Measured v1.0 ablation: 94.13% skeleton reduction, 84.94% CLI filter (−85% live via PATH shims), 88.34%–97.31% compaction, 3/3 LoopGuard (0 FP), plus v2.2 runtime expansion.</p>
@@ -43,7 +47,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/en/projects/cockpit/">Case study ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="cockpit" data-paper-tags="paper 2 cockpit zero-vision mcp uia blender roblox unity ffmpeg">
         <span class="lab-card-label">Paper 2 · Technical Report v1.1 · Nov 2026</span>
         <h2>Zero-Vision Desktop, 3D, Unity, Roblox &amp; Video Automation</h2>
         <p>Deterministic zero-vision-token MCP harnesses: Win32 UIA-first (<code>pc_ui_tree</code>/<code>pc_act</code>), Screenshot Diffing (&lt;0.15% unchanged / &lt;65% bbox crop), CPU Blender <code>bpy</code> + S→D Cloud 3D cascade, 14-rule Roblox Luau auditor + BFS, 10-rule Unity C# auditor, and non-destructive FFmpeg cut-lists.</p>
@@ -54,7 +58,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/cockpit-zero-vision.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="cockpit" data-paper-tags="paper 3 cockpit distributed p2p iroh quic tailscale wireguard kotlin">
         <span class="lab-card-label">Paper 3 · Technical Report v1.0 · Nov 2026</span>
         <h2>Local-First Multi-Device Agent Orchestration</h2>
         <p>Local-first network and security stack across Windows PC, Linux laptop, and Android: Hyper <code>/v1/*</code> HMAC-SHA256 API + OTP QR pairing, Iroh QUIC (<code>cockpit/p2p/1</code>), Tailscale Serve, app-scoped userspace WireGuard (<code>wgproxyrs</code>), <code>/offload</code> with <code>sysinfo</code> FIFO Resource Guard, and Kotlin 2.2.20 + ML Kit app.</p>
@@ -65,7 +69,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/cockpit-distributed.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="cockpit" data-paper-tags="paper 4 cockpit math kv-cache bpe markov crdt compression">
         <span class="lab-card-label">Paper 4 · Theoretical Note v0.9 · Nov 2026</span>
         <h2>Algebraic Context Compression &amp; KV-Cache Laws</h2>
         <p>Formal derivations of multi-turn quadratic token cost and the KV-Cache Epoch Step-Function Law (<code>H* = 87</code> turns), speculative turn elimination (<code>τ* = 0.71%</code>), BPE hex fragmentation (<code>P_split = 0.46875</code>), Knaster-Tarski slicing, diagnostic <code>δ-CRDT</code>, absorbing Markov chains, and adaptive group testing.</p>
@@ -76,7 +80,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/cockpit-algebraic-compression.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="meson" data-paper-tags="paper 5 meson finance erp bigint double-entry fiscal seniat">
         <span class="lab-card-label">Paper 5 · Meson Technical Report v1.0 · Nov 2026</span>
         <h2>Offline-First Financial Apps, Double-Entry &amp; Fiscal Hash Chains</h2>
         <p>Mission-critical financial invariants: exact integer cent math via <code>BigInt</code> (<code>maxExact = 2⁵³−1</code>), immutable double-entry ledger, frozen multi-currency FX snapshots, 3-Way AP matching (PO↔GRN↔Invoice), blind Z-Close reconciliation, and SENIAT cryptographic fiscal hash chains.</p>
@@ -87,7 +91,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-finance-erp.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="meson" data-paper-tags="paper 6 meson erp retail rust bom fefo gs1 bogo device hub webrtc">
         <span class="lab-card-label">Paper 6 · Meson Technical Report v1.1 · Nov 2026</span>
         <h2>Modular Multi-Tenant ERP, Rust Retail Engines &amp; Device Hub</h2>
         <p>44 deferred-loaded modules (<code>deferred as</code>), operation-level RBAC, live-verified Rust engines (<code>78/78</code> tests: cycle-safe nested BOMs, FEFO, GS1 weight/price barcodes, BOGO/MultiBuy promotions, KDS CRDT), Atelier HR, anti-clock HMAC licensing, and multi-protocol <code>device_hub</code> (mDNS/BLE, Isar IoT, print failover, RS-232, WebRTC).</p>
@@ -98,7 +102,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-management-erp.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="meson" data-paper-tags="paper 7 meson offline lan sync hlc crdt chacha20 isar wal dtn mesh">
         <span class="lab-card-label">Paper 7 · Meson Technical Report v1.0 · Nov 2026</span>
         <h2>Causal LAN Sync (HLC/CRDT/AEAD) &amp; Opportunistic Courier Mesh</h2>
         <p>Causal consistency during ISP outages: Hybrid Logical Clocks + tombstone LWW-CRDTs with anti-replay <code>ChaCha20-Poly1305</code> framing (<code>lan-delta-sync</code>), Isar WAL idempotency, and a DTN mesh relay where courier smartphones ferry encrypted POS deltas to the cloud.</p>
@@ -109,7 +113,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-offline-mesh.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="meson" data-paper-tags="paper 8 meson rust ffi arena office ooxml 3d isometric gpui qbsdiff">
         <span class="lab-card-label">Paper 8 · Meson Technical Report v1.1 · Nov 2026</span>
         <h2>Generational FFI Arenas, Sparse-Chunked Office &amp; 3D Engines in Rust</h2>
         <p>Panic-safe C-ABI / <code>dart:ffi</code> bridge with <code>u64</code> handles (<code>ffi-arena-bridge</code>, live C99 CI smoke), <code>ChunkedColumn</code> (16,384 rows/chunk, 1M-row stats test) + DAG + native OOXML (<code>.xlsx/.docx/.pptx</code>), isometric 3D projection &amp; Flame 2.5D layout engine, <code>qbsdiff</code>, <code>meson_gpui</code> (15 files), and <code>404/404</code> live Rust tests.</p>
@@ -120,7 +124,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-rust-edge.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="cockpit" data-paper-tags="paper 9 cockpit resilience crash persistence sync_all fingerprinting loopguard">
         <span class="lab-card-label">Paper 9 · Cockpit Technical Report v1.0 · Nov 2026</span>
         <h2>Power-Loss Crash Resilience, Git-Delta Resumption &amp; Fingerprinting</h2>
         <p>Split atomic persistence (<code>workspace_index.json</code> + <code>sessions/&lt;id&gt;.jsonl</code>) with 15s <code>sync_all()</code> durability against hard outages, <code>git status --short</code> delta resumption, CLI <code>interrupted</code> self-healing, and Black-Box Behavioral Fingerprinting (<code>ThinkingLoopGuard</code> + <code>ConsecutiveFailGuard</code> 2× FNV-1a + 7-class taxonomy).</p>
@@ -131,7 +135,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/cockpit-resilience-fingerprinting.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="cockpit" data-paper-tags="paper 10 cockpit rtk path shims telemetry jsonl failover 3d math music">
         <span class="lab-card-label">Paper 10 · Cockpit Technical Report v1.0 · Nov 2026</span>
         <h2>Automatic RTK Interception, Delta Telemetry &amp; $0 Pipelines</h2>
         <p>Claude <code>PreToolUse</code> (<code>updatedInput</code>) + automatic <code>PATH</code> shims (<code>−85.0%</code> live on <code>cargo test</code>), <code>7.4×</code> inflation fix &amp; locked JSONL recovering <code>+2,315</code> <code>&#125;&#123;</code> records, hot Auto-Failover, 4G Relay, 7-provider S→D Cloud 3D, 10-rule Unity C#, 14-rule Roblox &amp; Math/Music Lab.</p>
@@ -142,7 +146,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/cockpit-rtk-telemetry-pipelines.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="meson" data-paper-tags="paper 11 meson nosql sql firestore supabase postgresql rls crdt isar wal">
         <span class="lab-card-label">Paper 11 · Meson Technical Report v1.0 · Nov 2026</span>
         <h2>Production NoSQL (Firestore) → SQL (Supabase/PostgreSQL + Isar WAL)</h2>
         <p>502-file cutover (<code>+35,730 / −11,731</code> lines, <code>0</code> Firestore files left, <code>324</code> Supabase + <code>389</code> Isar): outbox-safe SQL projections without FK deadlocks, partial unique financial indexes, PL/pgSQL PN-Counter CRDT, <code>FOR UPDATE</code> + <code>SHA-256</code> dispatch contract v1, and <code>59</code> multi-tenant RLS policies.</p>
@@ -153,7 +157,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-nosql-to-sql.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="sat" data-paper-tags="paper 12 sat veripb lean 4 arithmetic cnf kissat cryptominisat formal verification">
         <span class="lab-card-label">Paper 12 · Technical Note v0.1 (not peer-reviewed) · Nov 2026</span>
         <h2>Certified Arithmetic Preprocessing for Scrambled CNF</h2>
         <p>Research prototype: extracts arithmetic adders from CNF and emits checkable VeriPB 3.0 proofs. Rules verified in Lean 4 (30 theorems, 0 axioms), 5/5 proofs checked by veripb 3.0.2. Solves 12x12–20x20 multiplier miters where Kissat 4.0.4 and CryptoMiniSat 5 time out at 300 s; loses on small instances (documented).</p>
@@ -165,7 +169,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="sat" data-paper-tags="paper 13 sat veripb lean 4 php tseitin interpolants cadical kissat">
         <span class="lab-card-label">Paper 13 · Technical Note v0.2 (not peer-reviewed) · Nov 2026</span>
         <h2>Blind VeriPB 3.0 Certification for Disjunctive Interpolants (PHP ∨ Tseitin)</h2>
         <p>Blind primal vertex-cut decomposition, guarded Chvátal-Gomory clique induction, and Gocht-Nordström parity logging (<code>MAJ₃</code> <code>red</code>) on scrambled 3-CNF: universal <code>∀n</code> Lean 4.36.0 soundness (17 declarations, <code>0 sorryAx</code>), <code>13/13</code> proofs verified by <code>veripb 3.0.2</code> (up to <code>29,664</code> clauses in <code>3.09 s</code> where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out at 60 s), and <code>4/4</code> SAT controls rejected.</p>
@@ -177,7 +181,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="sat" data-paper-tags="paper 14 sat veripb lean 4 veronese homology goldreich prg reed-muller">
         <span class="lab-card-label">Paper 14 · Technical Note v0.3 (not peer-reviewed) · Nov 2026</span>
         <h2>Blind Degree-2 Veronese &amp; F₂-Homological VeriPB 3.0 Certification for Goldreich PRGs</h2>
         <p>Blind degree-2 Veronese <code>RM(2, n)</code> &amp; <code>F₂</code>-simplicial homology calculus (<code>K₄</code> 2-cycles with <code>∂² = 0</code> and zero gate collisions) for cut-free single-expander Goldreich PRGs (<code>TSA</code> &amp; <code>XOR₃-MAJ₃</code>, <code>|S| = 0</code>) and hybrids (up to <code>41,160</code> clauses): 14 Lean 4.36.0 theorems (<code>0 sorryAx</code>, including the mechanical <code>RM(2, 6)</code> barrier on <code>XOR-MAJ₅</code>), <code>13/13</code> <code>veripb 3.0.2</code> proofs where Kissat 4.0.4, CaDiCaL 1.9.5, and CryptoMiniSat 5 time out at 60 s from <code>V ≥ 48</code>, and <code>4/4</code> SAT controls rejected.</p>
@@ -189,7 +193,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="https://github.com/M4QSZ/certified-arith-preproc" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="ai-games" data-paper-tags="paper 15 meson edge nlu ai rust platt sif onnx candle whisper flutter automation">
         <span class="lab-card-label">Paper 15 · Meson Technical Report v1.0 · Nov 2026</span>
         <h2>Self-Calibrating Edge NLU (Platt, SIF, ONNX) &amp; Flutter UI Automation</h2>
         <p>Zero-LLM Rust NLU engine (<code>crates/meson_ai</code>: 153 files, 16,006 LOC, <code>300/300</code> live tests): per-intent online Platt scaling from FP/FN feedback, 128d PC1-removed SIF embeddings, adaptive-RAM <code>tract-onnx</code> unloading, Spanish phonetics, <code>catch_unwind</code> circuit breakers, Flutter <code>AutomationEngine</code>, and documented pivot from in-process Candle (<code>Qwen2.5</code> GGUF + Whisper) for legacy POS hardware.</p>
@@ -200,7 +204,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/papers/meson-edge-nlu-automation.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="ai-games" data-paper-tags="paper 16 brasas game unity c# flutter canvas roblox luau 2d mesh rig qa">
         <span class="lab-card-label">Paper 16 · Game Engineering Report v1.0 · Nov 2026</span>
         <h2>Decoupled Game Simulation, 2D Mesh Rigging &amp; Multi-Runtime QA (Brasas)</h2>
         <p>One game across Flutter Canvas (21.1k LOC), Unity 6.3 LTS (engine-free C# <code>Core/</code>, 40 XML test logs with <code>0</code> failures up to <code>142</code> EditMode + <code>8</code> PlayMode), and Roblox Luau (2.3k LOC): <code>1,353</code>-vertex 13-control <code>LiaControlRig</code>, 10,000-seed shrine pact checks, and 30 fps MP4 temporal diff review with a documented negative result.</p>
@@ -212,7 +216,7 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/en/projects/brasas/">Case ↗</a>
         </div>
       </article>
-      <article>
+      <article data-paper-cat="ai-games" data-paper-tags="paper 17 axion mouse raw input rust huber irls so2 jensen telemetry biomechanics">
         <span class="lab-card-label">Paper 17 · Systems &amp; Math Report v1.0 · Nov 2026</span>
         <h2>Preconditioned Biomechanical Trajectory Estimation, Huber IRLS &amp; Raw Input</h2>
         <p><em>Axion Mouse Lab</em> in native Rust (7,075 LOC, <code>39/41</code> live tests with 100% math passing and 2 lint/copy failures transparently reported): exact <code>SO(2)</code> LUT + FMA, 64-point arc resampling, parabolic vs. linear slant separation, IRLS Huber M-estimator (12-swipe lock gate), Jensen-immune <code>PollingAnalyzer&lt;64&gt;</code> (<code>1/E[Δt]</code>), and CRC-32 interlock.</p>
@@ -221,6 +225,17 @@ import { publicCrates } from '../../data/profile';
           <a class="text-link" style="margin-top:0" href="/en/lab/axion-biomechanical-input-telemetry/">Read paper (EN) ↗</a>
           <a class="text-link" style="margin-top:0" href="/laboratorio/axion-biomechanical-input-telemetry/">Español ↗</a>
           <a class="text-link" style="margin-top:0" href="/papers/axion-biomechanical-input-telemetry.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
+        </div>
+      </article>
+      <article data-paper-cat="meson" data-paper-tags="paper 18 meson supabase postgresql rls bola security linter realtime wal pg_stat_statements edge functions audit">
+        <span class="lab-card-label">Paper 18 · Meson Security &amp; DB Report v1.0 · Nov 2026</span>
+        <h2>The Green-Linter Illusion in Multi-Tenant BaaS (112-Table RLS &amp; Realtime WAL Audit)</h2>
+        <p>Read-only pre-production audit of Meson's live PostgreSQL 17.11 / Supabase backend (<code>112</code> tables, <code>59</code> migrations, <code>411</code> RLS policies, <code>238</code> indexes, <code>3</code> Edge Functions): <code>0</code> critical Advisor errors alongside <code>399/411</code> (<code>97.1%</code>) BOLA policies, Git-to-staging drift vs. Paper 11, <code>SECURITY DEFINER</code> trust boundaries, and <code>72.9%</code> SQL time (<code>169.5 s</code>) consumed by <code>41</code> Realtime tables.</p>
+        <p class="lab-stack-line">PostgreSQL 17 · Supabase RLS (411) · BOLA Auditor · pg_stat_statements · Realtime WAL · 5-Gate CI</p>
+        <div class="lab-links">
+          <a class="text-link" style="margin-top:0" href="/en/lab/meson-baas-rls-telemetry-audit/">Read paper (EN) ↗</a>
+          <a class="text-link" style="margin-top:0" href="/laboratorio/meson-baas-rls-telemetry-audit/">Español ↗</a>
+          <a class="text-link" style="margin-top:0" href="/papers/meson-baas-rls-telemetry-audit.pdf" target="_blank" rel="noopener noreferrer">PDF ↗</a>
         </div>
       </article>
     </div>
@@ -243,6 +258,6 @@ import { publicCrates } from '../../data/profile';
         </article>
       ))}
     </div>
-    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 17 bilingual technical reports with PDFs: 6 on AI/MCP orchestration (Cockpit), 8 on systems, ERP, edge NLU, game engineering, and input telemetry (Meson/Brasas/Axion; 404/404 live Rust tests + 142+8 Unity tests verified), and 3 certified SAT research notes with VeriPB 3.0.2 proofs and 61 Lean 4 theorems (30 + 17 + 14 declarations, 0 sorryAx), with limitations and negative results explicitly documented.</p></div>
+    <div class="lab-note"><strong>What this lab shows</strong><p>Alongside Meson architecture previews and live web deployments, these standalone repositories expose inspectable Rust, C99 shared-library FFI, Dart outbox/bindings, x64 Assembly, C++, PHP and Swift implementations with reproducible verification commands. It also includes 18 bilingual technical reports with PDFs: 6 on AI/MCP orchestration (Cockpit), 9 on systems, ERP, BaaS security/RLS telemetry, edge NLU, game engineering, and input telemetry (Meson/Brasas/Axion; 404/404 live Rust tests + 142+8 Unity tests verified), and 3 certified SAT research notes with VeriPB 3.0.2 proofs and 61 Lean 4 theorems (30 + 17 + 14 declarations, 0 sorryAx), with limitations and negative results explicitly documented.</p></div>
   </main>
 </Base>
